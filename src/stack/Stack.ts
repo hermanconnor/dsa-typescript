@@ -36,6 +36,13 @@ class Stack<T> {
   }
 
   /**
+   * Removes all items from the stack.
+   */
+  clear(): void {
+    this.items = [];
+  }
+
+  /**
    * Returns the number of items currently in the stack.
    * @returns The number of items in the stack.
    */
@@ -49,13 +56,6 @@ class Stack<T> {
    */
   get isEmpty(): boolean {
     return this.items.length === 0;
-  }
-
-  /**
-   * Removes all items from the stack.
-   */
-  clear(): void {
-    this.items = [];
   }
 }
 
