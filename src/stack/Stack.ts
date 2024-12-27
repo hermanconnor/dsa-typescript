@@ -9,7 +9,7 @@ class Stack<T> {
    * Pushes a new item onto the top of the stack.
    * @param item The item to be pushed onto the stack.
    */
-  public push(item: T): void {
+  push(item: T): void {
     this.items.push(item);
   }
 
@@ -18,7 +18,11 @@ class Stack<T> {
    * @returns The item removed from the top of the stack,
    *          or undefined if the stack is empty.
    */
-  public pop(): T | undefined {
+  pop(): T | undefined {
+    if (this.isEmpty) {
+      throw new Error('Stack is empty');
+    }
+
     return this.items.pop();
   }
 
@@ -27,7 +31,7 @@ class Stack<T> {
    * @returns The item at the top of the stack,
    *          or undefined if the stack is empty.
    */
-  public peek(): T | undefined {
+  peek(): T | undefined {
     return this.items[this.items.length - 1];
   }
 
@@ -35,7 +39,7 @@ class Stack<T> {
    * Returns the number of items currently in the stack.
    * @returns The number of items in the stack.
    */
-  public size(): number {
+  get size(): number {
     return this.items.length;
   }
 
@@ -43,14 +47,14 @@ class Stack<T> {
    * Checks if the stack is empty.
    * @returns True if the stack is empty, false otherwise.
    */
-  public isEmpty(): boolean {
+  get isEmpty(): boolean {
     return this.items.length === 0;
   }
 
   /**
    * Removes all items from the stack.
    */
-  public clear(): void {
+  clear(): void {
     this.items = [];
   }
 }

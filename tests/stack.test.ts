@@ -9,8 +9,8 @@ describe('Stack', () => {
   });
 
   it('should initially be empty', () => {
-    expect(stack.isEmpty()).toBe(true);
-    expect(stack.size()).toBe(0);
+    expect(stack.isEmpty).toBe(true);
+    expect(stack.size).toBe(0);
   });
 
   it('push should add an item onto the stack', () => {
@@ -18,7 +18,7 @@ describe('Stack', () => {
     stack.push(20);
     stack.push(30);
 
-    expect(stack.size()).toBe(3);
+    expect(stack.size).toBe(3);
     expect(stack.peek()).toBe(30);
   });
 
@@ -30,7 +30,7 @@ describe('Stack', () => {
     const poppedItem = stack.pop();
 
     expect(poppedItem).toBe(30);
-    expect(stack.size()).toBe(2);
+    expect(stack.size).toBe(2);
   });
 
   it('pop should return undefined if the stack is empty', () => {
