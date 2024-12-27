@@ -22,6 +22,10 @@ describe('Stack', () => {
     expect(stack.peek()).toBe(30);
   });
 
+  it('pop should throw an error if the stack is empty', () => {
+    expect(() => stack.pop()).toThrow(/empty/i);
+  });
+
   it('pop should remove and return the top item in the stack', () => {
     stack.push(10);
     stack.push(20);
@@ -31,9 +35,5 @@ describe('Stack', () => {
 
     expect(poppedItem).toBe(30);
     expect(stack.size).toBe(2);
-  });
-
-  it('pop should return undefined if the stack is empty', () => {
-    expect(stack.pop()).toBeUndefined();
   });
 });
