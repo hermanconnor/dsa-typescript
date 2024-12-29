@@ -52,11 +52,31 @@ describe('Stack', () => {
     expect(stack.size).toBe(3);
   });
 
+  it('clear should remove all items from the stack', () => {
+    stack.push(10);
+    stack.push(20);
+    stack.push(30);
+
+    stack.clear();
+
+    expect(stack.size).toBe(0);
+  });
+
   it('size should return the number of items in the stack', () => {
     stack.push(10);
     stack.push(20);
     stack.push(30);
 
     expect(stack.size).toBe(3);
+  });
+
+  it('isEmpty should return true if stack is empty', () => {
+    expect(stack.isEmpty).toBe(true);
+  });
+
+  it('isEmpty should return false if stack is not empty', () => {
+    stack.push(10);
+
+    expect(stack.isEmpty).toBe(false);
   });
 });
