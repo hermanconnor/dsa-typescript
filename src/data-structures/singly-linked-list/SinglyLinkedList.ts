@@ -11,7 +11,7 @@ class SinglyLinkedList<T> {
     this.length = 0;
   }
 
-  insertFirst(value: T): void {
+  unshift(value: T): void {
     const newNode = new ListNode(value);
 
     if (!this.head) {
@@ -24,7 +24,7 @@ class SinglyLinkedList<T> {
     this.length++;
   }
 
-  insertLast(value: T): void {
+  push(value: T): void {
     const newNode = new ListNode(value);
 
     if (!this.tail) {
@@ -36,6 +36,46 @@ class SinglyLinkedList<T> {
     }
 
     this.length++;
+  }
+
+  shift(): ListNode<T> | null {
+    if (!this.head) return null;
+
+    const removedNode = this.head;
+    this.head = this.head.next;
+    removedNode.next = null;
+
+    if (!this.head) {
+      this.tail = null;
+    }
+
+    this.length--;
+
+    return removedNode;
+  }
+
+  pop(): ListNode<T> | null {
+    if (!this.head) return null;
+
+    if (this.head === this.tail) {
+      const removedNode = this.head;
+      this.head = null;
+      this.tail = null;
+      this.length--;
+      return removedNode;
+    }
+
+    let current = this.head;
+    while (current.next && current.next !== this.tail) {
+      current = current.next;
+    }
+
+    const removedNode = this.tail;
+    this.tail = current;
+    this.tail.next = null;
+    this.length--;
+
+    return removedNode;
   }
 }
 
