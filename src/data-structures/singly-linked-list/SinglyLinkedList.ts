@@ -78,6 +78,30 @@ class SinglyLinkedList<T> {
     return removedNode;
   }
 
+  insertAt(index: number, value: T): boolean {
+    if (index < 0 || index > this.length) return false;
+
+    if (index === 0) {
+      this.unshift(value);
+      return true;
+    }
+
+    if (index === this.length) {
+      this.push(value);
+      return true;
+    }
+
+    const newNode = new ListNode(value);
+    const prevNode = this.getNodeAt(index - 1);
+
+    if (!prevNode) return false;
+
+    prevNode.next = newNode;
+    newNode.next = prevNode.next;
+    this.length++;
+    return true;
+  }
+
   getNodeAt(index: number): ListNode<T> | null {
     if (index < 0 || index >= this.length) return null;
     if (index === 0) return this.getHead();
@@ -98,6 +122,20 @@ class SinglyLinkedList<T> {
 
   getTail(): ListNode<T> | null {
     return this.tail;
+  }
+
+  clear(): void {
+    this.head = null;
+    this.tail = null;
+    this.length = 0;
+  }
+
+  get isEmpty(): boolean {
+    return this.length === 0;
+  }
+
+  get size(): number {
+    return this.length;
   }
 }
 
