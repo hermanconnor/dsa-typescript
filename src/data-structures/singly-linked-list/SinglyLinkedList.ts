@@ -77,6 +77,28 @@ class SinglyLinkedList<T> {
 
     return removedNode;
   }
+
+  getNodeAt(index: number): ListNode<T> | null {
+    if (index < 0 || index >= this.length) return null;
+    if (index === 0) return this.getHead();
+    if (index === this.length - 1) return this.getTail();
+
+    let current = this.head;
+
+    for (let i = 0; i < index && current; i++) {
+      current = current.next;
+    }
+
+    return current;
+  }
+
+  getHead(): ListNode<T> | null {
+    return this.head;
+  }
+
+  getTail(): ListNode<T> | null {
+    return this.tail;
+  }
 }
 
 export default SinglyLinkedList;
