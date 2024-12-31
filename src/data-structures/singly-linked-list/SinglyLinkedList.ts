@@ -78,7 +78,7 @@ class SinglyLinkedList<T> {
     return removedNode;
   }
 
-  insertAt(index: number, value: T): boolean {
+  insertNodeAt(index: number, value: T): boolean {
     if (index < 0 || index > this.length) return false;
 
     if (index === 0) {
@@ -99,6 +99,34 @@ class SinglyLinkedList<T> {
     prevNode.next = newNode;
     newNode.next = prevNode.next;
     this.length++;
+    return true;
+  }
+
+  removeNodeAt(index: number): ListNode<T> | null {
+    if (index < 0 || index >= this.length) return null;
+    if (index === 0) return this.shift();
+    if (index === this.length - 1) return this.pop();
+
+    const prevNode = this.getNodeAt(index - 1);
+
+    if (prevNode && prevNode.next) {
+      const removedNode = prevNode.next;
+
+      prevNode.next = removedNode.next;
+      removedNode.next = null;
+      this.length--;
+      return removedNode;
+    }
+
+    return null;
+  }
+
+  setNodeAt(index: number, value: T): boolean {
+    const node = this.getNodeAt(index);
+
+    if (!node) return false;
+
+    node.value = value;
     return true;
   }
 
