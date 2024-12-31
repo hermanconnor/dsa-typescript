@@ -158,12 +158,42 @@ class SinglyLinkedList<T> {
     this.length = 0;
   }
 
+  contains(value: T): boolean {
+    let current = this.head;
+
+    while (current) {
+      if (current.value === value) {
+        return true;
+      }
+
+      current = current.next;
+    }
+
+    return false;
+  }
+
   get isEmpty(): boolean {
     return this.length === 0;
   }
 
   get size(): number {
     return this.length;
+  }
+
+  printList(): string {
+    if (this.isEmpty) return '';
+
+    const list: (T | string)[] = [];
+
+    let current = this.head;
+
+    while (current) {
+      list.push(current.value);
+      current = current.next;
+    }
+
+    list.push('null');
+    return list.join(' → ');
   }
 }
 
