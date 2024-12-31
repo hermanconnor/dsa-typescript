@@ -158,6 +158,24 @@ class SinglyLinkedList<T> {
     this.length = 0;
   }
 
+  reverse(): void {
+    if (!this.head || !this.head.next) return;
+
+    let prev: ListNode<T> | null = null;
+    let next: ListNode<T> | null = null;
+    let current: ListNode<T> | null = this.head;
+    this.tail = current;
+
+    while (current) {
+      next = current.next;
+      current.next = prev;
+      prev = current;
+      current = next;
+    }
+
+    this.head = prev;
+  }
+
   contains(value: T): boolean {
     let current = this.head;
 
@@ -172,6 +190,24 @@ class SinglyLinkedList<T> {
     return false;
   }
 
+  indexOf(value: T): number {
+    if (this.isEmpty) return -1;
+
+    let current = this.head;
+    let index = 0;
+
+    while (current) {
+      if (current.value === value) {
+        return index;
+      }
+
+      index++;
+      current = current.next;
+    }
+
+    return -1;
+  }
+
   get isEmpty(): boolean {
     return this.length === 0;
   }
@@ -180,8 +216,8 @@ class SinglyLinkedList<T> {
     return this.length;
   }
 
-  printList(): string {
-    if (this.isEmpty) return '';
+  printList(): void {
+    if (this.isEmpty) return console.log('');
 
     const list: (T | string)[] = [];
 
@@ -193,7 +229,7 @@ class SinglyLinkedList<T> {
     }
 
     list.push('null');
-    return list.join(' → ');
+    console.log(list.join(' → '));
   }
 }
 
