@@ -152,6 +152,63 @@ class SinglyLinkedList<T> {
     return this.tail;
   }
 
+  deleteHead(): void {
+    if (!this.head) return;
+
+    this.head = this.head.next;
+
+    if (!this.head) {
+      this.tail = null;
+    }
+
+    this.length--;
+  }
+
+  deleteTail(): void {
+    if (!this.head) return;
+
+    if (this.head === this.tail) {
+      this.head = null;
+      this.tail = null;
+      return;
+    }
+
+    let current = this.head;
+    while (current.next && current.next.next) {
+      current = current.next;
+    }
+
+    current.next = null;
+    this.tail = current;
+    this.length--;
+  }
+
+  deleteAt(index: number): boolean {
+    if (index < 0 || index >= this.length) return false;
+
+    if (index === 0) {
+      this.deleteHead();
+      return true;
+    }
+
+    if (index === this.length - 1) {
+      this.deleteTail();
+      return true;
+    }
+
+    const prevNode = this.getNodeAt(index - 1);
+
+    if (prevNode && prevNode.next) {
+      const nodeToDelete = prevNode.next;
+      prevNode.next = nodeToDelete.next;
+
+      this.length--;
+      return true;
+    }
+
+    return false;
+  }
+
   clear(): void {
     this.head = null;
     this.tail = null;
