@@ -28,6 +28,7 @@ This project aims to provide a collection of commonly used data structures and a
 The following data structures are implemented:
 
 - **Stacks**
+- **Singly Linked List**
 
 ## Algorithms
 
