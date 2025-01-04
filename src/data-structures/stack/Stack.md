@@ -20,3 +20,7 @@ A **stack** is a linear data structure that follows the **Last In, First Out (LI
 - **peek()**: O(1) – Viewing the top element takes constant time.
 - **isEmpty()**: O(1) – Checking if the stack is empty is constant time.
 - **size()**: O(1) – Checking the size of the stack is constant time.
+
+## **Stack with Linked List**
+
+Typically, a stack is implemented using an array because arrays provide a contiguous block of memory, which can be accessed efficiently by index. However, a stack can also be implemented using linked list.
