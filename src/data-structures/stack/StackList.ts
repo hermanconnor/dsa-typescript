@@ -16,6 +16,19 @@ class StackList<T> {
     this.top = newNode;
     this.length++;
   }
+
+  clear(): void {
+    this.top = null;
+    this.length = 0;
+  }
+
+  get size(): number {
+    return this.length;
+  }
+
+  get isEmpty(): boolean {
+    return this.length === 0;
+  }
 }
 
 export default StackList;
