@@ -17,6 +17,23 @@ class StackList<T> {
     this.length++;
   }
 
+  pop(): T | undefined {
+    if (this.isEmpty) {
+      throw new Error('Stack is empty');
+    }
+
+    const poppedNode = this.top;
+
+    this.top = this.top?.next ?? null;
+    this.length--;
+
+    return poppedNode?.value;
+  }
+
+  peek(): T | undefined {
+    return this.top ? this.top.value : undefined;
+  }
+
   clear(): void {
     this.top = null;
     this.length = 0;
