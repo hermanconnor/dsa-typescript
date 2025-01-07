@@ -274,7 +274,10 @@ class SinglyLinkedList<T> {
   }
 
   printList(): void {
-    if (this.isEmpty) return console.log('');
+    if (this.isEmpty) {
+      console.log('');
+      return;
+    }
 
     const list: (T | string)[] = [];
 
