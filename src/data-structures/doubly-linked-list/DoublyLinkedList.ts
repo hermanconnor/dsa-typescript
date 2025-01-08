@@ -11,6 +11,20 @@ class DoublyLinkedList<T> {
     this.length = 0;
   }
 
+  push(value: T): void {
+    const newNode = new DLLNode(value);
+
+    if (this.head) {
+      this.tail!.next = newNode;
+      newNode.prev = this.tail;
+    } else {
+      this.head = newNode;
+    }
+
+    this.tail = newNode;
+    this.length++;
+  }
+
   getHead(): DLLNode<T> | null {
     return this.head;
   }

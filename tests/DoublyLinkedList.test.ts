@@ -12,4 +12,58 @@ describe('DoublyLinkedList', () => {
     expect(list.isEmpty).toBe(true);
     expect(list.size).toBe(0);
   });
+
+  it('push should add a node to the end of the list', () => {
+    list.push(10);
+    list.push(20);
+
+    expect(list.size).toBe(2);
+    expect(list.getHead()?.value).toBe(10);
+    expect(list.getTail()?.value).toBe(20);
+  });
+
+  it('getHead should return the first node in the list', () => {
+    list.push(10);
+    list.push(20);
+
+    expect(list.size).toBe(2);
+    expect(list.getHead()?.value).toBe(10);
+  });
+
+  it('getTail should return the last node in the list', () => {
+    list.push(10);
+    list.push(20);
+
+    expect(list.size).toBe(2);
+    expect(list.getTail()?.value).toBe(20);
+  });
+
+  it('clear should remove all items from the list', () => {
+    list.push(10);
+    list.push(20);
+    list.clear();
+
+    expect(list.isEmpty).toBe(true);
+    expect(list.size).toBe(0);
+    expect(list.getHead()).toBeNull();
+    expect(list.getTail()).toBeNull();
+  });
+
+  it('size should return the length of the list', () => {
+    list.push(10);
+    list.push(20);
+
+    expect(list.size).toBe(2);
+  });
+
+  it('isEmpty should return true if list is empty', () => {
+    expect(list.isEmpty).toBe(true);
+  });
+
+  it('isEmpty should return false if list is not empty', () => {
+    list.push(10);
+
+    expect(list.size).toBe(1);
+    expect(list.isEmpty).toBe(false);
+  });
 });
