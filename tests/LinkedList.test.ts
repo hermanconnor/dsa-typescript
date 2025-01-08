@@ -5,7 +5,7 @@ describe('Singly Linked List', () => {
   let list: SinglyLinkedList<number>;
 
   beforeEach(() => {
-    list = new SinglyLinkedList<number>();
+    list = new SinglyLinkedList();
   });
 
   it('should initially be empty', () => {
