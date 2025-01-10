@@ -25,6 +25,26 @@ class DoublyLinkedList<T> {
     this.length++;
   }
 
+  pop(): T | null {
+    if (this.length === 0) return null;
+
+    const removedNode = this.tail!;
+
+    if (this.tail) {
+      this.tail = this.tail.prev;
+
+      if (this.tail) {
+        this.tail.next = null;
+      } else {
+        this.head = null;
+      }
+    }
+
+    this.length--;
+
+    return removedNode ? removedNode.value : null;
+  }
+
   getHead(): DLLNode<T> | null {
     return this.head;
   }
@@ -45,6 +65,25 @@ class DoublyLinkedList<T> {
 
   get size(): number {
     return this.length;
+  }
+
+  public printList(): void {
+    if (this.isEmpty) {
+      console.log('');
+      return;
+    }
+
+    const values: (T | string)[] = [];
+
+    let current = this.head;
+    while (current) {
+      values.push(current.value);
+      current = current.next;
+    }
+
+    values.push('null');
+
+    console.log(values.join(' → '));
   }
 }
 
