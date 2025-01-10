@@ -22,6 +22,21 @@ describe('DoublyLinkedList', () => {
     expect(list.getTail()?.value).toBe(20);
   });
 
+  it('pop should return null if the list is empty', () => {
+    expect(list.pop()).toBeNull();
+  });
+
+  it('pop should remove the last node in the list and return the value', () => {
+    list.push(10);
+    list.push(20);
+
+    const poppedValue = list.pop();
+
+    expect(poppedValue).toBe(20);
+    expect(list.size).toBe(1);
+    expect(list.getTail()?.value).toBe(10);
+  });
+
   it('getHead should return the first node in the list', () => {
     list.push(10);
     list.push(20);
