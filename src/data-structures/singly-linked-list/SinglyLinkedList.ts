@@ -38,7 +38,7 @@ class SinglyLinkedList<T> {
     this.length++;
   }
 
-  shift(): ListNode<T> | null {
+  shift(): T | null {
     if (!this.head) return null;
 
     const removedNode = this.head;
@@ -51,10 +51,10 @@ class SinglyLinkedList<T> {
 
     this.length--;
 
-    return removedNode;
+    return removedNode.value;
   }
 
-  pop(): ListNode<T> | null {
+  pop(): T | null {
     if (!this.head) return null;
 
     if (this.head === this.tail) {
@@ -62,7 +62,7 @@ class SinglyLinkedList<T> {
       this.head = null;
       this.tail = null;
       this.length--;
-      return removedNode;
+      return removedNode.value;
     }
 
     let current = this.head;
@@ -75,7 +75,7 @@ class SinglyLinkedList<T> {
     this.tail.next = null;
     this.length--;
 
-    return removedNode;
+    return removedNode ? removedNode.value : null;
   }
 
   insertNodeAt(index: number, value: T): boolean {
@@ -102,7 +102,7 @@ class SinglyLinkedList<T> {
     return true;
   }
 
-  removeNodeAt(index: number): ListNode<T> | null {
+  removeNodeAt(index: number): T | null {
     if (index < 0 || index >= this.length) return null;
     if (index === 0) return this.shift();
     if (index === this.length - 1) return this.pop();
@@ -115,7 +115,7 @@ class SinglyLinkedList<T> {
       prevNode.next = removedNode.next;
       removedNode.next = null;
       this.length--;
-      return removedNode;
+      return removedNode.value;
     }
 
     return null;

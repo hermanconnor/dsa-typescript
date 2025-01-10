@@ -26,14 +26,14 @@ describe('Singly Linked List', () => {
     expect(list.pop()).toBeNull();
   });
 
-  it('pop should remove and return the last node in the list', () => {
+  it('pop should remove and return the value of the last node in the list', () => {
     list.push(10);
     list.push(20);
     list.push(30);
 
-    const poppedNode = list.pop();
+    const poppedValue = list.pop();
 
-    expect(poppedNode?.value).toBe(30);
+    expect(poppedValue).toBe(30);
     expect(list.size).toBe(2);
     expect(list.getTail()?.value).toBe(20);
   });
@@ -52,13 +52,13 @@ describe('Singly Linked List', () => {
     expect(list.shift()).toBeNull();
   });
 
-  it('shift should remove and return the first node in the list', () => {
+  it('shift should remove and return the value of the first node in the list', () => {
     list.push(10);
     list.push(20);
 
     const removedNode = list.shift();
 
-    expect(removedNode?.value).toBe(10);
+    expect(removedNode).toBe(10);
     expect(list.size).toBe(1);
     expect(list.getHead()?.value).toBe(20);
   });
@@ -69,14 +69,14 @@ describe('Singly Linked List', () => {
     expect(list.removeNodeAt(5)).toBeNull();
   });
 
-  it('removeNodeAt should remove and return the node at a specific index', () => {
+  it('removeNodeAt should remove and return the value of the node at a specific index', () => {
     list.push(10);
     list.push(20);
     list.push(30);
 
     const removedNode = list.removeNodeAt(1);
 
-    expect(removedNode?.value).toBe(20);
+    expect(removedNode).toBe(20);
     expect(list.size).toBe(2);
   });
 
