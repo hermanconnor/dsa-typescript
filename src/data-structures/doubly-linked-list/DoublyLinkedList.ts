@@ -28,10 +28,10 @@ class DoublyLinkedList<T> {
   pop(): T | null {
     if (this.length === 0) return null;
 
-    const removedNode = this.tail!;
+    const removedNode = this.tail;
 
-    if (this.tail) {
-      this.tail = this.tail.prev;
+    if (removedNode) {
+      this.tail = removedNode.prev;
 
       if (this.tail) {
         this.tail.next = null;
