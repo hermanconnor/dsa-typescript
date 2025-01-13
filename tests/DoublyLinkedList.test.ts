@@ -37,6 +37,15 @@ describe('DoublyLinkedList', () => {
     expect(list.getTail()?.value).toBe(10);
   });
 
+  it('unshift should add a node to the beginning of the list', () => {
+    list.push(20);
+    list.unshift(10);
+
+    expect(list.size).toBe(2);
+    expect(list.getHead()?.value).toBe(10);
+    expect(list.getTail()?.value).toBe(20);
+  });
+
   it('getHead should return the first node in the list', () => {
     list.push(10);
     list.push(20);

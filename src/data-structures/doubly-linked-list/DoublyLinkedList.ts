@@ -45,6 +45,21 @@ class DoublyLinkedList<T> {
     return removedNode ? removedNode.value : null;
   }
 
+  unshift(value: T): void {
+    const newNode = new DLLNode(value);
+
+    if (this.length === 0) {
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      newNode.next = this.head;
+      this.head!.prev = newNode;
+      this.head = newNode;
+    }
+
+    this.length++;
+  }
+
   getHead(): DLLNode<T> | null {
     return this.head;
   }
