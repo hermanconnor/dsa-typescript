@@ -46,6 +46,21 @@ describe('DoublyLinkedList', () => {
     expect(list.getTail()?.value).toBe(20);
   });
 
+  it('shift should return null if the list is empty', () => {
+    expect(list.shift()).toBeNull();
+  });
+
+  it('shift should remove the first node in the list and return the value', () => {
+    list.push(10);
+    list.push(20);
+
+    const removedNode = list.shift();
+
+    expect(removedNode).toBe(10);
+    expect(list.size).toBe(1);
+    expect(list.getHead()?.value).toBe(20);
+  });
+
   it('getHead should return the first node in the list', () => {
     list.push(10);
     list.push(20);

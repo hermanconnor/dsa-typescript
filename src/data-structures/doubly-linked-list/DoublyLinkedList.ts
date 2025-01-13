@@ -60,6 +60,27 @@ class DoublyLinkedList<T> {
     this.length++;
   }
 
+  shift(): T | null {
+    if (!this.head) return null;
+
+    const removedNode = this.head;
+    this.head = this.head.next;
+
+    if (this.head) {
+      this.head.prev = null;
+    }
+
+    removedNode.next = null;
+
+    if (!this.head) {
+      this.tail = null;
+    }
+
+    this.length--;
+
+    return removedNode.value;
+  }
+
   getHead(): DLLNode<T> | null {
     return this.head;
   }
