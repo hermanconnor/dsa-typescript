@@ -61,6 +61,39 @@ describe('DoublyLinkedList', () => {
     expect(list.getHead()?.value).toBe(20);
   });
 
+  it('insertNodeAt should not insert a node at an invalid index', () => {
+    const inserted = list.insertNodeAt(1, 10);
+
+    expect(inserted).toBe(false);
+  });
+
+  it('insertNodeAt should insert a node at a specific index', () => {
+    list.push(10);
+    list.push(30);
+
+    const inserted = list.insertNodeAt(1, 20);
+
+    expect(inserted).toBe(true);
+    expect(list.size).toBe(3);
+    expect(list.getNodeAt(1)?.value).toBe(20);
+  });
+
+  it('getNodeAt should return null if the index is invalid', () => {
+    list.push(10);
+
+    expect(list.getNodeAt(5)).toBeNull();
+  });
+
+  it('getNodeAt should return the node at the specific index', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    expect(list.getNodeAt(0)?.value).toBe(10);
+    expect(list.getNodeAt(2)?.value).toBe(30);
+    expect(list.getNodeAt(1)?.value).toBe(20);
+  });
+
   it('getHead should return the first node in the list', () => {
     list.push(10);
     list.push(20);

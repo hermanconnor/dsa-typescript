@@ -81,6 +81,66 @@ class DoublyLinkedList<T> {
     return removedNode.value;
   }
 
+  insertNodeAt(index: number, value: T): boolean {
+    if (index < 0 || index > this.length) return false;
+
+    if (index === 0) {
+      this.unshift(value);
+      return true;
+    }
+
+    if (index === this.length) {
+      this.push(value);
+      return true;
+    }
+
+    const newNode = new DLLNode(value);
+    const prevNode = this.getNodeAt(index - 1);
+
+    if (!prevNode) return false;
+
+    const afterNode = prevNode.next;
+
+    prevNode.next = newNode;
+    newNode.prev = prevNode;
+    newNode.next = afterNode;
+
+    if (afterNode) {
+      afterNode.prev = newNode;
+    }
+
+    this.length++;
+    return true;
+  }
+
+  getNodeAt(index: number): DLLNode<T> | null {
+    if (index < 0 || index >= this.length) return null;
+    if (index === 0) return this.getHead();
+    if (index === this.length - 1) return this.getTail();
+
+    let temp: DLLNode<T> | null;
+
+    if (index < this.length / 2) {
+      temp = this.head;
+
+      for (let i = 0; i < index; i++) {
+        if (temp) {
+          temp = temp.next;
+        }
+      }
+    } else {
+      temp = this.tail;
+
+      for (let i = this.length - 1; i > index; i--) {
+        if (temp) {
+          temp = temp.prev;
+        }
+      }
+    }
+
+    return temp;
+  }
+
   getHead(): DLLNode<T> | null {
     return this.head;
   }
