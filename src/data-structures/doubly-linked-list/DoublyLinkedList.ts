@@ -113,6 +113,44 @@ class DoublyLinkedList<T> {
     return true;
   }
 
+  removeNodeAt(index: number): T | null {
+    if (index < 0 || index >= this.length) return null;
+    if (index === 0) return this.shift();
+    if (index === this.length - 1) return this.pop();
+
+    const nodeToRemove = this.getNodeAt(index);
+
+    if (!nodeToRemove) return null;
+
+    const before = nodeToRemove.prev;
+    const after = nodeToRemove.next;
+
+    if (before) {
+      before.next = after;
+    }
+
+    if (after) {
+      after.prev = before;
+    }
+
+    nodeToRemove.next = null;
+    nodeToRemove.prev = null;
+
+    this.length--;
+    return nodeToRemove.value;
+  }
+
+  setNodeValueAt(index: number, value: T): boolean {
+    const node = this.getNodeAt(index);
+
+    if (node) {
+      node.value = value;
+      return true;
+    }
+
+    return false;
+  }
+
   getNodeAt(index: number): DLLNode<T> | null {
     if (index < 0 || index >= this.length) return null;
     if (index === 0) return this.getHead();

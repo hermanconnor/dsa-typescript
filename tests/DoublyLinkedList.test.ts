@@ -78,6 +78,43 @@ describe('DoublyLinkedList', () => {
     expect(list.getNodeAt(1)?.value).toBe(20);
   });
 
+  it('removeNodeAt should return null if the index is invalid', () => {
+    list.push(10);
+
+    expect(list.removeNodeAt(5)).toBeNull();
+  });
+
+  it("removeNodeAt should remove the node at the given index and return it's value", () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    const removedNode = list.removeNodeAt(1);
+
+    expect(removedNode).toBe(20);
+    expect(list.size).toBe(2);
+  });
+
+  it('setNodeValueAt should not update the value of a node at an invalid index', () => {
+    list.push(10);
+    list.push(20);
+
+    const updatedValue = list.setNodeValueAt(100, 30);
+
+    expect(updatedValue).toBe(false);
+  });
+
+  it('setNodeValueAt should update the value of a node at the given index', () => {
+    list.push(5);
+    list.push(20);
+
+    const updatedValue = list.setNodeValueAt(0, 10);
+
+    expect(updatedValue).toBe(true);
+    expect(list.getHead()?.value).toBe(10);
+    expect(list.size).toBe(2);
+  });
+
   it('getNodeAt should return null if the index is invalid', () => {
     list.push(10);
 
