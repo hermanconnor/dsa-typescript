@@ -147,6 +147,73 @@ describe('DoublyLinkedList', () => {
     expect(list.getTail()?.value).toBe(20);
   });
 
+  it('reverse should do nothing when the list is empty', () => {
+    list.reverse();
+
+    expect(list.getHead()).toBeNull();
+    expect(list.getTail()).toBeNull();
+  });
+
+  it('reverse should do nothing when the list has only one node', () => {
+    list.push(10);
+    list.reverse();
+
+    expect(list.getHead()?.value).toBe(10);
+    expect(list.getTail()?.value).toBe(10);
+    expect(list.getHead()?.value).toBe(list.getTail()?.value);
+  });
+
+  it('reverse should reverse a list with only two nodes', () => {
+    list.push(10);
+    list.push(20);
+
+    list.reverse();
+
+    expect(list.getHead()?.value).toBe(20);
+    expect(list.getTail()?.value).toBe(10);
+    expect(list.getHead()?.next?.value).toBe(10);
+    expect(list.getTail()?.prev?.value).toBe(20);
+  });
+
+  it('reverse should reverse a multi-node list', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    list.reverse();
+
+    expect(list.getHead()?.value).toBe(30);
+    expect(list.getTail()?.value).toBe(10);
+    expect(list.getHead()?.next?.value).toBe(20);
+    expect(list.getHead()?.next?.next?.value).toBe(10);
+    expect(list.getTail()?.prev?.value).toBe(20);
+    expect(list.getTail()?.prev?.prev?.value).toBe(30);
+  });
+
+  it('reverse should return the list to original order after two reversals', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    list.reverse();
+    list.reverse();
+
+    expect(list.getHead()?.value).toBe(10);
+    expect(list.getTail()?.value).toBe(30);
+    expect(list.getHead()?.next?.value).toBe(20);
+    expect(list.getTail()?.prev?.value).toBe(20);
+  });
+
+  it("reverse should set the new tail's next to null", () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    list.reverse();
+
+    expect(list.getTail()?.next).toBeNull();
+  });
+
   it('clear should remove all items from the list', () => {
     list.push(10);
     list.push(20);

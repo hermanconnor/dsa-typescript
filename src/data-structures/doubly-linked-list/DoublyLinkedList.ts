@@ -187,6 +187,25 @@ class DoublyLinkedList<T> {
     return this.tail;
   }
 
+  reverse(): void {
+    if (!this.head || !this.head.next) return;
+
+    let current: DLLNode<T> | null = this.head;
+    let prev: DLLNode<T> | null = null;
+    this.tail = current;
+
+    while (current) {
+      const next: DLLNode<T> | null = current.next;
+      current.next = prev;
+      current.prev = next;
+      prev = current;
+      current = next;
+    }
+
+    this.head = prev;
+    this.tail.next = null;
+  }
+
   clear(): void {
     this.head = null;
     this.tail = null;
