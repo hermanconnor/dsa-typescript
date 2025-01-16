@@ -206,6 +206,24 @@ class DoublyLinkedList<T> {
     this.tail.next = null;
   }
 
+  indexOf(value: T): number {
+    if (this.isEmpty) return -1;
+
+    let current = this.head;
+    let index = 0;
+
+    while (current) {
+      if (current.value === value) {
+        return index;
+      }
+
+      current = current.next;
+      index++;
+    }
+
+    return -1;
+  }
+
   clear(): void {
     this.head = null;
     this.tail = null;

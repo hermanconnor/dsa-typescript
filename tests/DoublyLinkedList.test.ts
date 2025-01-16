@@ -214,6 +214,57 @@ describe('DoublyLinkedList', () => {
     expect(list.getTail()?.next).toBeNull();
   });
 
+  it('indexOf should return -1 when the list is empty', () => {
+    expect(list.indexOf(5)).toBe(-1);
+  });
+
+  it('indexOf should return 0 when there is one element in the list', () => {
+    list.push(10);
+
+    expect(list.indexOf(10)).toBe(0);
+  });
+
+  it('indexOf should return the correct index of the value', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    expect(list.indexOf(20)).toBe(1);
+  });
+
+  it('indexOf should return -1 when value is not in the list', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    expect(list.indexOf(40)).toBe(-1);
+  });
+
+  it('indexOf should return 0 when value is at the beginning of the list', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    expect(list.indexOf(10)).toBe(0);
+  });
+
+  it('indexOf should return the correct index when value at the end of the list', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    expect(list.indexOf(30)).toBe(2);
+  });
+
+  it('indexOf should return the index of the first occurrence of a value', () => {
+    list.push(10);
+    list.push(20);
+    list.push(20);
+    list.push(30);
+
+    expect(list.indexOf(20)).toBe(1);
+  });
+
   it('clear should remove all items from the list', () => {
     list.push(10);
     list.push(20);
