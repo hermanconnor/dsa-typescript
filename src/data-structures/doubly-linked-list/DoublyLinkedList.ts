@@ -225,19 +225,21 @@ class DoublyLinkedList<T> {
   }
 
   contains(value: T): boolean {
-    if (this.isEmpty) return false;
+    // if (this.isEmpty) return false;
 
-    let current = this.head;
+    // let current = this.head;
 
-    while (current) {
-      if (current.value === value) {
-        return true;
-      }
+    // while (current) {
+    //   if (current.value === value) {
+    //     return true;
+    //   }
 
-      current = current.next;
-    }
+    //   current = current.next;
+    // }
 
-    return false;
+    // return false;
+
+    return this.indexOf(value) !== -1;
   }
 
   clear(): void {
