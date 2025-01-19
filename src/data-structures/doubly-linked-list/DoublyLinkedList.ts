@@ -224,6 +224,22 @@ class DoublyLinkedList<T> {
     return -1;
   }
 
+  contains(value: T): boolean {
+    if (this.isEmpty) return false;
+
+    let current = this.head;
+
+    while (current) {
+      if (current.value === value) {
+        return true;
+      }
+
+      current = current.next;
+    }
+
+    return false;
+  }
+
   clear(): void {
     this.head = null;
     this.tail = null;

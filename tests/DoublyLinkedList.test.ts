@@ -265,6 +265,30 @@ describe('DoublyLinkedList', () => {
     expect(list.indexOf(20)).toBe(1);
   });
 
+  it('contains should return false when the list is empty', () => {
+    expect(list.contains(10)).toBe(false);
+  });
+
+  it('contains should return true if the value exists in a single-element list', () => {
+    list.push(10);
+
+    expect(list.contains(10)).toBe(true);
+  });
+
+  it('contains should return false if the value does not exist in a single-element list', () => {
+    list.push(10);
+
+    expect(list.contains(20)).toBe(false);
+  });
+
+  it('contains should return true if the value exists in a multi-element list', () => {
+    list.push(10);
+    list.push(20);
+    list.push(30);
+
+    expect(list.contains(20)).toBe(true);
+  });
+
   it('clear should remove all items from the list', () => {
     list.push(10);
     list.push(20);
