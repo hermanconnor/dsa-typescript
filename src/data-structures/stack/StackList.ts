@@ -18,7 +18,7 @@ class StackList<T> {
   }
 
   pop(): T | undefined {
-    if (this.isEmpty) {
+    if (this.isEmpty()) {
       throw new Error('Stack is empty');
     }
 
@@ -39,11 +39,11 @@ class StackList<T> {
     this.length = 0;
   }
 
-  get size(): number {
+  size(): number {
     return this.length;
   }
 
-  get isEmpty(): boolean {
+  isEmpty(): boolean {
     return this.length === 0;
   }
 }

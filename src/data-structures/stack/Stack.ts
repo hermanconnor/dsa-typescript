@@ -19,7 +19,7 @@ class Stack<T> {
    *          or undefined if the stack is empty.
    */
   pop(): T | undefined {
-    if (this.isEmpty) {
+    if (this.isEmpty()) {
       throw new Error('Stack is empty');
     }
 
@@ -46,7 +46,7 @@ class Stack<T> {
    * Returns the number of items currently in the stack.
    * @returns The number of items in the stack.
    */
-  get size(): number {
+  size(): number {
     return this.items.length;
   }
 
@@ -54,7 +54,7 @@ class Stack<T> {
    * Checks if the stack is empty.
    * @returns True if the stack is empty, false otherwise.
    */
-  get isEmpty(): boolean {
+  isEmpty(): boolean {
     return this.items.length === 0;
   }
 }
