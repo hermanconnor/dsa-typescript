@@ -29,6 +29,8 @@ The following data structures are implemented:
 
 - **Stacks**
 - **Singly Linked List**
+- **Doubly Linked List**
+- **Queue**
 
 ## Algorithms
 

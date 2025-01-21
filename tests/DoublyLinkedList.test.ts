@@ -9,15 +9,15 @@ describe('DoublyLinkedList', () => {
   });
 
   it('list should initially be empty', () => {
-    expect(list.isEmpty).toBe(true);
-    expect(list.size).toBe(0);
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
   });
 
   it('push should add a node to the end of the list', () => {
     list.push(10);
     list.push(20);
 
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
     expect(list.getHead()?.value).toBe(10);
     expect(list.getTail()?.value).toBe(20);
   });
@@ -33,7 +33,7 @@ describe('DoublyLinkedList', () => {
     const poppedValue = list.pop();
 
     expect(poppedValue).toBe(20);
-    expect(list.size).toBe(1);
+    expect(list.size()).toBe(1);
     expect(list.getTail()?.value).toBe(10);
   });
 
@@ -41,7 +41,7 @@ describe('DoublyLinkedList', () => {
     list.push(20);
     list.unshift(10);
 
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
     expect(list.getHead()?.value).toBe(10);
     expect(list.getTail()?.value).toBe(20);
   });
@@ -57,7 +57,7 @@ describe('DoublyLinkedList', () => {
     const removedNode = list.shift();
 
     expect(removedNode).toBe(10);
-    expect(list.size).toBe(1);
+    expect(list.size()).toBe(1);
     expect(list.getHead()?.value).toBe(20);
   });
 
@@ -74,7 +74,7 @@ describe('DoublyLinkedList', () => {
     const inserted = list.insertNodeAt(1, 20);
 
     expect(inserted).toBe(true);
-    expect(list.size).toBe(3);
+    expect(list.size()).toBe(3);
     expect(list.getNodeAt(1)?.value).toBe(20);
   });
 
@@ -92,7 +92,7 @@ describe('DoublyLinkedList', () => {
     const removedNode = list.removeNodeAt(1);
 
     expect(removedNode).toBe(20);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('setNodeValueAt should not update the value of a node at an invalid index', () => {
@@ -112,7 +112,7 @@ describe('DoublyLinkedList', () => {
 
     expect(updatedValue).toBe(true);
     expect(list.getHead()?.value).toBe(10);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('getNodeAt should return null if the index is invalid', () => {
@@ -135,7 +135,7 @@ describe('DoublyLinkedList', () => {
     list.push(10);
     list.push(20);
 
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
     expect(list.getHead()?.value).toBe(10);
   });
 
@@ -143,7 +143,7 @@ describe('DoublyLinkedList', () => {
     list.push(10);
     list.push(20);
 
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
     expect(list.getTail()?.value).toBe(20);
   });
 
@@ -294,8 +294,8 @@ describe('DoublyLinkedList', () => {
     list.push(20);
     list.clear();
 
-    expect(list.isEmpty).toBe(true);
-    expect(list.size).toBe(0);
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
     expect(list.getHead()).toBeNull();
     expect(list.getTail()).toBeNull();
   });
@@ -304,17 +304,17 @@ describe('DoublyLinkedList', () => {
     list.push(10);
     list.push(20);
 
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('isEmpty should return true if list is empty', () => {
-    expect(list.isEmpty).toBe(true);
+    expect(list.isEmpty()).toBe(true);
   });
 
   it('isEmpty should return false if list is not empty', () => {
     list.push(10);
 
-    expect(list.size).toBe(1);
-    expect(list.isEmpty).toBe(false);
+    expect(list.size()).toBe(1);
+    expect(list.isEmpty()).toBe(false);
   });
 });

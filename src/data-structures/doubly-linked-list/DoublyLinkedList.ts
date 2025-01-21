@@ -207,7 +207,7 @@ class DoublyLinkedList<T> {
   }
 
   indexOf(value: T): number {
-    if (this.isEmpty) return -1;
+    if (this.isEmpty()) return -1;
 
     let current = this.head;
     let index = 0;
@@ -248,16 +248,16 @@ class DoublyLinkedList<T> {
     this.length = 0;
   }
 
-  get isEmpty(): boolean {
+  isEmpty(): boolean {
     return this.length === 0;
   }
 
-  get size(): number {
+  size(): number {
     return this.length;
   }
 
   public printList(): void {
-    if (this.isEmpty) {
+    if (this.isEmpty()) {
       console.log('');
       return;
     }
