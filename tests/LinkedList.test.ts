@@ -9,15 +9,15 @@ describe('Singly Linked List', () => {
   });
 
   it('should initially be empty', () => {
-    expect(list.isEmpty).toBe(true);
-    expect(list.size).toBe(0);
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
   });
 
   it('push should add a node to the end of the list', () => {
     list.unshift(10);
     list.push(20);
 
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
     expect(list.getTail()?.value).toBe(20);
     expect(list.getHead()?.value).toBe(10);
   });
@@ -34,7 +34,7 @@ describe('Singly Linked List', () => {
     const poppedValue = list.pop();
 
     expect(poppedValue).toBe(30);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
     expect(list.getTail()?.value).toBe(20);
   });
 
@@ -43,7 +43,7 @@ describe('Singly Linked List', () => {
     list.push(30);
     list.unshift(10);
 
-    expect(list.size).toBe(3);
+    expect(list.size()).toBe(3);
     expect(list.getHead()?.value).toBe(10);
     expect(list.getTail()?.value).toBe(30);
   });
@@ -59,7 +59,7 @@ describe('Singly Linked List', () => {
     const removedNode = list.shift();
 
     expect(removedNode).toBe(10);
-    expect(list.size).toBe(1);
+    expect(list.size()).toBe(1);
     expect(list.getHead()?.value).toBe(20);
   });
 
@@ -77,7 +77,7 @@ describe('Singly Linked List', () => {
     const removedNode = list.removeNodeAt(1);
 
     expect(removedNode).toBe(20);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('insertNodeAt should not insert a node at an invalid index', () => {
@@ -93,7 +93,7 @@ describe('Singly Linked List', () => {
     const inserted = list.insertNodeAt(1, 20);
 
     expect(inserted).toBe(true);
-    expect(list.size).toBe(3);
+    expect(list.size()).toBe(3);
     expect(list.getNodeAt(1)?.value).toBe(20);
   });
 
@@ -102,7 +102,7 @@ describe('Singly Linked List', () => {
     list.push(20);
 
     expect(list.getHead()?.value).toBe(10);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('getTail should return the last node in the list', () => {
@@ -110,7 +110,7 @@ describe('Singly Linked List', () => {
     list.push(20);
 
     expect(list.getTail()?.value).toBe(20);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('setNodeAt should not update the value of a node at an invalid index', () => {
@@ -132,7 +132,7 @@ describe('Singly Linked List', () => {
 
     expect(updatedValue).toBe(true);
     expect(list.getHead()?.value).toBe(10);
-    expect(list.size).toBe(3);
+    expect(list.size()).toBe(3);
   });
 
   it('getNodeAt should return null if invalid index', () => {
@@ -157,7 +157,7 @@ describe('Singly Linked List', () => {
     list.deleteHead();
 
     expect(list.getHead()?.value).toBe(20);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('deleteTail should remove the lase node from the list', () => {
@@ -168,7 +168,7 @@ describe('Singly Linked List', () => {
     list.deleteTail();
 
     expect(list.getTail()?.value).toBe(20);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('deleteAt should not delete a node at an invalid index', () => {
@@ -189,7 +189,7 @@ describe('Singly Linked List', () => {
     expect(deleted).toBe(true);
     expect(list.getHead()?.value).toBe(10);
     expect(list.getTail()?.value).toBe(30);
-    expect(list.size).toBe(2);
+    expect(list.size()).toBe(2);
   });
 
   it('reverse should reverse the list', () => {
@@ -207,8 +207,8 @@ describe('Singly Linked List', () => {
     list.push(20);
     list.clear();
 
-    expect(list.isEmpty).toBe(true);
-    expect(list.size).toBe(0);
+    expect(list.isEmpty()).toBe(true);
+    expect(list.size()).toBe(0);
     expect(list.getHead()).toBeNull();
     expect(list.getTail()).toBeNull();
   });
@@ -231,12 +231,12 @@ describe('Singly Linked List', () => {
   });
 
   it('isEmpty should return true if list is empty', () => {
-    expect(list.isEmpty).toBe(true);
+    expect(list.isEmpty()).toBe(true);
   });
 
   it('isEmpty should return false if list is not empty', () => {
     list.push(10);
 
-    expect(list.isEmpty).toBe(false);
+    expect(list.isEmpty()).toBe(false);
   });
 });
