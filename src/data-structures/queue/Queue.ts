@@ -28,6 +28,25 @@ class Queue<T> {
     this.length++;
   }
 
+  dequeue(): T | null {
+    if (!this.head) return null;
+
+    const value = this.head.value;
+    this.head = this.head.next;
+
+    if (!this.head) {
+      this.tail = null;
+    }
+
+    this.length--;
+
+    return value;
+  }
+
+  peek(): T | null {
+    return this.head?.value ?? null;
+  }
+
   getHead() {
     return this.head;
   }
@@ -42,6 +61,12 @@ class Queue<T> {
 
   isEmpty(): boolean {
     return this.length === 0;
+  }
+
+  clear(): void {
+    this.head = null;
+    this.tail = null;
+    this.length = 0;
   }
 }
 

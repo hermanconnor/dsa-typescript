@@ -56,4 +56,115 @@ describe('Queue', () => {
 
     expect(prevTail?.next?.value).toBe(20);
   });
+
+  it('dequeue should return null when trying to dequeue from an empty queue', () => {
+    const result = queue.dequeue();
+
+    expect(result).toBeNull();
+  });
+
+  it('dequeue should remove and return the first item in the queue', () => {
+    queue.enqueue(10);
+    queue.enqueue(20);
+
+    const result = queue.dequeue();
+
+    expect(result).toBe(10);
+    expect(queue.size()).toBe(1);
+    expect(queue.peek()).toBe(20);
+  });
+
+  it('dequeue should set tail to null when the queue becomes empty after dequeue', () => {
+    queue.enqueue(10);
+
+    queue.dequeue();
+
+    expect(queue.getTail()).toBeNull();
+  });
+
+  it('dequeue should correctly update the head after a dequeue', () => {
+    queue.enqueue(10);
+    queue.enqueue(20);
+    queue.enqueue(30);
+
+    queue.dequeue();
+
+    expect(queue.peek()).toBe(20);
+  });
+
+  it('peek should return null when the queue is empty', () => {
+    const result = queue.peek();
+
+    expect(result).toBeNull();
+  });
+
+  it('peek should return the first item without removing it', () => {
+    queue.enqueue(10);
+    queue.enqueue(20);
+
+    const result = queue.peek();
+
+    expect(result).toBe(10);
+    expect(queue.size()).toBe(2);
+  });
+
+  it('getHead & getTail should return null for both head and tail when the queue is empty', () => {
+    expect(queue.getHead()).toBeNull();
+    expect(queue.getTail()).toBeNull();
+  });
+
+  it('getHead & getTail should return the correct head and tail when the queue has one item', () => {
+    queue.enqueue(10);
+
+    expect(queue.getHead()?.value).toBe(10);
+    expect(queue.getTail()?.value).toBe(10);
+  });
+
+  it('should return the correct head and tail when the queue has multiple elements', () => {
+    queue.enqueue(10);
+    queue.enqueue(20);
+
+    expect(queue.getHead()?.value).toBe(10);
+    expect(queue.getTail()?.value).toBe(20);
+  });
+
+  it('size should return 0 when the queue is empty', () => {
+    expect(queue.size()).toBe(0);
+  });
+
+  it('size should return the correct size after enqueueing elements', () => {
+    queue.enqueue(10);
+    queue.enqueue(20);
+
+    expect(queue.size()).toBe(2);
+  });
+
+  it('isEmpty should return true when the queue is empty', () => {
+    expect(queue.isEmpty()).toBe(true);
+  });
+
+  it('isEmpty should return false when the queue has elements', () => {
+    queue.enqueue(10);
+
+    expect(queue.isEmpty()).toBe(false);
+  });
+
+  it('clear should do nothing if the queue is already empty', () => {
+    queue.clear();
+
+    expect(queue.size()).toBe(0);
+    expect(queue.getHead()).toBeNull();
+    expect(queue.getTail()).toBeNull();
+  });
+
+  it('clear should clear all elements from the queue', () => {
+    queue.enqueue(10);
+    queue.enqueue(20);
+
+    queue.clear();
+
+    expect(queue.size()).toBe(0);
+    expect(queue.getHead()).toBeNull();
+    expect(queue.getTail()).toBeNull();
+  });
 });
