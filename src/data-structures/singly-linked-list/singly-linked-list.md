@@ -1,6 +1,4 @@
-# Singly Linked List
-
-## **What is a Singly Linked List (SLL)?**
+# What is a Singly Linked List?
 
 A **Singly Linked List** is a linear data structure where each element (node) in the list points to the next element in the sequence. It has the following characteristics:
 

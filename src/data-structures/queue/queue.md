@@ -1,6 +1,6 @@
 # What is a Queue?
 
-A Queue is a linear data structure that follows the **First In First Out** (FIFO) principle. This means the first element added to the queue will be the first one to be removed. Imagine a line at a ticket counter – the first person in line is the first to get served, and the last person joins the end of the line.
+A **Queue** is a linear data structure that follows the **First In First Out** (FIFO) principle. This means the first element added to the queue will be the first one to be removed. Imagine a line at a ticket counter – the first person in line is the first to get served, and the last person joins the end of the line.
 
 ## Key Characteristics
 
