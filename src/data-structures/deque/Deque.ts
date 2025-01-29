@@ -30,8 +30,77 @@ class Deque<T> {
     this.length++;
   }
 
+  addLast(value: T): void {
+    const newNode = new DequeNode(value);
+
+    if (this.isEmpty()) {
+      this.head = newNode;
+      this.tail = newNode;
+    } else {
+      newNode.prev = this.tail;
+
+      if (this.tail) {
+        this.tail.next = newNode;
+      }
+
+      this.tail = newNode;
+    }
+
+    this.length++;
+  }
+
+  removeFirst(): T | null {
+    if (this.isEmpty()) return null;
+
+    const removedValue = this.head?.value ?? null;
+
+    if (this.length === 1) {
+      this.head = null;
+      this.tail = null;
+    } else {
+      if (this.head) {
+        this.head = this.head.next;
+
+        if (this.head) {
+          this.head.prev = null;
+        }
+      }
+    }
+
+    this.length--;
+
+    return removedValue;
+  }
+
+  removeLast(): T | null {
+    if (this.isEmpty()) return null;
+
+    const removedValue = this.tail?.value ?? null;
+
+    if (this.length === 1) {
+      this.head = null;
+      this.tail = null;
+    } else {
+      if (this.tail) {
+        this.tail = this.tail.prev;
+
+        if (this.tail) {
+          this.tail.next = null;
+        }
+      }
+    }
+
+    this.length--;
+
+    return removedValue;
+  }
+
   peekFirst(): T | null {
     return this.head?.value ?? null;
+  }
+
+  peekLast(): T | null {
+    return this.tail?.value ?? null;
   }
 
   size(): number {
