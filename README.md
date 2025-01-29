@@ -31,6 +31,7 @@ The following data structures are implemented:
 - **Singly Linked List**
 - **Doubly Linked List**
 - **Queue**
+- **Deque**
 
 ## Algorithms
 
