@@ -24,4 +24,34 @@ describe('DirectedGraph', () => {
 
     expect(graph.adjList.size).toBe(1);
   });
+
+  it('addEdge should add an edge between two vertices', () => {
+    graph.addEdge('A', 'B');
+
+    expect(graph.hasEdge('A', 'B')).toBe(true);
+  });
+
+  it('addEdge should automatically add vertices when adding an edge', () => {
+    graph.addEdge('A', 'B');
+
+    expect(graph.adjList.has('A')).toBe(true);
+    expect(graph.adjList.has('B')).toBe(true);
+  });
+
+  it('addEdge should not add duplicate edges', () => {
+    graph.addEdge('A', 'B');
+    graph.addEdge('A', 'B');
+
+    expect(graph.adjList.get('A')?.length).toBe(1);
+  });
+
+  it('hasEdge should return false if an edge does not exist', () => {
+    expect(graph.hasEdge('A', 'B')).toBe(false);
+  });
+
+  it('hasEdge should return true if an edge exists', () => {
+    graph.addEdge('A', 'B');
+
+    expect(graph.hasEdge('A', 'B')).toBe(true);
+  });
 });
