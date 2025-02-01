@@ -31,6 +31,46 @@ class DirectedGraph<T> {
     return edgeAdded;
   }
 
+  removeVertex(vertex: T): boolean {
+    if (!this.adjList.has(vertex)) return false;
+
+    // const vertexArray = this.adjList.get(vertex)!;
+
+    // for (const adjacentVertex of vertexArray) {
+    //   const adjacentArray = this.adjList.get(adjacentVertex)!;
+
+    //   adjacentArray.filter((neighbor) => neighbor !== vertex);
+    // }
+
+    // this.adjList.delete(vertex);
+
+    this.adjList.delete(vertex);
+
+    this.adjList.forEach((edges, key) => {
+      this.adjList.set(
+        key,
+        edges.filter((neighbor) => neighbor !== vertex),
+      );
+    });
+
+    return true;
+  }
+
+  removeEdge(vertex1: T, vertex2: T): boolean {
+    if (!this.adjList.has(vertex1)) return false;
+
+    const vertex1Edges = this.adjList.get(vertex1)!;
+
+    if (!vertex1Edges.includes(vertex2)) return false;
+
+    this.adjList.set(
+      vertex1,
+      vertex1Edges.filter((neighbor) => neighbor !== vertex2),
+    );
+
+    return true;
+  }
+
   hasEdge(vertex1: T, vertex2: T): boolean {
     if (!this.adjList.has(vertex1) || !this.adjList.has(vertex2)) return false;
 

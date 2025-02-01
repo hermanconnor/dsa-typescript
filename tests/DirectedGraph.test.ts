@@ -45,6 +45,39 @@ describe('DirectedGraph', () => {
     expect(graph.adjList.get('A')?.length).toBe(1);
   });
 
+  it('removeVertex should remove a vertex and its edges', () => {
+    graph.addEdge('A', 'B');
+    graph.removeVertex('A');
+
+    expect(graph.adjList.has('A')).toBe(false);
+    expect(graph.hasEdge('A', 'B')).toBe(false);
+  });
+
+  it("removeVertex should remove the vertex from other vertices' adjacency lists", () => {
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    graph.removeVertex('B');
+
+    expect(graph.hasEdge('A', 'B')).toBe(false);
+    expect(graph.hasEdge('B', 'C')).toBe(false);
+  });
+
+  it('removeEdge should not remove edges from non-existing vertices', () => {
+    graph.addEdge('A', 'B');
+
+    const removed = graph.removeEdge('A', 'C');
+
+    expect(removed).toBe(false);
+    expect(graph.hasEdge('A', 'B')).toBe(true); // Edge 'A' -> 'B' should remain intact
+  });
+
+  it('removeEdge should remove an edge between two vertices', () => {
+    graph.addEdge('A', 'B');
+    graph.removeEdge('A', 'B');
+
+    expect(graph.hasEdge('A', 'B')).toBe(false);
+  });
+
   it('hasEdge should return false if an edge does not exist', () => {
     expect(graph.hasEdge('A', 'B')).toBe(false);
   });
