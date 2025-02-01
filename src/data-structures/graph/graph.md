@@ -66,3 +66,7 @@ There are two common ways to represent a graph:
     3: [0, 2],
   };
   ```
+
+## NOTE
+
+The graphs I've implemented here are represented using an adjacency list.
