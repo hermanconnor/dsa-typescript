@@ -76,6 +76,12 @@ class DirectedGraph<T> {
 
     return this.adjList.get(vertex1)!.includes(vertex2);
   }
+
+  printGraph(): void {
+    this.adjList.forEach((edges, vertex) => {
+      console.log(`${vertex}: ${edges.join(', ')}`);
+    });
+  }
 }
 
 export default DirectedGraph;

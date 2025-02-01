@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import DirectedGraph from '../src/data-structures/graph/DirectedGraph';
 
 describe('DirectedGraph', () => {
@@ -86,5 +86,17 @@ describe('DirectedGraph', () => {
     graph.addEdge('A', 'B');
 
     expect(graph.hasEdge('A', 'B')).toBe(true);
+  });
+
+  it('printGraph should print the correct adjacency list', () => {
+    graph.addEdge('A', 'B');
+    graph.addEdge('A', 'C');
+
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    graph.printGraph();
+
+    expect(logSpy).toHaveBeenCalledWith('A: B, C');
+    expect(logSpy).toHaveBeenCalledWith('B: ');
+    expect(logSpy).toHaveBeenCalledWith('C: ');
   });
 });
