@@ -77,6 +77,35 @@ class DirectedGraph<T> {
     return this.adjList.get(vertex1)!.includes(vertex2);
   }
 
+  dfs(start: T): void {
+    if (!this.adjList.has(start)) {
+      console.error(`Start vertex ${start} not found.`);
+      return;
+    }
+
+    const visited = new Set<T>();
+
+    const dfsHelper = (vertex: T) => {
+      if (!visited.has(vertex)) {
+        console.log(vertex); // Visit the vertex
+
+        visited.add(vertex);
+
+        const neighbors = this.adjList.get(vertex);
+
+        if (neighbors) {
+          for (const neighbor of neighbors) {
+            if (!visited.has(neighbor)) {
+              dfsHelper(neighbor);
+            }
+          }
+        }
+      }
+    };
+
+    dfsHelper(start);
+  }
+
   printGraph(): void {
     this.adjList.forEach((edges, vertex) => {
       console.log(`${vertex}: ${edges.join(', ')}`);

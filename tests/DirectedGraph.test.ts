@@ -88,11 +88,25 @@ describe('DirectedGraph', () => {
     expect(graph.hasEdge('A', 'B')).toBe(true);
   });
 
+  it('dfs should perform DFS and visit all vertices', () => {
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    graph.dfs('A');
+
+    expect(logSpy).toHaveBeenCalledWith('A');
+    expect(logSpy).toHaveBeenCalledWith('B');
+    expect(logSpy).toHaveBeenCalledWith('C');
+
+    logSpy.mockRestore();
+  });
+
   it('printGraph should print the correct adjacency list', () => {
     graph.addEdge('A', 'B');
     graph.addEdge('A', 'C');
-
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
     graph.printGraph();
 
     expect(logSpy).toHaveBeenCalledWith('A: B, C');
