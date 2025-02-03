@@ -88,7 +88,7 @@ describe('DirectedGraph', () => {
     expect(graph.hasEdge('A', 'B')).toBe(true);
   });
 
-  it('dfs should perform DFS and visit all vertices', () => {
+  it('dfs should perform depth-first search and visit all vertices', () => {
     graph.addEdge('A', 'B');
     graph.addEdge('B', 'C');
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -98,6 +98,22 @@ describe('DirectedGraph', () => {
     expect(logSpy).toHaveBeenCalledWith('A');
     expect(logSpy).toHaveBeenCalledWith('B');
     expect(logSpy).toHaveBeenCalledWith('C');
+
+    logSpy.mockRestore();
+  });
+
+  it('bfs should perform breadth-first search visiting all vertices', () => {
+    graph.addEdge('A', 'B');
+    graph.addEdge('A', 'C');
+    graph.addEdge('B', 'D');
+    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    graph.bfs('A');
+
+    expect(logSpy).toHaveBeenCalledWith('A');
+    expect(logSpy).toHaveBeenCalledWith('B');
+    expect(logSpy).toHaveBeenCalledWith('C');
+    expect(logSpy).toHaveBeenCalledWith('D');
 
     logSpy.mockRestore();
   });

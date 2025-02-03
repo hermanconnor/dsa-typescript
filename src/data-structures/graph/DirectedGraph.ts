@@ -1,3 +1,5 @@
+import Queue from '../queue/Queue';
+
 class DirectedGraph<T> {
   // private  adjList: Map<T, T[]>;
   adjList: Map<T, T[]>; // Easier for testing purposes without private modifier
@@ -34,16 +36,6 @@ class DirectedGraph<T> {
   removeVertex(vertex: T): boolean {
     if (!this.adjList.has(vertex)) return false;
 
-    // const vertexArray = this.adjList.get(vertex)!;
-
-    // for (const adjacentVertex of vertexArray) {
-    //   const adjacentArray = this.adjList.get(adjacentVertex)!;
-
-    //   adjacentArray.filter((neighbor) => neighbor !== vertex);
-    // }
-
-    // this.adjList.delete(vertex);
-
     this.adjList.delete(vertex);
 
     this.adjList.forEach((edges, key) => {
@@ -79,7 +71,7 @@ class DirectedGraph<T> {
 
   dfs(start: T): void {
     if (!this.adjList.has(start)) {
-      console.error(`Start vertex ${start} not found.`);
+      console.error(`Start vertex: ${start}, not found.`);
       return;
     }
 
@@ -104,6 +96,37 @@ class DirectedGraph<T> {
     };
 
     dfsHelper(start);
+  }
+
+  bfs(start: T): void {
+    if (!this.adjList.has(start)) {
+      console.error(`Start vertex: ${start}, not found.`);
+      return;
+    }
+
+    const visited = new Set<T>();
+    const queue = new Queue<T>();
+
+    queue.enqueue(start);
+    visited.add(start);
+
+    while (!queue.isEmpty()) {
+      const vertex = queue.dequeue();
+      if (!vertex) continue;
+
+      console.log(vertex); // Visit the vertex
+
+      const neighbors = this.adjList.get(vertex);
+
+      if (neighbors) {
+        for (const neighbor of neighbors) {
+          if (!visited.has(neighbor)) {
+            queue.enqueue(neighbor);
+            visited.add(neighbor);
+          }
+        }
+      }
+    }
   }
 
   printGraph(): void {
