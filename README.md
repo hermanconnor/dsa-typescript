@@ -27,11 +27,12 @@ This project aims to provide a collection of commonly used data structures and a
 
 The following data structures are implemented:
 
-- **Stacks**
+- **Stack**
 - **Singly Linked List**
 - **Doubly Linked List**
 - **Queue**
 - **Deque**
+- **Graph**
 
 ## Algorithms
 
