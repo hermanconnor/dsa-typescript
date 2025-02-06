@@ -1,8 +1,7 @@
 import Queue from '../queue/Queue';
 
 class DirectedGraph<T> {
-  // private  adjList: Map<T, T[]>;
-  adjList: Map<T, T[]>; // Easier for testing purposes without private modifier
+  adjList: Map<T, T[]>;
 
   constructor() {
     this.adjList = new Map();
