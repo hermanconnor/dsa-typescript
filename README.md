@@ -33,6 +33,7 @@ The following data structures are implemented:
 - **Queue**
 - **Deque**
 - **Graph**
+- **Binary Search Tree**
 
 ## Algorithms
 
