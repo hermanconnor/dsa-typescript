@@ -34,6 +34,7 @@ The following data structures are implemented:
 - **Deque**
 - **Graph**
 - **Binary Search Tree**
+- **Heaps**
 
 ## Algorithms
 
