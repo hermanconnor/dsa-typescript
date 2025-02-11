@@ -58,7 +58,7 @@ class HashTable<K, V> {
 
     for (const bucket of this.table) {
       for (const [key, value] of bucket) {
-        const newIndex = this.hashForSize(key, newSize); // Use hashForSize here!
+        const newIndex = this.hashForSize(key, newSize);
         newTable[newIndex].push([key, value]);
       }
     }
@@ -68,19 +68,19 @@ class HashTable<K, V> {
   }
 
   private hash(key: K): number {
-    return this.hashForSize(key, this.size); // Use hashForSize consistently
+    return this.hashForSize(key, this.size);
   }
 
   private hashForSize(key: K, size: number): number {
     let hash = 0;
     if (typeof key === 'string') {
       for (let i = 0; i < key.length; i++) {
-        hash = (hash * 31 + key.charCodeAt(i)) % size; // Use the provided size
+        hash = (hash * 31 + key.charCodeAt(i)) % size;
       }
     } else if (typeof key === 'number') {
-      hash = key % size; // Use the provided size
+      hash = key % size;
     } else {
-      hash = this.hashString(JSON.stringify(key)) % size; // Use the provided size
+      hash = this.hashString(JSON.stringify(key)) % size;
     }
 
     return hash;
