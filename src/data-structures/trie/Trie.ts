@@ -51,6 +51,37 @@ class Trie {
 
     return true;
   }
+
+  public autocomplete(prefix: string): string[] {
+    if (!prefix) return [];
+
+    const results: string[] = [];
+    let currentNode = this.root;
+
+    // Traverse to the end of the prefix
+    for (const char of prefix) {
+      const childNode = currentNode.getChild(char);
+      if (!childNode) return []; // No words with this prefix
+
+      currentNode = childNode;
+    }
+
+    // Helper function to recursively find words
+    const findWords = (node: TrieNode, currentWord: string) => {
+      if (node.isEndOfWord) {
+        results.push(prefix + currentWord); // Add the complete word
+      }
+
+      // Traverse the children nodes and continue the search for other possible completions
+      for (const [char, child] of node.getChildren()) {
+        findWords(child, currentWord + char);
+      }
+    };
+
+    findWords(currentNode, ''); // Start the recursive search
+
+    return results;
+  }
 }
 
 export default Trie;

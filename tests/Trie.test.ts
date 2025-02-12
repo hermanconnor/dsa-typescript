@@ -73,4 +73,61 @@ describe('Trie', () => {
 
     expect(trie.startsWith('hello')).toBe(false);
   });
+
+  it('startsWith should handle empty prefixes', () => {
+    trie.insert('apple');
+
+    expect(trie.startsWith('')).toBe(true); // Empty prefix should always match
+  });
+
+  it('startsWith should handle prefixes that are also words', () => {
+    trie.insert('apple');
+    trie.insert('app');
+
+    expect(trie.startsWith('app')).toBe(true);
+  });
+});
+
+describe('Trie autocomplete', () => {
+  let trie: Trie;
+
+  beforeEach(() => {
+    trie = new Trie();
+
+    trie.insert('apple');
+    trie.insert('app');
+    trie.insert('apricot');
+    trie.insert('banana');
+    trie.insert('bat');
+    trie.insert('car');
+    trie.insert('cat');
+  });
+
+  it('should return empty array for no match', () => {
+    expect(trie.autocomplete('xyz')).toEqual([]);
+    expect(trie.autocomplete('')).toEqual([]);
+  });
+
+  it('autocomplete should autocomplete simple prefixes', () => {
+    expect(trie.autocomplete('ap')).toEqual(['app', 'apple', 'apricot']);
+    expect(trie.autocomplete('b')).toEqual(['banana', 'bat']);
+    expect(trie.autocomplete('ca')).toEqual(['car', 'cat']);
+  });
+
+  it('autocomplete should autocomplete full words', () => {
+    expect(trie.autocomplete('apple')).toEqual(['apple']);
+    expect(trie.autocomplete('banana')).toEqual(['banana']);
+  });
+
+  it('autocomplete should handle prefixes that are also words', () => {
+    expect(trie.autocomplete('app')).toEqual(['app', 'apple']);
+  });
+
+  it('autocomplete should handle case where prefix matches no complete word', () => {
+    expect(trie.autocomplete('batm')).toEqual([]); // "batm" is a prefix, but not a word
+  });
+
+  it('should handle multiple completions', () => {
+    expect(trie.autocomplete('a')).toEqual(['app', 'apple', 'apricot']);
+  });
 });
