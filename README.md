@@ -35,6 +35,7 @@ The following data structures are implemented:
 - **Graph**
 - **Binary Search Tree**
 - **Heaps**
+- **Hash Table**
 
 ## Algorithms
 
