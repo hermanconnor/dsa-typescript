@@ -82,6 +82,45 @@ class Trie {
 
     return results;
   }
+
+  delete(word: string): void {
+    let currentNode = this.root;
+    const path: TrieNode[] = []; // Store the path to the node
+
+    // 1. Find the node corresponding to the word
+    for (const char of word) {
+      const childNode = currentNode.getChild(char);
+      if (!childNode) return; // Word not found
+
+      path.push(currentNode); // Store the current node in the path
+      currentNode = childNode;
+    }
+
+    // 2. Word not found
+    if (!currentNode.isEndOfWord) return;
+
+    // 3. Case 1: Node has children
+    if (currentNode.getChildren().size > 0) {
+      currentNode.isEndOfWord = false; // Just mark as not end of word
+      return;
+    }
+
+    // 4. Case 2: Node has no children (leaf node)
+    // Backtrack and delete nodes until a node with children or isEndOfWord is encountered
+    let i = path.length - 1;
+    while (i >= 0) {
+      const parentNode = path[i];
+      const charToDelete = word[i]; // Correct char to delete from parent
+
+      parentNode.getChildren().delete(charToDelete); // Remove the child
+
+      if (parentNode.isEndOfWord || parentNode.getChildren().size > 0) {
+        break; // Stop backtracking
+      }
+
+      i--;
+    }
+  }
 }
 
 export default Trie;

@@ -131,3 +131,75 @@ describe('Trie autocomplete', () => {
     expect(trie.autocomplete('a')).toEqual(['app', 'apple', 'apricot']);
   });
 });
+
+describe('Trie Delete', () => {
+  let trie: Trie;
+
+  beforeEach(() => {
+    trie = new Trie();
+    trie.insert('apple');
+    trie.insert('app');
+    trie.insert('apricot');
+    trie.insert('banana');
+    trie.insert('bat');
+  });
+
+  it('delete should delete existing word', () => {
+    trie.delete('apple');
+
+    expect(trie.search('apple')).toBe(false);
+    expect(trie.search('app')).toBe(true); // Other words with same prefix should remain
+    expect(trie.search('apricot')).toBe(true);
+  });
+
+  it('delete should not delete non-existing word', () => {
+    trie.delete('grape');
+
+    expect(trie.search('apple')).toBe(true); // No change
+  });
+
+  it('delete should delete word that is a prefix of another word', () => {
+    trie.delete('app');
+
+    expect(trie.search('app')).toBe(false);
+    expect(trie.search('apple')).toBe(true); // The longer word should still exist
+  });
+
+  it('delete should delete word and clean up unnecessary nodes', () => {
+    trie.delete('bat');
+
+    expect(trie.search('bat')).toBe(false);
+    expect(trie.search('banana')).toBe(true);
+
+    trie.delete('banana');
+    expect(trie.search('banana')).toBe(false);
+  });
+
+  it('delete should delete a word when it is the only word with that prefix', () => {
+    trie.delete('apricot');
+
+    expect(trie.search('apricot')).toBe(false);
+    expect(trie.autocomplete('ap')).toEqual(['app', 'apple']);
+  });
+
+  it('should handle deleting the root node', () => {
+    const emptyTrie = new Trie();
+
+    emptyTrie.insert('test');
+    emptyTrie.delete('test');
+
+    expect(emptyTrie.search('test')).toBe(false);
+    expect(emptyTrie.autocomplete('t')).toEqual([]);
+  });
+
+  it('should handle deleting all words', () => {
+    trie.delete('apple');
+    trie.delete('app');
+    trie.delete('apricot');
+    trie.delete('banana');
+    trie.delete('bat');
+
+    expect(trie.autocomplete('a')).toEqual([]);
+    expect(trie.autocomplete('b')).toEqual([]);
+  });
+});
