@@ -36,6 +36,8 @@ The following data structures are implemented:
 - **Binary Search Tree**
 - **Heaps**
 - **Hash Table**
+- **Trie**
+- **Union-Find (Disjoint Set)**
 
 ## Algorithms
 
