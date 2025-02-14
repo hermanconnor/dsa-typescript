@@ -41,6 +41,8 @@ The following data structures are implemented:
 
 ## Algorithms
 
+- **Bubble Sort**
+
 The following algorithms are implemented:
 
 ## Usage
