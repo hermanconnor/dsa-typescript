@@ -1,4 +1,4 @@
-## What is Insertion Sort?
+# What is Insertion Sort?
 
 **Insertion Sort**, is another basic but widely used sorting algorithm. It’s particularly efficient for small datasets or nearly sorted arrays. Insertion Sort works similarly to how you might sort playing cards in your hands. You start with one card, and then, for each new card, you insert it into its correct position relative to the cards you’ve already sorted.
 
