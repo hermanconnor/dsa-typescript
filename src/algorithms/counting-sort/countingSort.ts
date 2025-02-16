@@ -1,5 +1,4 @@
 export function countingSort(arr: number[]): number[] {
-  if (!arr) return [];
   if (arr.length <= 1) return arr;
 
   const n = arr.length;

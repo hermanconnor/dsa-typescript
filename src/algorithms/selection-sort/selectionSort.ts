@@ -1,5 +1,5 @@
 export function selectionSort(arr: number[]): number[] {
-  if (!arr || !arr.length) return [];
+  if (arr.length <= 1) return arr;
 
   const n = arr.length;
 

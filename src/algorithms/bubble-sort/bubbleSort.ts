@@ -1,5 +1,5 @@
-function bubbleSort(arr: number[]): number[] {
-  if (!arr || !arr.length) return [];
+export function bubbleSort(arr: number[]): number[] {
+  if (arr.length <= 1) return arr;
 
   const n = arr.length;
   let swapped;
@@ -23,5 +23,3 @@ function bubbleSort(arr: number[]): number[] {
 
   return arr;
 }
-
-export default bubbleSort;

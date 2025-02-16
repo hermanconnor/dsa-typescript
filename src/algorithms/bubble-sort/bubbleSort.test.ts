@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import bubbleSort from './bubbleSort';
+import { bubbleSort } from './bubbleSort';
 
 describe('bubbleSort', () => {
   it('should return an empty array for null or undefined input', () => {

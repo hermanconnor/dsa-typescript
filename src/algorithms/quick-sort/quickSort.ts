@@ -1,4 +1,6 @@
 export function quickSort(arr: number[]): number[] {
+  if (arr.length <= 1) return arr;
+
   const quickSortHelper = (low: number, high: number): void => {
     if (low < high) {
       const pivotIndex = partition(arr, low, high); // Partition the array
