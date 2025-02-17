@@ -44,6 +44,7 @@ The following data structures are implemented:
 - **Bubble Sort**
 - **Bucket Sort**
 - **Counting Sort**
+- **Heap Sort**
 - **Insertion Sort**
 - **Merge Sort**
 - **Quick Sort**
