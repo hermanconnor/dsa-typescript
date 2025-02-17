@@ -42,10 +42,12 @@ The following data structures are implemented:
 ## Algorithms
 
 - **Bubble Sort**
+- **Bucket Sort**
+- **Counting Sort**
 - **Insertion Sort**
-- **Selection Sort**
 - **Merge Sort**
 - **Quick Sort**
+- **Selection Sort**
 
 The following algorithms are implemented:
 
