@@ -49,6 +49,9 @@ The following data structures are implemented:
 - **Merge Sort**
 - **Quick Sort**
 - **Selection Sort**
+- **Linear Search**
+- **Binary Search**
+- **Ternary Search**
 
 The following algorithms are implemented:
 
