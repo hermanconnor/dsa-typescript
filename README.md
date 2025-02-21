@@ -52,6 +52,8 @@ The following data structures are implemented:
 - **Linear Search**
 - **Binary Search**
 - **Ternary Search**
+- **Jump Search**
+- **Exponential Search**
 
 The following algorithms are implemented:
 
