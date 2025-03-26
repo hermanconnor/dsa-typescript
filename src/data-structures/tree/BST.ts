@@ -1,4 +1,5 @@
 import TreeNode from './TreeNode';
+import Queue from '../queue/Queue';
 
 class BST<T> {
   root: TreeNode<T> | null;
@@ -90,6 +91,40 @@ class BST<T> {
 
     // Visit root node
     console.log(node.value);
+  }
+
+  levelOrderTraversal<T>(root: TreeNode<T> | null): T[][] {
+    const result: T[][] = [];
+
+    if (!root) return result;
+
+    const queue = new Queue<TreeNode<T>>();
+    queue.enqueue(root);
+
+    while (!queue.isEmpty()) {
+      const levelSize = queue.size();
+      const currentLevel: T[] = [];
+
+      for (let i = 0; i < levelSize; i++) {
+        const node = queue.dequeue();
+
+        if (node) {
+          currentLevel.push(node.value);
+
+          if (node.left) {
+            queue.enqueue(node.left);
+          }
+
+          if (node.right) {
+            queue.enqueue(node.right);
+          }
+        }
+      }
+
+      result.push(currentLevel);
+    }
+
+    return result;
   }
 
   findMinValue(): T | null {

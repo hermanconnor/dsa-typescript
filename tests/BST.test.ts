@@ -101,6 +101,71 @@ describe('Binary Search Tree', () => {
     logSpy.mockRestore();
   });
 
+  it('should return an empty array for an empty tree', () => {
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([]);
+  });
+
+  it('should return the root value in a single array for a tree with only a root', () => {
+    bst.insert(5);
+
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5]]);
+  });
+
+  it('should perform level order traversal correctly for a simple tree', () => {
+    bst.insert(5);
+    bst.insert(3);
+    bst.insert(7);
+
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5], [3, 7]]);
+  });
+
+  it('should perform level order traversal correctly for a more complex tree', () => {
+    bst.insert(8);
+    bst.insert(3);
+    bst.insert(10);
+    bst.insert(1);
+    bst.insert(6);
+    bst.insert(14);
+    bst.insert(4);
+    bst.insert(7);
+    bst.insert(13);
+
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([
+      [8],
+      [3, 10],
+      [1, 6, 14],
+      [4, 7, 13],
+    ]);
+  });
+
+  it('should handle trees with only left children correctly', () => {
+    bst.insert(5);
+    bst.insert(3);
+    bst.insert(2);
+    bst.insert(1);
+
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5], [3], [2], [1]]);
+  });
+
+  it('should handle trees with only right children correctly', () => {
+    bst.insert(5);
+    bst.insert(7);
+    bst.insert(8);
+    bst.insert(9);
+
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5], [7], [8], [9]]);
+  });
+
+  it('should work with different strings', () => {
+    const bst = new BST<string>();
+
+    bst.insert('c');
+    bst.insert('a');
+    bst.insert('e');
+
+    expect(bst.levelOrderTraversal(bst.root)).toEqual([['c'], ['a', 'e']]);
+  });
+
   it('findMinValue should return null for an empty tree when finding the minimum value', () => {
     expect(bst.findMinValue()).toBeNull();
   });
