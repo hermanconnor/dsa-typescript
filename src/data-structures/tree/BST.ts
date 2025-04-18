@@ -54,52 +54,70 @@ class BST<T> {
     return null;
   }
 
-  preOrderTraversal(node: TreeNode<T> | null): void {
+  preorderTraversal(): T[] {
+    const result: T[] = [];
+    this._preorderTraversal(this.root, result);
+    return result;
+  }
+
+  private _preorderTraversal(node: TreeNode<T> | null, result: T[]): void {
     if (!node) return;
 
     // Visit root node
-    console.log(node.value); // Or do something with the value
+    result.push(node.value);
 
     // Visit left subtree
-    this.preOrderTraversal(node.left);
+    this._preorderTraversal(node.left, result);
 
     // Visit right subtree
-    this.preOrderTraversal(node.right);
+    this._preorderTraversal(node.right, result);
   }
 
-  inOrderTraversal(node: TreeNode<T> | null): void {
+  inorderTraversal(): T[] {
+    const result: T[] = [];
+    this._inorderTraversal(this.root, result);
+    return result;
+  }
+
+  private _inorderTraversal(node: TreeNode<T> | null, result: T[]): void {
     if (!node) return;
 
     // Visit left subtree
-    this.inOrderTraversal(node.left);
+    this._inorderTraversal(node.left, result);
 
     // Visit root node
-    console.log(node.value);
+    result.push(node.value);
 
     // Visit right subtree
-    this.inOrderTraversal(node.right);
+    this._inorderTraversal(node.right, result);
   }
 
-  postOrderTraversal(node: TreeNode<T> | null): void {
+  postorderTraversal(): T[] {
+    const result: T[] = [];
+    this._postorderTraversal(this.root, result);
+    return result;
+  }
+
+  private _postorderTraversal(node: TreeNode<T> | null, result: T[]): void {
     if (!node) return;
 
     // Visit left subtree
-    this.postOrderTraversal(node.left);
+    this._postorderTraversal(node.left, result);
 
     // Visit right subtree
-    this.postOrderTraversal(node.right);
+    this._postorderTraversal(node.right, result);
 
     // Visit root node
-    console.log(node.value);
+    result.push(node.value);
   }
 
-  levelOrderTraversal<T>(root: TreeNode<T> | null): T[][] {
+  levelorderTraversal(): T[][] {
     const result: T[][] = [];
 
-    if (!root) return result;
+    if (!this.root) return result;
 
     const queue = new Queue<TreeNode<T>>();
-    queue.enqueue(root);
+    queue.enqueue(this.root);
 
     while (!queue.isEmpty()) {
       const levelSize = queue.size();
@@ -127,7 +145,7 @@ class BST<T> {
     return result;
   }
 
-  findMinValue(): T | null {
+  minValue(): T | null {
     if (!this.root) return null;
 
     let current = this.root;
@@ -139,7 +157,7 @@ class BST<T> {
     return current.value;
   }
 
-  findMaxValue(): T | null {
+  maxValue(): T | null {
     if (!this.root) return null;
 
     let current = this.root;
@@ -175,7 +193,7 @@ class BST<T> {
 
       // Case 3: Node has two children
       // Find the in-order successor (smallest node in the right subtree)
-      const minNode = this.findMinNodeInSubtree(node.right);
+      const minNode = this.findMinNode(node.right);
 
       // Replace the value of the node with the in-order successor's value
       node.value = minNode.value;
@@ -187,7 +205,7 @@ class BST<T> {
     return node;
   }
 
-  private findMinNodeInSubtree(node: TreeNode<T> | null): TreeNode<T> {
+  private findMinNode(node: TreeNode<T> | null): TreeNode<T> {
     let current = node;
 
     while (current && current.left) {

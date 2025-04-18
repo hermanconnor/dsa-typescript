@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import BST from '../src/data-structures/tree/BST';
 
 describe('Binary Search Tree', () => {
@@ -54,72 +54,43 @@ describe('Binary Search Tree', () => {
     expect(foundNode?.value).toBe(10);
   });
 
-  it('preOrderTraversal should correctly perform pre-order traversal', () => {
-    bst.insert(10);
-    bst.insert(5);
-    bst.insert(15);
+  it('preorderTraversal should correctly perform pre-order traversal', () => {
+    [10, 5, 15, 3, 7, 12, 18].forEach((num) => bst.insert(num));
 
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    bst.preOrderTraversal(bst.root);
-
-    expect(logSpy).toHaveBeenCalledWith(10);
-    expect(logSpy).toHaveBeenCalledWith(5);
-    expect(logSpy).toHaveBeenCalledWith(15);
-
-    logSpy.mockRestore();
+    expect(bst.preorderTraversal()).toEqual([10, 5, 3, 7, 15, 12, 18]);
   });
 
-  it('inOrderTraversal should perform in-order traversal correctly', () => {
-    bst.insert(10);
-    bst.insert(5);
-    bst.insert(15);
+  it('inorderTraversal should perform in-order traversal correctly', () => {
+    [10, 5, 15, 3, 7, 12, 18].forEach((num) => bst.insert(num));
 
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    bst.inOrderTraversal(bst.root);
-
-    expect(logSpy).toHaveBeenCalledWith(5);
-    expect(logSpy).toHaveBeenCalledWith(10);
-    expect(logSpy).toHaveBeenCalledWith(15);
-
-    logSpy.mockRestore();
+    expect(bst.inorderTraversal()).toEqual([3, 5, 7, 10, 12, 15, 18]);
   });
 
-  it('postOrderTraversal should perform post-order traversal correctly', () => {
-    bst.insert(10);
-    bst.insert(5);
-    bst.insert(15);
+  it('postorderTraversal should perform post-order traversal correctly', () => {
+    [10, 5, 15, 3, 7, 12, 18].forEach((num) => bst.insert(num));
 
-    const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
-    bst.postOrderTraversal(bst.root);
-
-    expect(logSpy).toHaveBeenCalledWith(5);
-    expect(logSpy).toHaveBeenCalledWith(15);
-    expect(logSpy).toHaveBeenCalledWith(10);
-
-    logSpy.mockRestore();
+    expect(bst.postorderTraversal()).toEqual([3, 7, 5, 12, 18, 15, 10]);
   });
 
-  it('should return an empty array for an empty tree', () => {
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([]);
+  it('levelorderTraversal (iterative) should return an empty array for an empty tree', () => {
+    expect(bst.levelorderTraversal()).toEqual([]);
   });
 
-  it('should return the root value in a single array for a tree with only a root', () => {
+  it('levelorderTraversal (iterative) should return the root value in a single array for a tree with only a root', () => {
     bst.insert(5);
 
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5]]);
+    expect(bst.levelorderTraversal()).toEqual([[5]]);
   });
 
-  it('should perform level order traversal correctly for a simple tree', () => {
+  it('levelorderTraversal (iterative) should perform level order traversal correctly for a simple tree', () => {
     bst.insert(5);
     bst.insert(3);
     bst.insert(7);
 
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5], [3, 7]]);
+    expect(bst.levelorderTraversal()).toEqual([[5], [3, 7]]);
   });
 
-  it('should perform level order traversal correctly for a more complex tree', () => {
+  it('levelorderTraversal (iterative) should perform levelorder traversal correctly for a more complex tree', () => {
     bst.insert(8);
     bst.insert(3);
     bst.insert(10);
@@ -130,7 +101,7 @@ describe('Binary Search Tree', () => {
     bst.insert(7);
     bst.insert(13);
 
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([
+    expect(bst.levelorderTraversal()).toEqual([
       [8],
       [3, 10],
       [1, 6, 14],
@@ -138,64 +109,64 @@ describe('Binary Search Tree', () => {
     ]);
   });
 
-  it('should handle trees with only left children correctly', () => {
+  it('levelorderTraversal (iterative) should handle trees with only left children correctly', () => {
     bst.insert(5);
     bst.insert(3);
     bst.insert(2);
     bst.insert(1);
 
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5], [3], [2], [1]]);
+    expect(bst.levelorderTraversal()).toEqual([[5], [3], [2], [1]]);
   });
 
-  it('should handle trees with only right children correctly', () => {
+  it('levelorderTraversal (iterative) should handle trees with only right children correctly', () => {
     bst.insert(5);
     bst.insert(7);
     bst.insert(8);
     bst.insert(9);
 
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([[5], [7], [8], [9]]);
+    expect(bst.levelorderTraversal()).toEqual([[5], [7], [8], [9]]);
   });
 
-  it('should work with different strings', () => {
+  it('levelorderTraversal (iterative) should work with different strings', () => {
     const bst = new BST<string>();
 
     bst.insert('c');
     bst.insert('a');
     bst.insert('e');
 
-    expect(bst.levelOrderTraversal(bst.root)).toEqual([['c'], ['a', 'e']]);
+    expect(bst.levelorderTraversal()).toEqual([['c'], ['a', 'e']]);
   });
 
-  it('findMinValue should return null for an empty tree when finding the minimum value', () => {
-    expect(bst.findMinValue()).toBeNull();
+  it('minValue should return null for an empty tree when finding the minimum value', () => {
+    expect(bst.minValue()).toBeNull();
   });
 
-  it('findMinValue should return the minimum value in the tree', () => {
+  it('minValue should return the minimum value in the tree', () => {
     bst.insert(10);
     bst.insert(5);
     bst.insert(15);
 
-    expect(bst.findMinValue()).toBe(5);
+    expect(bst.minValue()).toBe(5);
   });
 
-  it('findMaxValue should return null for an empty tree when finding the maximum value', () => {
-    expect(bst.findMaxValue()).toBeNull();
+  it('maxValue should return null for an empty tree when finding the maximum value', () => {
+    expect(bst.maxValue()).toBeNull();
   });
 
-  it('findMaxValue should return the maximum value in the tree', () => {
+  it('maxValue should return the maximum value in the tree', () => {
     bst.insert(10);
     bst.insert(5);
     bst.insert(15);
 
-    expect(bst.findMaxValue()).toBe(15);
+    expect(bst.maxValue()).toBe(15);
   });
 
   it('should handle an empty tree', () => {
     const foundNode = bst.search(10);
 
     expect(foundNode).toBeNull();
-    expect(bst.findMinValue()).toBeNull();
-    expect(bst.findMaxValue()).toBeNull();
+    expect(bst.minValue()).toBeNull();
+    expect(bst.maxValue()).toBeNull();
   });
 
   it('should handle a single node tree', () => {
@@ -204,8 +175,8 @@ describe('Binary Search Tree', () => {
     const foundNode = bst.search(10);
 
     expect(foundNode?.value).toBe(10);
-    expect(bst.findMinValue()).toBe(10);
-    expect(bst.findMaxValue()).toBe(10);
+    expect(bst.minValue()).toBe(10);
+    expect(bst.maxValue()).toBe(10);
   });
 
   it('should handle an unbalanced tree (insert in ascending order)', () => {
