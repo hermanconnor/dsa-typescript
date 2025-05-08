@@ -104,6 +104,34 @@ class DirectedGraph<T> {
 
     return result;
   }
+
+  public dfs(startVertex: T, callback?: (vertex: T) => void): T[] {
+    if (!this.adjList.has(startVertex)) return [];
+
+    const result: T[] = [];
+    const visited = new Set<T>();
+
+    const dfsRecursive = (vertex: T) => {
+      visited.add(vertex);
+      result.push(vertex);
+
+      if (callback) {
+        callback(vertex);
+      }
+
+      const neighbors = this.getNeighbors(vertex);
+
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          dfsRecursive(neighbor);
+        }
+      }
+    };
+
+    dfsRecursive(startVertex);
+
+    return result;
+  }
 }
 
 export default DirectedGraph;
