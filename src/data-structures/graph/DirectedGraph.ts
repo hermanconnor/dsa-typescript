@@ -132,6 +132,44 @@ class DirectedGraph<T> {
 
     return result;
   }
+
+  public hasCycle(): boolean {
+    const visited = new Set<T>();
+    const recursionStack = new Set<T>();
+    const vertices = this.getAllVertices();
+
+    const isCyclic = (vertex: T): boolean => {
+      visited.add(vertex);
+      recursionStack.add(vertex);
+
+      const neighbors = this.adjList.get(vertex);
+
+      if (neighbors) {
+        for (const neighbor of neighbors.keys()) {
+          if (!visited.has(neighbor)) {
+            if (isCyclic(neighbor)) {
+              return true;
+            }
+          } else if (recursionStack.has(neighbor)) {
+            return true;
+          }
+        }
+      }
+
+      recursionStack.delete(vertex);
+      return false;
+    };
+
+    for (const vertex of vertices) {
+      if (!visited.has(vertex)) {
+        if (isCyclic(vertex)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
 }
 
 export default DirectedGraph;
