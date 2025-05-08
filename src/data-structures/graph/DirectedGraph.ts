@@ -62,6 +62,48 @@ class DirectedGraph<T> {
 
     return neighbors ? Array.from(neighbors.keys()) : [];
   }
+
+  public getWeight(from: T, to: T): number | undefined {
+    const neighbors = this.adjList.get(from);
+
+    return neighbors ? neighbors.get(to) : undefined;
+  }
+
+  public getAllVertices(): T[] {
+    return Array.from(this.adjList.keys());
+  }
+
+  public bfs(startVertex: T, callback?: (vertex: T) => void): T[] {
+    if (!this.adjList.has(startVertex)) return [];
+
+    const result: T[] = [];
+    const visited = new Set<T>();
+    const queue = new Queue<T>();
+
+    queue.enqueue(startVertex);
+    visited.add(startVertex);
+
+    while (!queue.isEmpty()) {
+      const currentVertex = queue.dequeue()!;
+
+      result.push(currentVertex);
+
+      if (callback) {
+        callback(currentVertex);
+      }
+
+      const neighbors = this.getNeighbors(currentVertex);
+
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          queue.enqueue(neighbor);
+          visited.add(neighbor);
+        }
+      }
+    }
+
+    return result;
+  }
 }
 
 export default DirectedGraph;
