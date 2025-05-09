@@ -221,6 +221,28 @@ class DirectedGraph<T> {
 
     return result;
   }
+
+  toString(): string {
+    let result = '';
+
+    for (const [vertex, neighbors] of this.adjList) {
+      result += `${vertex} -> `;
+
+      const neighborList = Array.from(neighbors.entries())
+        .map(([neighbor, weight]) =>
+          weight !== undefined ? `${neighbor}(${weight})` : neighbor,
+        )
+        .join(', ');
+
+      result += neighborList + '\n';
+    }
+
+    return result;
+  }
+
+  printGraph(): void {
+    console.log(this.toString());
+  }
 }
 
 export default DirectedGraph;
