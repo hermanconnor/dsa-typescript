@@ -1,4 +1,10 @@
 import Queue from '../queue/Queue';
+import PriorityQueue from '../priority-queue/PriorityQueue';
+
+interface DijkstraResult<T> {
+  distances: Map<T, number>;
+  previous: Map<T, T | null>;
+}
 
 class DirectedGraph<T> {
   private adjList: Map<T, Map<T, number | undefined>>;
@@ -220,6 +226,58 @@ class DirectedGraph<T> {
     }
 
     return result;
+  }
+
+  dijkstra(startVertex: T): DijkstraResult<T> {
+    if (!this.adjList.has(startVertex)) {
+      throw new Error('Start vertex not found in the graph.');
+    }
+
+    const distances = new Map<T, number>();
+    const previous = new Map<T, T | null>();
+    const pq = new PriorityQueue<{ vertex: T; distance: number }>(
+      (a, b) => a.distance - b.distance,
+    );
+    const vertices = this.getAllVertices();
+
+    // Initialize distances to infinity for all vertices except the start vertex
+    for (const vertex of vertices) {
+      distances.set(vertex, Infinity);
+      previous.set(vertex, null);
+    }
+
+    distances.set(startVertex, 0);
+
+    // Add the start vertex to the priority queue
+    pq.enqueue({ vertex: startVertex, distance: 0 });
+
+    while (!pq.isEmpty()) {
+      const { vertex: currentVertex, distance: currentDistance } =
+        pq.dequeue()!;
+
+      // If the current distance is greater than the known distance, skip
+      if (currentDistance > distances.get(currentVertex)!) {
+        continue;
+      }
+
+      const neighbors = this.getNeighbors(currentVertex);
+
+      for (const neighbor of neighbors) {
+        const weight = this.getWeight(currentVertex, neighbor);
+
+        if (weight) {
+          const newDistance = currentDistance + weight;
+
+          if (newDistance < distances.get(neighbor)!) {
+            distances.set(neighbor, newDistance);
+            previous.set(neighbor, currentVertex);
+            pq.enqueue({ vertex: neighbor, distance: newDistance });
+          }
+        }
+      }
+    }
+
+    return { distances, previous };
   }
 
   toString(): string {
