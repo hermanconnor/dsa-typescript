@@ -339,6 +339,22 @@ class DirectedGraph<T> {
     return { distances, previous };
   }
 
+  getPath(startVertex: T, endVertex: T, previous: Map<T, T | null>): T[] {
+    if (!this.adjList.has(startVertex) || !this.adjList.has(endVertex)) {
+      return [];
+    }
+
+    const path: T[] = [];
+    let current = endVertex;
+
+    while (current) {
+      path.unshift(current);
+      current = previous.get(current)!;
+    }
+
+    return path;
+  }
+
   toString(): string {
     let result = '';
 
