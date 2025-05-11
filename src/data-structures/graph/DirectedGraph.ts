@@ -265,7 +265,7 @@ class DirectedGraph<T> {
       for (const neighbor of neighbors) {
         const weight = this.getWeight(currentVertex, neighbor);
 
-        if (weight) {
+        if (weight !== undefined) {
           const newDistance = currentDistance + weight;
 
           if (newDistance < distances.get(neighbor)!) {
@@ -345,14 +345,16 @@ class DirectedGraph<T> {
     }
 
     const path: T[] = [];
-    let current = endVertex;
+    let current: T | null = endVertex;
 
-    while (current) {
+    // If there is no path (i.e., previous is null), return an empty array
+    while (current !== null) {
       path.unshift(current);
-      current = previous.get(current)!;
+      current = previous.get(current) ?? null; // Move to the previous node (default to null if not found)
     }
 
-    return path;
+    // If the path starts with the startVertex, it's a valid path, otherwise, it's unreachable
+    return path[0] === startVertex ? path : [];
   }
 
   toString(): string {
