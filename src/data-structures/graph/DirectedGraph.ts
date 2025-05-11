@@ -280,6 +280,65 @@ class DirectedGraph<T> {
     return { distances, previous };
   }
 
+  bellmanFord(startVertex: T): {
+    distances: Map<T, number> | null;
+    previous: Map<T, T | null>;
+  } {
+    if (!this.adjList.has(startVertex)) {
+      return {
+        distances: new Map<T, number>(),
+        previous: new Map<T, T | null>(),
+      };
+    }
+
+    const distances = new Map<T, number>();
+    const previous = new Map<T, T | null>();
+    const allVertices = this.getAllVertices();
+    const allEdges: { from: T; to: T; weight: number }[] = [];
+
+    // Initialize distances to infinity and previous to null
+    for (const vertex of allVertices) {
+      distances.set(vertex, Infinity);
+      previous.set(vertex, null);
+    }
+
+    distances.set(startVertex, 0);
+
+    // Collect all edges in the graph
+    for (const [fromVertex, neighbors] of this.adjList) {
+      for (const [toVertex, weight] of neighbors) {
+        if (weight !== undefined) {
+          allEdges.push({ from: fromVertex, to: toVertex, weight });
+        }
+      }
+    }
+
+    // Relax edges |V| - 1 times
+    for (let i = 0; i < allVertices.length - 1; i++) {
+      for (const { from, to, weight } of allEdges) {
+        if (
+          distances.get(from) !== Infinity &&
+          distances.get(from)! + weight < distances.get(to)!
+        ) {
+          distances.set(to, distances.get(from)! + weight);
+          previous.set(to, from); // Store the predecessor
+        }
+      }
+    }
+
+    // Check for negative cycles
+    for (const { from, to, weight } of allEdges) {
+      if (
+        distances.get(from) !== Infinity &&
+        distances.get(from)! + weight < distances.get(to)!
+      ) {
+        return { distances: null, previous: new Map<T, T | null>() }; // Negative cycle detected
+      }
+    }
+
+    return { distances, previous };
+  }
+
   toString(): string {
     let result = '';
 
