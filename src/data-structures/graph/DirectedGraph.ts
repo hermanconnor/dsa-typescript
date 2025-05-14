@@ -139,6 +139,35 @@ class DirectedGraph<T> {
     return result;
   }
 
+  hasPathBFS(startVertex: T, endVertex: T): boolean {
+    if (!this.adjList.has(startVertex) || !this.adjList.has(endVertex)) {
+      return false;
+    }
+
+    const visited = new Set<T>();
+    const queue = new Queue<T>();
+
+    queue.enqueue(startVertex);
+    visited.add(startVertex);
+
+    while (!queue.isEmpty()) {
+      const currentVertex = queue.dequeue()!;
+
+      if (currentVertex === endVertex) return true;
+
+      const neighbors = this.getNeighbors(currentVertex);
+
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          queue.enqueue(neighbor);
+          visited.add(neighbor);
+        }
+      }
+    }
+
+    return false;
+  }
+
   hasCycle(): boolean {
     const visited = new Set<T>();
     const recursionStack = new Set<T>();
