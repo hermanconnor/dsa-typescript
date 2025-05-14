@@ -2,11 +2,22 @@ class MaxHeap<T> {
   private heap: T[] = [];
   private compare: (a: T, b: T) => number;
 
-  constructor(
-    // Change comparison logic from min heap
-    compareFn: (a: T, b: T) => number = (a, b) => (a > b ? -1 : a < b ? 1 : 0),
-  ) {
-    this.compare = compareFn;
+  constructor(compare?: (a: T, b: T) => number) {
+    this.compare =
+      compare ||
+      ((a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') {
+          return b - a;
+        }
+
+        if (typeof a === 'string' && typeof b === 'string') {
+          return b.localeCompare(a);
+        }
+
+        throw new Error(
+          'Comparison function is required for non-numeric or non-string types.',
+        );
+      });
   }
 
   insert(value: T): void {

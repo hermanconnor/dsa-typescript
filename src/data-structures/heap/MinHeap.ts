@@ -2,10 +2,22 @@ class MinHeap<T> {
   private heap: T[] = [];
   private compare: (a: T, b: T) => number;
 
-  constructor(
-    compareFn: (a: T, b: T) => number = (a, b) => (a > b ? 1 : a < b ? -1 : 0),
-  ) {
-    this.compare = compareFn;
+  constructor(compare?: (a: T, b: T) => number) {
+    this.compare =
+      compare ||
+      ((a, b) => {
+        if (typeof a === 'number' && typeof b === 'number') {
+          return a - b;
+        }
+
+        if (typeof a === 'string' && typeof b === 'string') {
+          return a.localeCompare(b);
+        }
+
+        throw new Error(
+          'Comparison function is required for non-numeric or non-string types.',
+        );
+      });
   }
 
   insert(value: T): void {
