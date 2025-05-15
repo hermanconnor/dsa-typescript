@@ -287,6 +287,169 @@ describe('DirectedGraph', () => {
     expect(visited).toEqual(['A', 'B']); // One possible DFS order
   });
 
+  it('hasPathBFS should return true if a path exists between two vertices', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+
+    expect(graph.hasPathBFS('A', 'C')).toBe(true);
+  });
+
+  it('hasPathBFS should return true if the start and end vertices are the same', () => {
+    graph.addVertex('A');
+
+    expect(graph.hasPathBFS('A', 'A')).toBe(true);
+  });
+
+  it('hasPathBFS should return false if no path exists between two vertices', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('A', 'B');
+
+    expect(graph.hasPathBFS('A', 'C')).toBe(false);
+  });
+
+  it('hasPathBFS should return false if the start vertex does not exist', () => {
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('B', 'C');
+
+    expect(graph.hasPathBFS('A', 'C')).toBe(false);
+  });
+
+  it('hasPathBFS should return false if the end vertex does not exist', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addEdge('A', 'B');
+
+    expect(graph.hasPathBFS('A', 'C')).toBe(false);
+  });
+
+  it('hasPathBFS should handle more complex graphs with multiple paths', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addVertex('D');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    graph.addEdge('A', 'D');
+    graph.addEdge('D', 'C');
+
+    expect(graph.hasPathBFS('A', 'C')).toBe(true);
+  });
+
+  it('hasPathBFS should handle disconnected graphs', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addVertex('D');
+    graph.addEdge('A', 'B');
+    graph.addEdge('C', 'D');
+
+    expect(graph.hasPathBFS('A', 'D')).toBe(false);
+  });
+
+  it('hasPathBFS should handle graphs with cycles', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    graph.addEdge('C', 'A');
+
+    expect(graph.hasPathBFS('A', 'C')).toBe(true);
+  });
+
+  it('hasPathDFS should return true if a path exists between two vertices', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+
+    expect(graph.hasPathDFS('A', 'C')).toBe(true);
+  });
+
+  it('hasPathDFS should return true if the start and end vertices are the same', () => {
+    graph.addVertex('A');
+
+    expect(graph.hasPathDFS('A', 'A')).toBe(true);
+  });
+
+  it('hasPathDFS should return false if no path exists between two vertices', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('A', 'B');
+
+    expect(graph.hasPathDFS('A', 'C')).toBe(false);
+  });
+
+  it('hasPathDFS should return false if the start vertex does not exist', () => {
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('B', 'C');
+
+    expect(graph.hasPathDFS('A', 'C')).toBe(false);
+  });
+
+  it('hasPathDFS should return false if the end vertex does not exist', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addEdge('A', 'B');
+    expect(graph.hasPathDFS('A', 'C')).toBe(false);
+  });
+
+  it('hasPathDFS should handle more complex graphs with multiple paths', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addVertex('D');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    graph.addEdge('A', 'D');
+    graph.addEdge('D', 'C');
+
+    expect(graph.hasPathDFS('A', 'C')).toBe(true);
+  });
+
+  it('hasPathDFS should handle disconnected graphs', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addVertex('D');
+    graph.addEdge('A', 'B');
+    graph.addEdge('C', 'D');
+
+    expect(graph.hasPathDFS('A', 'D')).toBe(false);
+  });
+
+  it('hasPathDFS should handle graphs with cycles', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    graph.addEdge('C', 'A');
+
+    expect(graph.hasPathDFS('A', 'C')).toBe(true);
+  });
+
+  it('hasPathDFS should handle deeper paths correctly', () => {
+    graph.addVertex('A');
+    graph.addVertex('B');
+    graph.addVertex('C');
+    graph.addVertex('D');
+    graph.addEdge('A', 'B');
+    graph.addEdge('B', 'C');
+    graph.addEdge('C', 'D');
+
+    expect(graph.hasPathDFS('A', 'D')).toBe(true);
+  });
+
   it('hasCycle should return true if the graph has a cycle', () => {
     graph.addVertex('A');
     graph.addVertex('B');
