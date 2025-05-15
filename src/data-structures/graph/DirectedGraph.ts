@@ -168,6 +168,34 @@ class DirectedGraph<T> {
     return false;
   }
 
+  hasPathDFS(startVertex: T, endVertex: T): boolean {
+    if (!this.adjList.has(startVertex) || !this.adjList.has(endVertex)) {
+      return false;
+    }
+
+    const visited = new Set<T>();
+
+    const dfsRecursive = (vertex: T): boolean => {
+      visited.add(vertex);
+
+      if (vertex === endVertex) return true;
+
+      const neighbors = this.getNeighbors(vertex);
+
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          if (dfsRecursive(neighbor)) {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    };
+
+    return dfsRecursive(startVertex);
+  }
+
   hasCycle(): boolean {
     const visited = new Set<T>();
     const recursionStack = new Set<T>();
