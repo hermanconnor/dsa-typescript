@@ -15,48 +15,50 @@ This repository contains implementations of various data structures and algorith
 
 ## Overview
 
-This project aims to provide a collection of commonly used data structures and algorithms implemented in TypeScript. The goal is to demonstrate clean, understandable code, while also focusing on algorithm efficiency and edge case handling. The repository is designed as a self-study resource for learning about algorithms and data structures.
+A comprehensive collection of data structures and algorithms implemented in TypeScript, built for learning.
 
-## Technologies
+## 🚀 Technologies
 
 - **TypeScript**
 - **Vite**
 - **Vitest**
 
-## Data Structures
+## 📚 Data Structures
 
-The following data structures are implemented:
+- [ ] Dynamic Array
+- [ ] Bag
+- [x] Linked List (Singly) / (Doubly)
+- [x] Stack
+- [x] Queue
+- [x] Deque
+- [x] Graph
+- [x] Binary Search Tree
+- [x] Heaps
+- [x] Priority Queue
+- [x] HashTable
+- [x] Trie
+- [x] Union-Find (Disjoint Set)
 
-- **Stack**
-- **Singly Linked List**
-- **Doubly Linked List**
-- **Queue**
-- **Deque**
-- **Graph**
-- **Binary Search Tree**
-- **Heaps**
-- **Priority Queue**
-- **Hash Table**
-- **Trie**
-- **Union-Find (Disjoint Set)**
+## 🧮 Algorithms
 
-## Algorithms
+### Sorting
 
-- **Bubble Sort**
-- **Bucket Sort**
-- **Counting Sort**
-- **Heap Sort**
-- **Insertion Sort**
-- **Merge Sort**
-- **Quick Sort**
-- **Selection Sort**
-- **Linear Search**
-- **Binary Search**
-- **Ternary Search**
-- **Jump Search**
-- **Exponential Search**
+- [x] Bubble Sort
+- [x] Bucket Sort
+- [x] Counting Sort
+- [x] Heap Sort
+- [x] Insertion Sort
+- [x] Merge Sort
+- [x] Quick Sort
+- [x] Selection Sort
 
-The following algorithms are implemented:
+### Searching
+
+- [x] Linear Search
+- [x] Binary Search
+- [x] Ternary Search
+- [x] Jump Search
+- [x] Exponential Search
 
 ## Usage
 
@@ -83,3 +85,15 @@ This project uses **Vitest** for running unit tests. Here's how you can run the 
    ```bash
    npm run test
    ```
+
+## 🎯 Learning Goals
+
+- Master fundamental data structures and their operations
+- Understand time and space complexity analysis
+- Practice implementing algorithms from scratch
+- Build problem-solving skills
+- Write clean, type-safe TypeScript code
+
+## 📝 Notes
+
+This repository is a work in progress as I continue learning and implementing new data structures and algorithms.
