@@ -330,7 +330,8 @@ describe('PriorityQueue', () => {
     });
 
     it('should drain the queue', () => {
-      [...queue];
+      const items = [...queue];
+      expect(items).toHaveLength(3);
       expect(queue.isEmpty()).toBe(true);
       expect(queue.size()).toBe(0);
     });

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import DirectedGraph from '../src/data-structures/graph/DirectedGraph';
+import DirectedGraph from './DirectedGraph';
 
 describe('DirectedGraph', () => {
   let graph: DirectedGraph<string>;
