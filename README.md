@@ -60,7 +60,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Jump Search
 - [x] Exponential Search
 
-## Usage
+## 🛠️ Setup
 
 To get started with the project, follow the steps below:
 
@@ -74,7 +74,7 @@ To get started with the project, follow the steps below:
    npm install
    ```
 
-## Running Tests
+## 🧪 Running Tests
 
 This project uses **Vitest** for running unit tests. Here's how you can run the tests:
 

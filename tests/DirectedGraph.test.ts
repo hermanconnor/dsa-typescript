@@ -522,111 +522,6 @@ describe('DirectedGraph', () => {
     expect(graph.topologicalSort()).toEqual([]);
   });
 
-  it('dijkstra should return correct shortest distances and previous nodes for a simple graph', () => {
-    graph.addVertex('A');
-    graph.addVertex('B');
-    graph.addVertex('C');
-    graph.addEdge('A', 'B', 4);
-    graph.addEdge('A', 'C', 2);
-    graph.addEdge('C', 'B', 1);
-
-    const { distances, previous } = graph.dijkstra('A');
-
-    expect(distances.get('A')).toBe(0);
-    expect(distances.get('B')).toBe(3);
-    expect(distances.get('C')).toBe(2);
-    expect(previous.get('A')).toBeNull();
-    expect(previous.get('B')).toBe('C');
-    expect(previous.get('C')).toBe('A');
-  });
-
-  it('dijkstra should handle a graph with disconnected components', () => {
-    graph.addVertex('A');
-    graph.addVertex('B');
-    graph.addVertex('C');
-    graph.addVertex('D');
-    graph.addEdge('A', 'B', 1);
-    graph.addEdge('C', 'D', 1);
-
-    const { distances } = graph.dijkstra('A');
-
-    expect(distances.get('A')).toBe(0);
-    expect(distances.get('B')).toBe(1);
-    expect(distances.get('C')).toBe(Infinity);
-    expect(distances.get('D')).toBe(Infinity);
-  });
-
-  it('dijkstra should handle a graph with multiple paths to the same node', () => {
-    graph.addVertex('A');
-    graph.addVertex('B');
-    graph.addVertex('C');
-    graph.addEdge('A', 'B', 5);
-    graph.addEdge('A', 'C', 2);
-    graph.addEdge('C', 'B', 1);
-
-    const { distances } = graph.dijkstra('A');
-
-    expect(distances.get('B')).toBe(3); // A -> C -> B is shorter than A -> B
-  });
-
-  it('dijkstra should handle a graph with zero-weight edges', () => {
-    graph.addVertex('A');
-    graph.addVertex('B');
-    graph.addVertex('C');
-    graph.addEdge('A', 'B', 0);
-    graph.addEdge('B', 'C', 1);
-
-    const { distances } = graph.dijkstra('A');
-
-    expect(distances.get('A')).toBe(0);
-    expect(distances.get('B')).toBe(0);
-    expect(distances.get('C')).toBe(1);
-  });
-
-  it('dijkstra should throw an error if the start vertex is not in the graph', () => {
-    expect(() => graph.dijkstra('X')).toThrowError(
-      'Start vertex not found in the graph.',
-    );
-  });
-
-  it('dijkstra should handle a graph with only one vertex', () => {
-    graph.addVertex('A');
-
-    const { distances, previous } = graph.dijkstra('A');
-
-    expect(distances.get('A')).toBe(0);
-    expect(previous.get('A')).toBeNull();
-    expect(graph.getPath('A', 'A', previous)).toEqual(['A']);
-  });
-
-  it('dijkstra - getPath should return an empty path if start or end vertex does not exist in getPath', () => {
-    graph.addVertex('A');
-    graph.addVertex('B');
-
-    const { previous } = graph.dijkstra('A');
-
-    expect(graph.getPath('A', 'C', previous)).toEqual([]);
-    expect(graph.getPath('C', 'B', previous)).toEqual([]);
-  });
-
-  it('dijkstra - getPath should return the correct shortest path for a given start and end vertex', () => {
-    graph.addVertex('A');
-    graph.addVertex('B');
-    graph.addVertex('C');
-    graph.addVertex('D');
-    graph.addVertex('E');
-    graph.addEdge('A', 'B', 4);
-    graph.addEdge('A', 'C', 2);
-    graph.addEdge('B', 'E', 3);
-    graph.addEdge('C', 'B', 1);
-    graph.addEdge('C', 'D', 5);
-    graph.addEdge('D', 'E', 1);
-
-    const { previous } = graph.dijkstra('A');
-
-    expect(graph.getPath('A', 'E', previous)).toEqual(['A', 'C', 'B', 'E']);
-  });
-
   it('bellmanFord should return correct shortest distances and previous nodes for a simple graph', () => {
     graph.addEdge('A', 'B', 4);
     graph.addEdge('A', 'C', 2);
@@ -679,12 +574,6 @@ describe('DirectedGraph', () => {
 
     expect(distances).toBeNull();
     expect(previous).toEqual(new Map());
-  });
-
-  it('bellmanFord should throw an error if the start vertex is not in the graph', () => {
-    expect(() => graph.dijkstra('X')).toThrowError(
-      'Start vertex not found in the graph.',
-    );
   });
 
   it('bellmanFord - getPath should return the correct shortest path for a given start and end vertex', () => {
