@@ -1,7 +1,14 @@
-import StackNode from './StackNode';
+class Node<T> {
+  value: T;
+  next: Node<T> | null = null;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
 
 class StackList<T> {
-  private top: StackNode<T> | null;
+  private top: Node<T> | null;
   private length: number;
 
   constructor() {
@@ -10,7 +17,7 @@ class StackList<T> {
   }
 
   push(value: T): void {
-    const newNode = new StackNode(value);
+    const newNode = new Node(value);
 
     newNode.next = this.top;
     this.top = newNode;

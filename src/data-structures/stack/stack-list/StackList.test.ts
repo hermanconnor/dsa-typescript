@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import StackList from '../src/data-structures/stack/StackList';
+import StackList from './StackList';
 
 describe('StackList', () => {
   let stack: StackList<number>;

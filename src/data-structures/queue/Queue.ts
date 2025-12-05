@@ -1,8 +1,15 @@
-import QueNode from './QueNode';
+class Node<T> {
+  value: T;
+  next: Node<T> | null = null;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
 
 class Queue<T> {
-  private head: QueNode<T> | null;
-  private tail: QueNode<T> | null;
+  private head: Node<T> | null;
+  private tail: Node<T> | null;
   private length: number;
 
   constructor() {
@@ -12,7 +19,7 @@ class Queue<T> {
   }
 
   enqueue(value: T): void {
-    const newNode = new QueNode(value);
+    const newNode = new Node(value);
 
     if (this.isEmpty()) {
       this.head = newNode;

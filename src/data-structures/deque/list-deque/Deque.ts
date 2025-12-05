@@ -1,8 +1,18 @@
-import DequeNode from './DequeNode';
+class Node<T> {
+  value: T;
+  prev: Node<T> | null;
+  next: Node<T> | null;
+
+  constructor(value: T) {
+    this.value = value;
+    this.prev = null;
+    this.next = null;
+  }
+}
 
 class Deque<T> {
-  private head: DequeNode<T> | null;
-  private tail: DequeNode<T> | null;
+  private head: Node<T> | null;
+  private tail: Node<T> | null;
   private length: number;
 
   constructor() {
@@ -12,7 +22,7 @@ class Deque<T> {
   }
 
   addFirst(value: T): void {
-    const newNode = new DequeNode(value);
+    const newNode = new Node(value);
 
     if (this.isEmpty()) {
       this.head = newNode;
@@ -31,7 +41,7 @@ class Deque<T> {
   }
 
   addLast(value: T): void {
-    const newNode = new DequeNode(value);
+    const newNode = new Node(value);
 
     if (this.isEmpty()) {
       this.head = newNode;

@@ -1,8 +1,16 @@
-import DLLNode from './DLLNode';
+class Node<T> {
+  value: T;
+  next: Node<T> | null = null;
+  prev: Node<T> | null = null;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
 
 class DoublyLinkedList<T> {
-  private head: DLLNode<T> | null;
-  private tail: DLLNode<T> | null;
+  private head: Node<T> | null;
+  private tail: Node<T> | null;
   private length: number;
 
   constructor() {
@@ -12,7 +20,7 @@ class DoublyLinkedList<T> {
   }
 
   push(value: T): void {
-    const newNode = new DLLNode(value);
+    const newNode = new Node(value);
 
     if (this.head) {
       this.tail!.next = newNode;
@@ -46,7 +54,7 @@ class DoublyLinkedList<T> {
   }
 
   unshift(value: T): void {
-    const newNode = new DLLNode(value);
+    const newNode = new Node(value);
 
     if (this.length === 0) {
       this.head = newNode;
@@ -94,7 +102,7 @@ class DoublyLinkedList<T> {
       return true;
     }
 
-    const newNode = new DLLNode(value);
+    const newNode = new Node(value);
     const prevNode = this.getNodeAt(index - 1);
 
     if (!prevNode) return false;
@@ -151,12 +159,12 @@ class DoublyLinkedList<T> {
     return false;
   }
 
-  getNodeAt(index: number): DLLNode<T> | null {
+  getNodeAt(index: number): Node<T> | null {
     if (index < 0 || index >= this.length) return null;
     if (index === 0) return this.getHead();
     if (index === this.length - 1) return this.getTail();
 
-    let temp: DLLNode<T> | null;
+    let temp: Node<T> | null;
 
     if (index < this.length / 2) {
       temp = this.head;
@@ -179,23 +187,23 @@ class DoublyLinkedList<T> {
     return temp;
   }
 
-  getHead(): DLLNode<T> | null {
+  getHead(): Node<T> | null {
     return this.head;
   }
 
-  getTail(): DLLNode<T> | null {
+  getTail(): Node<T> | null {
     return this.tail;
   }
 
   reverse(): void {
     if (!this.head || !this.head.next) return;
 
-    let current: DLLNode<T> | null = this.head;
-    let prev: DLLNode<T> | null = null;
+    let current: Node<T> | null = this.head;
+    let prev: Node<T> | null = null;
     this.tail = current;
 
     while (current) {
-      const next: DLLNode<T> | null = current.next;
+      const next: Node<T> | null = current.next;
       current.next = prev;
       current.prev = next;
       prev = current;

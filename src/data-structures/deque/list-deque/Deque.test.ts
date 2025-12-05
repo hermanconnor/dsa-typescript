@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import Deque from '../src/data-structures/deque/Deque';
+import Deque from './Deque';
 
 describe('Deque', () => {
   let deque: Deque<number>;

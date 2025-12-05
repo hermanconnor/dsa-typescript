@@ -1,8 +1,15 @@
-import ListNode from './ListNode';
+class Node<T> {
+  value: T;
+  next: Node<T> | null = null;
+
+  constructor(value: T) {
+    this.value = value;
+  }
+}
 
 class SinglyLinkedList<T> {
-  private head: ListNode<T> | null;
-  private tail: ListNode<T> | null;
+  private head: Node<T> | null;
+  private tail: Node<T> | null;
   private length: number;
 
   constructor() {
@@ -12,7 +19,7 @@ class SinglyLinkedList<T> {
   }
 
   unshift(value: T): void {
-    const newNode = new ListNode(value);
+    const newNode = new Node(value);
 
     if (!this.head) {
       this.head = newNode;
@@ -25,7 +32,7 @@ class SinglyLinkedList<T> {
   }
 
   push(value: T): void {
-    const newNode = new ListNode(value);
+    const newNode = new Node(value);
 
     if (!this.tail) {
       this.head = newNode;
@@ -91,7 +98,7 @@ class SinglyLinkedList<T> {
       return true;
     }
 
-    const newNode = new ListNode(value);
+    const newNode = new Node(value);
     const prevNode = this.getNodeAt(index - 1);
 
     if (!prevNode) return false;
@@ -130,7 +137,7 @@ class SinglyLinkedList<T> {
     return true;
   }
 
-  getNodeAt(index: number): ListNode<T> | null {
+  getNodeAt(index: number): Node<T> | null {
     if (index < 0 || index >= this.length) return null;
     if (index === 0) return this.getHead();
     if (index === this.length - 1) return this.getTail();
@@ -144,11 +151,11 @@ class SinglyLinkedList<T> {
     return current;
   }
 
-  getHead(): ListNode<T> | null {
+  getHead(): Node<T> | null {
     return this.head;
   }
 
-  getTail(): ListNode<T> | null {
+  getTail(): Node<T> | null {
     return this.tail;
   }
 
@@ -218,9 +225,9 @@ class SinglyLinkedList<T> {
   reverse(): void {
     if (!this.head || !this.head.next) return;
 
-    let prev: ListNode<T> | null = null;
-    let next: ListNode<T> | null = null;
-    let current: ListNode<T> | null = this.head;
+    let prev: Node<T> | null = null;
+    let next: Node<T> | null = null;
+    let current: Node<T> | null = this.head;
     this.tail = current;
 
     while (current) {
