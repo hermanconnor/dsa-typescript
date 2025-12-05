@@ -879,6 +879,188 @@ describe('DirectedGraph', () => {
   });
 
   // =========================================================================
+  // BELLMAN-FORD TESTS
+  // =========================================================================
+
+  describe('findShortestPathBellmanFord', () => {
+    it('should find shortest path with positive weights', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addEdge('A', 'B', 4);
+      graph.addEdge('A', 'C', 2);
+      graph.addEdge('C', 'B', 1);
+      graph.addEdge('B', 'D', 5);
+
+      const result = graph.findShortestPathBellmanFord('A', 'D');
+
+      expect(result).toBeDefined();
+      expect(result).toHaveProperty('hasNegativeCycle', false);
+      if ('path' in result!) {
+        expect(result.path).toEqual(['A', 'C', 'B', 'D']);
+        expect(result.distance).toBe(8);
+      }
+    });
+
+    it('should handle negative edge weights', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 5);
+      graph.addEdge('B', 'C', -2);
+      graph.addEdge('A', 'C', 4);
+
+      const result = graph.findShortestPathBellmanFord('A', 'C');
+
+      expect(result).toBeDefined();
+      expect(result).toHaveProperty('hasNegativeCycle', false);
+      if ('path' in result!) {
+        expect(result.path).toEqual(['A', 'B', 'C']);
+        expect(result.distance).toBe(3); // 5 + (-2)
+      }
+    });
+
+    it('should detect negative cycle', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 1);
+      graph.addEdge('B', 'C', -3);
+      graph.addEdge('C', 'A', 1); // Creates negative cycle: 1 + (-3) + 1 = -1
+
+      const result = graph.findShortestPathBellmanFord('A', 'B');
+
+      expect(result).toEqual({ hasNegativeCycle: true });
+    });
+
+    it('should return path with distance 0 for same vertex', () => {
+      graph.addVertex('A');
+
+      const result = graph.findShortestPathBellmanFord('A', 'A');
+
+      expect(result).toEqual({
+        path: ['A'],
+        distance: 0,
+        hasNegativeCycle: false,
+      });
+    });
+
+    it('should return undefined when no path exists', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+
+      expect(graph.findShortestPathBellmanFord('A', 'B')).toBeUndefined();
+    });
+
+    it('should return undefined for non-existent vertices', () => {
+      graph.addVertex('A');
+
+      expect(graph.findShortestPathBellmanFord('A', 'Z')).toBeUndefined();
+      expect(graph.findShortestPathBellmanFord('Z', 'A')).toBeUndefined();
+    });
+
+    it('should handle edges without weights (default to 1)', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('B', 'C');
+
+      const result = graph.findShortestPathBellmanFord('A', 'C');
+
+      expect(result).toBeDefined();
+      if ('distance' in result!) {
+        expect(result.distance).toBe(2);
+      }
+    });
+
+    it('should handle disconnected graph', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addEdge('A', 'B', 1);
+      graph.addEdge('C', 'D', 2);
+
+      const result = graph.findShortestPathBellmanFord('A', 'D');
+
+      expect(result).toBeUndefined();
+    });
+  });
+
+  // =========================================================================
+  // ALL-PAIRS SHORTEST PATHS TESTS
+  // =========================================================================
+
+  describe('getAllPairsShortestPaths (Floyd-Warshall)', () => {
+    it('should compute all-pairs shortest paths', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 3);
+      graph.addEdge('B', 'C', 2);
+      graph.addEdge('A', 'C', 10);
+
+      const distances = graph.getAllPairsShortestPaths();
+
+      expect(distances.get('A')!.get('B')).toBe(3);
+      expect(distances.get('A')!.get('C')).toBe(5); // Via B
+      expect(distances.get('B')!.get('C')).toBe(2);
+      expect(distances.get('A')!.get('A')).toBe(0);
+    });
+
+    it('should return Infinity for disconnected vertices', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 1);
+
+      const distances = graph.getAllPairsShortestPaths();
+
+      expect(distances.get('A')!.get('C')).toBe(Infinity);
+      expect(distances.get('B')!.get('C')).toBe(Infinity);
+    });
+
+    it('should handle edges without weights (default to 1)', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('B', 'C');
+
+      const distances = graph.getAllPairsShortestPaths();
+
+      expect(distances.get('A')!.get('B')).toBe(1);
+      expect(distances.get('A')!.get('C')).toBe(2);
+    });
+
+    it('should handle single vertex', () => {
+      graph.addVertex('A');
+      const distances = graph.getAllPairsShortestPaths();
+
+      expect(distances.get('A')!.get('A')).toBe(0);
+    });
+
+    it('should handle weighted graph with multiple paths', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addEdge('A', 'B', 1);
+      graph.addEdge('A', 'C', 4);
+      graph.addEdge('B', 'C', 2);
+      graph.addEdge('C', 'D', 1);
+      graph.addEdge('B', 'D', 5);
+
+      const distances = graph.getAllPairsShortestPaths();
+
+      expect(distances.get('A')!.get('D')).toBe(4); // A -> B -> C -> D
+      expect(distances.get('B')!.get('D')).toBe(3); // B -> C -> D
+    });
+  });
+
+  // =========================================================================
   // UTILITY METHODS TESTS
   // =========================================================================
 
@@ -958,6 +1140,118 @@ describe('DirectedGraph', () => {
       const str = graph.toString();
       expect(str).toContain('DirectedGraph:');
       expect(str).toContain('A -> [B(10)]');
+    });
+  });
+
+  // =========================================================================
+  // CLONE AND ITERATOR TESTS
+  // =========================================================================
+
+  describe('clone', () => {
+    it('should create a deep copy of the graph', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 5);
+      graph.addEdge('B', 'C', 10);
+
+      const cloned = graph.clone();
+
+      expect(cloned.vertexCount).toBe(graph.vertexCount);
+      expect(cloned.edgeCount).toBe(graph.edgeCount);
+      expect(cloned.hasEdge('A', 'B')).toBe(true);
+      expect(cloned.getEdgeWeight('A', 'B')).toBe(5);
+    });
+
+    it('should be independent of original graph', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addEdge('A', 'B');
+
+      const cloned = graph.clone();
+
+      // Modify original
+      graph.addVertex('C');
+      graph.addEdge('B', 'C');
+
+      expect(cloned.vertexCount).toBe(2);
+      expect(cloned.hasVertex('C')).toBe(false);
+      expect(cloned.hasEdge('B', 'C')).toBe(false);
+    });
+
+    it('should clone empty graph', () => {
+      const cloned = graph.clone();
+      expect(cloned.vertexCount).toBe(0);
+      expect(cloned.edgeCount).toBe(0);
+    });
+
+    it('should preserve all edge weights', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 3);
+      graph.addEdge('B', 'C', 7);
+
+      const cloned = graph.clone();
+
+      expect(cloned.getEdgeWeight('A', 'B')).toBe(3);
+      expect(cloned.getEdgeWeight('B', 'C')).toBe(7);
+    });
+  });
+
+  describe('Symbol.iterator', () => {
+    it('should iterate over all vertices and their edges', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B', 5);
+      graph.addEdge('A', 'C', 10);
+
+      const entries = [...graph];
+
+      expect(entries).toHaveLength(3);
+
+      const entryA = entries.find(([v]) => v === 'A');
+      expect(entryA).toBeDefined();
+      expect(entryA![1]).toHaveLength(2);
+      expect(entryA![1]).toContainEqual({ target: 'B', weight: 5 });
+      expect(entryA![1]).toContainEqual({ target: 'C', weight: 10 });
+    });
+
+    it('should provide copies of edge arrays', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addEdge('A', 'B');
+
+      for (const [vertex, edges] of graph) {
+        if (vertex === 'A') {
+          edges.push({ target: 'C', weight: 99 });
+        }
+      }
+
+      // Original should be unchanged
+      expect(graph.getNeighbors('A')).toHaveLength(1);
+    });
+
+    it('should work with for...of loop', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+
+      let count = 0;
+      for (const [vertex, edges] of graph) {
+        count++;
+        expect(typeof vertex).toBe('string');
+        expect(Array.isArray(edges)).toBe(true);
+      }
+
+      expect(count).toBe(3);
+    });
+
+    it('should iterate over empty graph', () => {
+      const entries = [...graph];
+      expect(entries).toHaveLength(0);
     });
   });
 
