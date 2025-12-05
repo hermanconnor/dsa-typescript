@@ -102,6 +102,89 @@ class DirectedGraph<T> extends BaseDirectedGraph<T> {
     edges.splice(index, 1);
     return true;
   }
+
+  /**
+   * Gets the total number of vertices in the graph.
+   *
+   * @returns The vertex count
+   * @complexity O(1)
+   */
+  public get vertexCount(): number {
+    return this.adjacencyList.size;
+  }
+
+  /**
+   * Checks if a vertex exists in the graph.
+   *
+   * @param vertex - The vertex to check
+   * @returns true if the vertex exists
+   * @complexity O(1)
+   */
+  public hasVertex(vertex: T): boolean {
+    return this.adjacencyList.has(vertex);
+  }
+
+  /**
+   * Checks if a directed edge exists from source to target.
+   *
+   * @param from - Source vertex
+   * @param to - Target vertex
+   * @returns true if the edge exists
+   * @complexity O(E) where E is the number of edges from the source vertex
+   */
+  public hasEdge(from: T, to: T): boolean {
+    const edges = this.adjacencyList.get(from);
+
+    return edges ? edges.some((edge) => edge.target === to) : false;
+  }
+
+  /**
+   * Returns all neighbors (outgoing edges) of a vertex.
+   * Returns a copy to prevent external mutation.
+   *
+   * @param vertex - The vertex to get neighbors for
+   * @returns Array of neighbor objects with target vertex and optional weight
+   * @throws {Error} If the vertex doesn't exist
+   * @complexity O(E) where E is the number of edges from this vertex
+   */
+  public getNeighbors(vertex: T): Edge<T>[] {
+    if (!this.hasVertex(vertex)) {
+      throw new Error(`Vertex "${vertex}" does not exist.`);
+    }
+
+    return [...this.adjacencyList.get(vertex)!];
+  }
+
+  /**
+   * Gets the weight of the edge from source to target.
+   *
+   * @param from - Source vertex
+   * @param to - Target vertex
+   * @returns The edge weight, or undefined if the edge doesn't exist
+   * @complexity O(E) where E is the number of edges from the source vertex
+   */
+  public getEdgeWeight(from: T, to: T): number | undefined {
+    const edges = this.adjacencyList.get(from);
+
+    const edge = edges?.find((e) => e.target === to);
+    return edge?.weight;
+  }
+
+  /**
+   * Gets the total number of edges in the graph.
+   *
+   * @returns The edge count
+   * @complexity O(V) where V is the number of vertices
+   */
+  public get edgeCount(): number {
+    let count = 0;
+
+    for (const edges of this.adjacencyList.values()) {
+      count += edges.length;
+    }
+
+    return count;
+  }
 }
 
 export default DirectedGraph;
