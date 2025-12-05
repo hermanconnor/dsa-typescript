@@ -1,4 +1,4 @@
-import MinHeap from '../heap/MinHeap';
+import MinHeap from '../heap/min-heap/MinHeap';
 
 /**
  * Priority Queue item wrapper with tie-breaking support.
