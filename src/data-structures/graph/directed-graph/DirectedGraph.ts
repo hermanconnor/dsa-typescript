@@ -104,16 +104,6 @@ class DirectedGraph<T> extends BaseDirectedGraph<T> {
   }
 
   /**
-   * Gets the total number of vertices in the graph.
-   *
-   * @returns The vertex count
-   * @complexity O(1)
-   */
-  public get vertexCount(): number {
-    return this.adjacencyList.size;
-  }
-
-  /**
    * Checks if a vertex exists in the graph.
    *
    * @param vertex - The vertex to check
@@ -171,6 +161,26 @@ class DirectedGraph<T> extends BaseDirectedGraph<T> {
   }
 
   /**
+   * Gets the total number of vertices in the graph.
+   *
+   * @returns The vertex count
+   * @complexity O(1)
+   */
+  public get vertexCount(): number {
+    return this.adjacencyList.size;
+  }
+
+  /**
+   * Returns all vertices in the graph.
+   *
+   * @returns Array of all vertices
+   * @complexity O(V) where V is the number of vertices
+   */
+  public getAllVertices(): T[] {
+    return Array.from(this.adjacencyList.keys());
+  }
+
+  /**
    * Gets the total number of edges in the graph.
    *
    * @returns The edge count
@@ -183,6 +193,44 @@ class DirectedGraph<T> extends BaseDirectedGraph<T> {
       count += edges.length;
     }
 
+    return count;
+  }
+
+  /**
+   * Returns the out-degree of a vertex (number of outgoing edges).
+   *
+   * @param vertex - The vertex to check
+   * @returns The out-degree
+   * @throws {Error} If the vertex doesn't exist
+   * @complexity O(1)
+   */
+  public getOutDegree(vertex: T): number {
+    if (!this.hasVertex(vertex)) {
+      throw new Error(`Vertex "${vertex}" does not exist.`);
+    }
+
+    return this.adjacencyList.get(vertex)!.length;
+  }
+
+  /**
+   * Returns the in-degree of a vertex (number of incoming edges).
+   *
+   * @param vertex - The vertex to check
+   * @returns The in-degree
+   * @throws {Error} If the vertex doesn't exist
+   * @complexity O(V + E) where V is vertices and E is total edges
+   */
+  public getInDegree(vertex: T): number {
+    if (!this.hasVertex(vertex)) {
+      throw new Error(`Vertex "${vertex}" does not exist.`);
+    }
+
+    let count = 0;
+    for (const edges of this.adjacencyList.values()) {
+      if (edges.some((e) => e.target === vertex)) {
+        count += edges.filter((e) => e.target === vertex).length;
+      }
+    }
     return count;
   }
 }

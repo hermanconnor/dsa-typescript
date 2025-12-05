@@ -250,6 +250,25 @@ describe('DirectedGraph', () => {
     });
   });
 
+  describe('getAllVertices', () => {
+    it('should return all vertices', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+
+      const vertices = graph.getAllVertices();
+
+      expect(vertices).toHaveLength(3);
+      expect(vertices).toContain('A');
+      expect(vertices).toContain('B');
+      expect(vertices).toContain('C');
+    });
+
+    it('should return empty array for empty graph', () => {
+      expect(graph.getAllVertices()).toEqual([]);
+    });
+  });
+
   describe('vertexCount and edgeCount', () => {
     it('should track vertex count correctly', () => {
       expect(graph.vertexCount).toBe(0);
@@ -273,6 +292,40 @@ describe('DirectedGraph', () => {
 
       graph.addEdge('B', 'C');
       expect(graph.edgeCount).toBe(2);
+    });
+  });
+
+  describe('getOutDegree', () => {
+    it('should return number of outgoing edges', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('A', 'C');
+
+      expect(graph.getOutDegree('A')).toBe(2);
+      expect(graph.getOutDegree('B')).toBe(0);
+    });
+
+    it('should throw error for non-existent vertex', () => {
+      expect(() => graph.getOutDegree('Z')).toThrow();
+    });
+  });
+
+  describe('getInDegree', () => {
+    it('should return number of incoming edges', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'C');
+      graph.addEdge('B', 'C');
+
+      expect(graph.getInDegree('C')).toBe(2);
+      expect(graph.getInDegree('A')).toBe(0);
+    });
+
+    it('should throw error for non-existent vertex', () => {
+      expect(() => graph.getInDegree('Z')).toThrow();
     });
   });
 });
