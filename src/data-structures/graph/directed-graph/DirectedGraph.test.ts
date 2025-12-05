@@ -314,6 +314,184 @@ describe('DirectedGraph', () => {
   });
 
   // =========================================================================
+  // TRAVERSAL TESTS
+  // =========================================================================
+
+  describe('getBFSOrder', () => {
+    it('should return vertices in BFS order', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addEdge('A', 'B');
+      graph.addEdge('A', 'C');
+      graph.addEdge('B', 'D');
+
+      const order = graph.getBFSOrder('A');
+
+      expect(order).toEqual(['A', 'B', 'C', 'D']);
+    });
+
+    it('should handle disconnected vertices', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+
+      const order = graph.getBFSOrder('A');
+      expect(order).toEqual(['A', 'B']);
+      expect(order).not.toContain('C');
+    });
+
+    it('should throw error for non-existent start vertex', () => {
+      expect(() => graph.getBFSOrder('Z')).toThrow(
+        'Start vertex "Z" not found for BFS',
+      );
+    });
+
+    it('should handle single vertex', () => {
+      graph.addVertex('A');
+      expect(graph.getBFSOrder('A')).toEqual(['A']);
+    });
+
+    it('should handle graph with cycle', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('B', 'C');
+      graph.addEdge('C', 'A');
+
+      const order = graph.getBFSOrder('A');
+      expect(order).toHaveLength(3);
+      expect(order[0]).toBe('A');
+    });
+  });
+
+  describe('getDFSOrder', () => {
+    it('should return vertices in DFS order', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addEdge('A', 'B');
+      graph.addEdge('A', 'C');
+      graph.addEdge('B', 'D');
+
+      const order = graph.getDFSOrder('A');
+      expect(order).toHaveLength(4);
+      expect(order[0]).toBe('A');
+      expect(order).toContain('B');
+      expect(order).toContain('C');
+      expect(order).toContain('D');
+    });
+
+    it('should handle disconnected vertices', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+
+      const order = graph.getDFSOrder('A');
+      expect(order).toEqual(['A', 'B']);
+      expect(order).not.toContain('C');
+    });
+
+    it('should throw error for non-existent start vertex', () => {
+      expect(() => graph.getDFSOrder('Z')).toThrow(
+        'Start vertex "Z" not found for DFS',
+      );
+    });
+
+    it('should handle single vertex', () => {
+      graph.addVertex('A');
+      expect(graph.getDFSOrder('A')).toEqual(['A']);
+    });
+
+    it('should handle graph with cycle', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('B', 'C');
+      graph.addEdge('C', 'A');
+
+      const order = graph.getDFSOrder('A');
+
+      expect(order).toHaveLength(3);
+      expect(order[0]).toBe('A');
+    });
+  });
+
+  describe('traverseBFS', () => {
+    it('should call callback for each vertex in BFS order', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('A', 'C');
+
+      const visited: string[] = [];
+
+      graph.traverseBFS('A', (vertex) => visited.push(vertex));
+
+      expect(visited).toEqual(['A', 'B', 'C']);
+    });
+
+    it('should throw error for non-existent start vertex', () => {
+      expect(() => graph.traverseBFS('Z', () => {})).toThrow(
+        'Start vertex "Z" not found for BFS',
+      );
+    });
+
+    it('should not modify the graph', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addEdge('A', 'B');
+
+      const initialCount = graph.vertexCount;
+
+      graph.traverseBFS('A', () => {});
+
+      expect(graph.vertexCount).toBe(initialCount);
+    });
+  });
+
+  describe('traverseDFS', () => {
+    it('should call callback for each vertex in DFS order', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('A', 'C');
+
+      const visited: string[] = [];
+      graph.traverseDFS('A', (vertex) => visited.push(vertex));
+
+      expect(visited).toHaveLength(3);
+      expect(visited[0]).toBe('A');
+    });
+
+    it('should throw error for non-existent start vertex', () => {
+      expect(() => graph.traverseDFS('Z', () => {})).toThrow(
+        'Start vertex "Z" not found for DFS',
+      );
+    });
+
+    it('should not modify the graph', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addEdge('A', 'B');
+
+      const initialCount = graph.vertexCount;
+
+      graph.traverseDFS('A', () => {});
+
+      expect(graph.vertexCount).toBe(initialCount);
+    });
+  });
+
+  // =========================================================================
   // CYCLE DETECTION TESTS
   // =========================================================================
 
@@ -617,6 +795,86 @@ describe('DirectedGraph', () => {
     it('should return undefined for non-existent vertices', () => {
       graph.addVertex('A');
       expect(graph.findShortestPath('A', 'Z')).toBeUndefined();
+    });
+  });
+
+  // =========================================================================
+  // WEIGHTED SHORTEST PATH TESTS
+  // =========================================================================
+
+  describe('findShortestPathWeighted (Dijkstra)', () => {
+    it('should find shortest weighted path', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addEdge('A', 'B', 4);
+      graph.addEdge('A', 'C', 2);
+      graph.addEdge('C', 'B', 1);
+      graph.addEdge('B', 'D', 5);
+      graph.addEdge('C', 'D', 8);
+
+      const result = graph.findShortestPathWeighted('A', 'D');
+
+      expect(result).toBeDefined();
+      expect(result!.path).toEqual(['A', 'C', 'B', 'D']);
+      expect(result!.distance).toBe(8); // 2 + 1 + 5
+    });
+
+    it('should handle edges without weights (default to 1)', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addEdge('A', 'B');
+      graph.addEdge('B', 'C');
+
+      const result = graph.findShortestPathWeighted('A', 'C');
+
+      expect(result).toBeDefined();
+      expect(result!.distance).toBe(2);
+    });
+
+    it('should return path with distance 0 for same vertex', () => {
+      graph.addVertex('A');
+
+      const result = graph.findShortestPathWeighted('A', 'A');
+
+      expect(result).toEqual({ path: ['A'], distance: 0 });
+    });
+
+    it('should return undefined when no path exists', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+
+      expect(graph.findShortestPathWeighted('A', 'B')).toBeUndefined();
+    });
+
+    it('should return undefined for non-existent vertices', () => {
+      graph.addVertex('A');
+
+      expect(graph.findShortestPathWeighted('A', 'Z')).toBeUndefined();
+      expect(graph.findShortestPathWeighted('Z', 'A')).toBeUndefined();
+    });
+
+    it('should handle complex weighted graph', () => {
+      graph.addVertex('A');
+      graph.addVertex('B');
+      graph.addVertex('C');
+      graph.addVertex('D');
+      graph.addVertex('E');
+      graph.addEdge('A', 'B', 10);
+      graph.addEdge('A', 'C', 3);
+      graph.addEdge('B', 'D', 2);
+      graph.addEdge('C', 'B', 4);
+      graph.addEdge('C', 'D', 8);
+      graph.addEdge('D', 'E', 7);
+      graph.addEdge('B', 'E', 1);
+
+      const result = graph.findShortestPathWeighted('A', 'E');
+
+      expect(result).toBeDefined();
+      expect(result!.path).toEqual(['A', 'C', 'B', 'E']);
+      expect(result!.distance).toBe(8); // 3 + 4 + 1
     });
   });
 
