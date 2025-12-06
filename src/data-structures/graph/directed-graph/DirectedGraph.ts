@@ -1,5 +1,5 @@
 import PriorityQueue from '../../priority-queue/PriorityQueue';
-import Queue from '../../queue/linked-list/Queue';
+import Queue from '../../queue/list-queue/Queue';
 
 interface Edge<T> {
   target: T;

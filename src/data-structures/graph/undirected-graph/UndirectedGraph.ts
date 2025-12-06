@@ -1,4 +1,4 @@
-import Queue from '../queue/linked-list/Queue';
+import Queue from '../../queue/list-queue/Queue';
 
 class UndirectedGraph<T> {
   private adjList: Map<T, Map<T, number | undefined>>;

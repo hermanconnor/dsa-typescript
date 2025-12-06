@@ -8,8 +8,8 @@ class Node<T> {
   next: Node<T> | null;
 
   constructor(value: T) {
-    this.next = null;
     this.value = value;
+    this.next = null;
   }
 }
 
@@ -22,16 +22,66 @@ class Queue<T> {
   private head: Node<T> | null;
   private tail: Node<T> | null;
   private count: number;
+  private maxlen?: number;
 
-  constructor(initialElements?: Iterable<T>) {
+  constructor(items?: Iterable<T> | number, maxlen?: number) {
     this.head = null;
     this.tail = null;
     this.count = 0;
 
-    if (initialElements) {
-      for (const element of initialElements) {
-        this.enqueue(element);
+    // Handle case where first arg is a number (backward compatibility)
+    if (typeof items === 'number') {
+      maxlen = items;
+      items = undefined;
+    }
+
+    // Set maxlen if provided
+    if (maxlen !== undefined) {
+      if (maxlen <= 0) {
+        throw new Error('maxlen must be greater than 0');
       }
+
+      this.maxlen = maxlen;
+    }
+
+    // Convert items to array if provided
+    const itemsArray = items ? Array.from(items) : [];
+
+    // If more items than maxlen, keep only the last 'maxlen' items
+    const startIdx = this.maxlen
+      ? Math.max(0, itemsArray.length - this.maxlen)
+      : 0;
+
+    // Build the linked list directly without maxlen checks
+    this.initializeFromItems(itemsArray, startIdx);
+  }
+
+  /**
+   * @private
+   * @description Initializes the linked list (head, tail, and count) from an array of items.
+   * It starts appending items from a specified index, respecting the max length constraint.
+   * @param {T[]} items The array of elements to initialize the queue with.
+   * @param {number} startIdx The index in the `items` array to begin building the queue from.
+   * @returns {void}
+   * @TimeComplexity O(k) - Linear time, where k is the number of elements added (items.length - startIdx).
+   * @SpaceComplexity O(k) - Linear space complexity for the nodes created, where k is the number of elements added.
+   */
+  private initializeFromItems(items: T[], startIdx: number): void {
+    // Build the linked list directly
+    for (let i = startIdx; i < items.length; i++) {
+      const newNode = new Node(items[i]);
+
+      if (!this.tail) {
+        // First node
+        this.head = newNode;
+        this.tail = newNode;
+      } else {
+        // Subsequent nodes
+        this.tail.next = newNode;
+        this.tail = newNode;
+      }
+
+      this.count++;
     }
   }
 
@@ -53,6 +103,11 @@ class Queue<T> {
     }
 
     this.count++;
+
+    // If maxlen is set and we've exceeded it, dequeue from the front
+    if (this.maxlen !== undefined && this.count > this.maxlen) {
+      this.dequeue();
+    }
   }
 
   /**

@@ -8,16 +8,83 @@ describe('Queue', () => {
     queue = new Queue<number>();
   });
 
-  describe('constructor', () => {
-    it('should create an empty queue', () => {
-      expect(queue.isEmpty()).toBe(true);
+  describe('Constructor with maxlen', () => {
+    it('should create an empty queue with maxlen', () => {
+      const queue = new Queue<number>(5);
+
       expect(queue.size()).toBe(0);
+      expect(queue.isEmpty()).toBe(true);
     });
 
-    it('should handle empty iterable', () => {
-      const emptyQueue = new Queue([]);
+    it('should accept maxlen as first argument (backward compatibility)', () => {
+      const queue = new Queue<number>(3);
 
-      expect(emptyQueue.isEmpty()).toBe(true);
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+      queue.enqueue(4); // Should dequeue 1
+
+      expect(queue.size()).toBe(3);
+      expect(queue.toArray()).toEqual([2, 3, 4]);
+    });
+
+    it('should create queue from iterable with maxlen as second argument', () => {
+      const queue = new Queue<number>([1, 2, 3, 4, 5], 3);
+
+      expect(queue.size()).toBe(3);
+      expect(queue.toArray()).toEqual([3, 4, 5]);
+    });
+
+    it('should keep last maxlen items when initial items exceed maxlen', () => {
+      const queue = new Queue<number>([1, 2, 3, 4, 5, 6, 7], 4);
+
+      expect(queue.size()).toBe(4);
+      expect(queue.toArray()).toEqual([4, 5, 6, 7]);
+    });
+
+    it('should keep all items when initial items are less than maxlen', () => {
+      const queue = new Queue<number>([1, 2, 3], 5);
+
+      expect(queue.size()).toBe(3);
+      expect(queue.toArray()).toEqual([1, 2, 3]);
+    });
+
+    it('should throw error when maxlen is 0', () => {
+      expect(() => new Queue<number>(0)).toThrow(
+        'maxlen must be greater than 0',
+      );
+    });
+
+    it('should throw error when maxlen is negative', () => {
+      expect(() => new Queue<number>(-5)).toThrow(
+        'maxlen must be greater than 0',
+      );
+    });
+
+    it('should work with maxlen of 1', () => {
+      const queue = new Queue<number>([1, 2, 3], 1);
+
+      expect(queue.size()).toBe(1);
+      expect(queue.toArray()).toEqual([3]);
+    });
+
+    it('should create queue without maxlen when not provided', () => {
+      const queue = new Queue<number>([1, 2, 3]);
+
+      expect(queue.size()).toBe(3);
+
+      queue.enqueue(4);
+      queue.enqueue(5);
+
+      expect(queue.size()).toBe(5);
+      expect(queue.toArray()).toEqual([1, 2, 3, 4, 5]);
+    });
+
+    it('should handle empty iterable with maxlen', () => {
+      const queue = new Queue<number>([], 3);
+
+      expect(queue.size()).toBe(0);
+      expect(queue.isEmpty()).toBe(true);
     });
   });
 
@@ -58,6 +125,154 @@ describe('Queue', () => {
       stringQueue.enqueue('world');
 
       expect(stringQueue.peek()).toBe('hello');
+    });
+  });
+
+  describe('Enqueue with maxlen', () => {
+    it('should automatically dequeue when maxlen is reached', () => {
+      const queue = new Queue<number>(3);
+
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+
+      expect(queue.size()).toBe(3);
+      expect(queue.peek()).toBe(1);
+
+      queue.enqueue(4); // Should remove 1
+
+      expect(queue.size()).toBe(3);
+      expect(queue.peek()).toBe(2);
+      expect(queue.toArray()).toEqual([2, 3, 4]);
+    });
+
+    it('should maintain FIFO order with maxlen', () => {
+      const queue = new Queue<number>(3);
+
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+      queue.enqueue(4);
+      queue.enqueue(5);
+
+      expect(queue.size()).toBe(3);
+      expect(queue.toArray()).toEqual([3, 4, 5]);
+      expect(queue.peek()).toBe(3);
+      expect(queue.peekBack()).toBe(5);
+    });
+
+    it('should handle multiple enqueueing past maxlen', () => {
+      const queue = new Queue<string>(2);
+
+      queue.enqueue('a');
+      queue.enqueue('b');
+      queue.enqueue('c');
+      queue.enqueue('d');
+      queue.enqueue('e');
+
+      expect(queue.size()).toBe(2);
+      expect(queue.toArray()).toEqual(['d', 'e']);
+    });
+
+    it('should work normally when below maxlen', () => {
+      const queue = new Queue<number>(5);
+
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+
+      expect(queue.size()).toBe(3);
+      expect(queue.toArray()).toEqual([1, 2, 3]);
+    });
+
+    it('should work with maxlen of 1', () => {
+      const queue = new Queue<number>(1);
+
+      queue.enqueue(1);
+      expect(queue.peek()).toBe(1);
+
+      queue.enqueue(2);
+      expect(queue.peek()).toBe(2);
+      expect(queue.size()).toBe(1);
+
+      queue.enqueue(3);
+      expect(queue.peek()).toBe(3);
+      expect(queue.size()).toBe(1);
+    });
+
+    it('should not limit size when maxlen is not set', () => {
+      const queue = new Queue<number>();
+
+      for (let i = 0; i < 100; i++) {
+        queue.enqueue(i);
+      }
+
+      expect(queue.size()).toBe(100);
+    });
+  });
+
+  describe('Mixed operations with maxlen', () => {
+    it('should handle enqueue and dequeue correctly with maxlen', () => {
+      const queue = new Queue<number>(3);
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+
+      expect(queue.dequeue()).toBe(1);
+      expect(queue.size()).toBe(2);
+
+      queue.enqueue(4);
+      queue.enqueue(5);
+      expect(queue.size()).toBe(3);
+      expect(queue.toArray()).toEqual([3, 4, 5]);
+    });
+
+    it('should update head and tail correctly when auto-dequeuing', () => {
+      const queue = new Queue<number>(2);
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+
+      expect(queue.peek()).toBe(2);
+      expect(queue.peekBack()).toBe(3);
+    });
+
+    it('should work with clear and re-population', () => {
+      const queue = new Queue<number>(3);
+      queue.enqueue(1);
+      queue.enqueue(2);
+      queue.enqueue(3);
+
+      queue.clear();
+      expect(queue.size()).toBe(0);
+
+      queue.enqueue(4);
+      queue.enqueue(5);
+      expect(queue.size()).toBe(2);
+      expect(queue.toArray()).toEqual([4, 5]);
+    });
+  });
+
+  describe('Iterator with maxlen', () => {
+    it('should iterate correctly over bounded queue', () => {
+      const queue = new Queue<number>([1, 2, 3, 4, 5], 3);
+
+      const result = [];
+      for (const item of queue) {
+        result.push(item);
+      }
+
+      expect(result).toEqual([3, 4, 5]);
+    });
+
+    it('should work with spread operator', () => {
+      const queue = new Queue<string>(2);
+
+      queue.enqueue('a');
+      queue.enqueue('b');
+      queue.enqueue('c');
+
+      expect([...queue]).toEqual(['b', 'c']);
     });
   });
 
