@@ -1,5 +1,5 @@
 import TreeNode from './TreeNode';
-import Queue from '../queue/Queue';
+import Queue from '../queue/linked-list/Queue';
 
 class BST<T> {
   root: TreeNode<T> | null;
