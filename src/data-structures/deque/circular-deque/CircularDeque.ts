@@ -131,6 +131,155 @@ class CircularDeque<T> {
   }
 
   /**
+   * @private
+   * @description Shrinks the buffer when count falls below threshold.
+   * Helps reduce memory usage for long-lived deques.
+   * @returns {void}
+   * @TimeComplexity O(n) - Copies all n elements to new buffer.
+   * @SpaceComplexity O(n) - Allocates new smaller buffer.
+   */
+  private maybeShrink(): void {
+    // Don't shrink below initial capacity
+    if (this.capacity <= this.initialCapacity) return;
+
+    // Don't shrink if maxlen is set (capacity is optimized for it)
+    if (this.maxlen !== undefined) return;
+
+    // Shrink if utilization is less than 25%
+    const shrinkThreshold = this.capacity / 4;
+    if (this.count > shrinkThreshold) return;
+
+    const newCapacity = Math.max(
+      this.initialCapacity,
+      Math.floor(this.capacity / this.growthFactor),
+    );
+
+    const newBuffer = new Array<T | undefined>(newCapacity);
+
+    // Copy elements in order
+    for (let i = 0; i < this.count; i++) {
+      newBuffer[i] = this.buffer[(this.frontIndex + i) % this.capacity];
+    }
+
+    this.buffer = newBuffer;
+    this.frontIndex = 0;
+    this.rearIndex = this.count;
+    this.capacity = newCapacity;
+  }
+
+  /**
+   * Adds an element to the front of the deque.
+   * If maxlen is set and exceeded, removes from the rear.
+   * @param {T} item The element to add.
+   * @TimeComplexity O(1) amortized - May trigger O(n) resize occasionally.
+   * @SpaceComplexity O(1) - Constant space for the operation.
+   */
+  addFront(item: T): void {
+    // Handle maxlen constraint
+    if (this.maxlen !== undefined && this.count === this.maxlen) {
+      this.removeRear();
+    }
+
+    // Resize if needed (only when no maxlen)
+    if (this.count === this.capacity) {
+      this.resize();
+    }
+
+    this.frontIndex = (this.frontIndex - 1 + this.capacity) % this.capacity;
+    this.buffer[this.frontIndex] = item;
+    this.count++;
+  }
+
+  /**
+   * Adds an element to the rear of the deque.
+   * If maxlen is set and exceeded, removes from the front.
+   * @param {T} item The element to add.
+   * @TimeComplexity O(1) amortized - May trigger O(n) resize occasionally.
+   * @SpaceComplexity O(1) - Constant space for the operation.
+   */
+  addRear(item: T): void {
+    // Handle maxlen constraint
+    if (this.maxlen !== undefined && this.count === this.maxlen) {
+      this.removeFront();
+    }
+
+    // Resize if needed (only when no maxlen)
+    if (this.count === this.capacity) {
+      this.resize();
+    }
+
+    this.buffer[this.rearIndex] = item;
+    this.rearIndex = (this.rearIndex + 1) % this.capacity;
+    this.count++;
+  }
+
+  /**
+   * Removes and returns the element from the front of the deque.
+   * @returns {T | undefined} The element at the front, or `undefined` if empty.
+   * @TimeComplexity O(1) amortized - May trigger O(n) shrink occasionally.
+   * @SpaceComplexity O(1) - Constant space for the operation.
+   */
+  removeFront(): T | undefined {
+    if (this.count === 0) return undefined;
+
+    const value = this.buffer[this.frontIndex];
+    this.buffer[this.frontIndex] = undefined; // Allow garbage collection
+
+    this.frontIndex = (this.frontIndex + 1) % this.capacity;
+    this.count--;
+
+    // Consider shrinking if buffer is underutilized
+    this.maybeShrink();
+
+    return value;
+  }
+
+  /**
+   * Removes and returns the element from the rear of the deque.
+   * @returns {T | undefined} The element at the rear, or `undefined` if empty.
+   * @TimeComplexity O(1) amortized - May trigger O(n) shrink occasionally.
+   * @SpaceComplexity O(1) - Constant space for the operation.
+   */
+  removeRear(): T | undefined {
+    if (this.count === 0) return undefined;
+
+    this.rearIndex = (this.rearIndex - 1 + this.capacity) % this.capacity;
+    const value = this.buffer[this.rearIndex];
+
+    this.buffer[this.rearIndex] = undefined; // Allow garbage collection
+    this.count--;
+
+    // Consider shrinking if buffer is underutilized
+    this.maybeShrink();
+
+    return value;
+  }
+
+  /**
+   * Returns the element at the front without removing it.
+   * @returns {T | undefined} The element at the front, or `undefined` if empty.
+   * @TimeComplexity O(1) - Constant time.
+   * @SpaceComplexity O(1) - No extra space used.
+   */
+  peekFront(): T | undefined {
+    return this.count === 0 ? undefined : this.buffer[this.frontIndex];
+  }
+
+  /**
+   * Returns the element at the rear without removing it.
+   * @returns {T | undefined} The element at the rear, or `undefined` if empty.
+   * @TimeComplexity O(1) - Constant time.
+   * @SpaceComplexity O(1) - No extra space used.
+   */
+  peekRear(): T | undefined {
+    if (this.count === 0) return undefined;
+
+    const index = (this.rearIndex - 1 + this.capacity) % this.capacity;
+
+    return this.buffer[index];
+  }
+
+  /**
    * Checks if the deque is empty.
    * @returns {boolean} `true` if the deque contains no elements, `false` otherwise.
    * @TimeComplexity O(1) - Constant time.
