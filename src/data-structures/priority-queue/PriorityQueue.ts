@@ -95,7 +95,7 @@ class PriorityQueue<T> {
    * @param value - The value to enqueue.
    * @param priority - The priority of the value (lower number = higher priority).
    */
-  public enqueue(value: T, priority: number): void {
+  enqueue(value: T, priority: number): void {
     // O(1) check
     if (this.entryFinder.has(value)) {
       // O(log N) removal using the optimized heap
@@ -119,7 +119,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(log N), dominated by the `extractMin` operation.
    * @returns The highest priority value, or undefined if the queue is empty.
    */
-  public dequeue(): T | undefined {
+  dequeue(): T | undefined {
     // O(log N)
     const item = this.heap.extractMin();
     if (item) {
@@ -135,7 +135,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(1).
    * @returns The highest priority value, or undefined if the queue is empty.
    */
-  public peek(): T | undefined {
+  peek(): T | undefined {
     // O(1)
     const item = this.heap.peek();
     return item?.value;
@@ -146,7 +146,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(1).
    * @returns The priority number, or undefined if the queue is empty.
    */
-  public peekPriority(): number | undefined {
+  peekPriority(): number | undefined {
     // O(1)
     const item = this.heap.peek();
     return item?.priority;
@@ -158,7 +158,7 @@ class PriorityQueue<T> {
    * @param value - The value to check for existence.
    * @returns True if the value is in the queue, false otherwise.
    */
-  public contains(value: T): boolean {
+  contains(value: T): boolean {
     // O(1)
     return this.entryFinder.has(value);
   }
@@ -169,7 +169,7 @@ class PriorityQueue<T> {
    * @param value - The value to find the priority for.
    * @returns The priority number, or undefined if the item is not found.
    */
-  public getPriority(value: T): number | undefined {
+  getPriority(value: T): number | undefined {
     // O(1)
     return this.entryFinder.get(value)?.priority;
   }
@@ -179,7 +179,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(1).
    * @returns The current size of the queue.
    */
-  public size(): number {
+  size(): number {
     return this.heap.size();
   }
 
@@ -188,7 +188,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(1).
    * @returns True if the queue is empty, false otherwise.
    */
-  public isEmpty(): boolean {
+  isEmpty(): boolean {
     return this.heap.isEmpty();
   }
 
@@ -196,7 +196,7 @@ class PriorityQueue<T> {
    * Removes all items from the queue.
    * Time Complexity: O(1).
    */
-  public clear(): void {
+  clear(): void {
     this.heap.clear();
     this.entryFinder.clear();
     this.counter = 0;
@@ -210,7 +210,7 @@ class PriorityQueue<T> {
    * @param newPriority - The new priority number.
    * @returns True if the item was found and updated, false otherwise.
    */
-  public updatePriority(value: T, newPriority: number): boolean {
+  updatePriority(value: T, newPriority: number): boolean {
     // O(1) lookup
     const oldItem = this.entryFinder.get(value);
     if (!oldItem) return false;
@@ -241,7 +241,7 @@ class PriorityQueue<T> {
    * @param value - The value to be removed.
    * @returns True if the item was found and removed, false otherwise.
    */
-  public remove(value: T): boolean {
+  remove(value: T): boolean {
     // O(1) lookup
     const item = this.entryFinder.get(value);
     if (!item) return false;
@@ -261,7 +261,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(N).
    * @returns A new array containing only the queue item values.
    */
-  public toArray(): readonly T[] {
+  toArray(): readonly T[] {
     // O(N)
     return this.heap.toArray().map((item) => item.value);
   }
@@ -272,7 +272,7 @@ class PriorityQueue<T> {
    * Time Complexity: O(N log N) in total, as it performs N calls to `dequeue`, each being O(log N).
    * @returns An iterator for the queue values.
    */
-  public *[Symbol.iterator](): Iterator<T> {
+  *[Symbol.iterator](): Iterator<T> {
     while (!this.isEmpty()) {
       yield this.dequeue()!;
     }
