@@ -24,18 +24,23 @@ class Queue<T> {
   private count: number;
   private maxlen?: number;
 
-  constructor(items?: Iterable<T> | number, maxlen?: number) {
+  constructor(itemsOrCapacity?: Iterable<T> | number, capacity?: number) {
     this.head = null;
     this.tail = null;
     this.count = 0;
 
-    // Handle case where first arg is a number (backward compatibility)
-    if (typeof items === 'number') {
-      maxlen = items;
-      items = undefined;
+    // Handle overloaded signatures
+    let items: Iterable<T> | undefined;
+    let maxlen: number | undefined;
+
+    if (typeof itemsOrCapacity === 'number') {
+      maxlen = itemsOrCapacity;
+    } else {
+      items = itemsOrCapacity;
+      maxlen = capacity;
     }
 
-    // Set maxlen if provided
+    // Validate and set maxlen
     if (maxlen !== undefined) {
       if (maxlen <= 0) {
         throw new Error('maxlen must be greater than 0');
@@ -44,16 +49,15 @@ class Queue<T> {
       this.maxlen = maxlen;
     }
 
-    // Convert items to array if provided
-    const itemsArray = items ? Array.from(items) : [];
+    // Initialize with items, dropping oldest if exceeding capacity
+    if (items) {
+      const itemsArray = Array.from(items);
+      const startIdx = this.maxlen
+        ? Math.max(0, itemsArray.length - this.maxlen)
+        : 0;
 
-    // If more items than maxlen, keep only the last 'maxlen' items
-    const startIdx = this.maxlen
-      ? Math.max(0, itemsArray.length - this.maxlen)
-      : 0;
-
-    // Build the linked list directly without maxlen checks
-    this.initializeFromItems(itemsArray, startIdx);
+      this.initializeFromItems(itemsArray, startIdx);
+    }
   }
 
   /**
