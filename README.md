@@ -29,9 +29,9 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [ ] Bag
 - [x] Linked List (Singly) / (Doubly)
 - [x] Stack
-- [x] Queue
+- [x] Queue (linked-list) / (2-stacks) / (circular)
 - [x] Deque
-- [x] Graph
+- [x] Graph (directed/adjacency list)
 - [x] Binary Search Tree
 - [x] Heaps
 - [x] Priority Queue
