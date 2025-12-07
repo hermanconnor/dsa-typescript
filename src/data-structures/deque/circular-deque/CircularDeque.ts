@@ -103,9 +103,7 @@ class CircularDeque<T> {
    */
   private resize(): void {
     // Don't resize if we have a maxlen constraint and we're at it
-    if (this.maxlen !== undefined && this.count >= this.maxlen) {
-      return;
-    }
+    if (this.maxlen !== undefined && this.count >= this.maxlen) return;
 
     const newCapacity =
       this.maxlen !== undefined
@@ -113,9 +111,7 @@ class CircularDeque<T> {
         : Math.floor(this.capacity * this.growthFactor);
 
     // Ensure we actually increase capacity
-    if (newCapacity <= this.capacity) {
-      return;
-    }
+    if (newCapacity <= this.capacity) return;
 
     const newBuffer = new Array<T | undefined>(newCapacity);
 
@@ -140,7 +136,9 @@ class CircularDeque<T> {
    */
   private maybeShrink(): void {
     // Don't shrink below initial capacity
-    if (this.capacity <= this.initialCapacity) return;
+    if (this.capacity <= this.initialCapacity) {
+      return;
+    }
 
     // Don't shrink if maxlen is set (capacity is optimized for it)
     if (this.maxlen !== undefined) return;
@@ -280,6 +278,111 @@ class CircularDeque<T> {
   }
 
   /**
+   * Checks if the deque contains a specific item.
+   * Uses strict equality (===) for comparison.
+   * @param {T} item The item to search for.
+   * @returns {boolean} `true` if the item is found, `false` otherwise.
+   * @TimeComplexity O(n) - May need to check all elements.
+   * @SpaceComplexity O(1) - No extra space used.
+   */
+  contains(item: T): boolean {
+    for (let i = 0; i < this.count; i++) {
+      const index = (this.frontIndex + i) % this.capacity;
+
+      if (this.buffer[index] === item) return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns the element at the specified index (0-based from front).
+   * Negative indices count from the rear (-1 is last element).
+   * @param {number} index The index of the element to retrieve.
+   * @returns {T | undefined} The element at the index, or `undefined` if out of bounds.
+   * @TimeComplexity O(1) - Direct array access with modulo arithmetic.
+   * @SpaceComplexity O(1) - No extra space used.
+   */
+  get(index: number): T | undefined {
+    // Handle negative indices
+    if (index < 0) {
+      index = this.count + index;
+    }
+
+    // Out of bounds check
+    if (index < 0 || index >= this.count) return undefined;
+
+    const actualIndex = (this.frontIndex + index) % this.capacity;
+
+    return this.buffer[actualIndex];
+  }
+
+  /**
+   * Extends the deque by adding multiple items to the rear.
+   * If maxlen is set, removes from front as needed.
+   * @param {Iterable<T>} items The items to add.
+   * @TimeComplexity O(k) amortized - Where k is the number of items.
+   * @SpaceComplexity O(1) - Constant extra space (excluding new elements).
+   */
+  extend(items: Iterable<T>): void {
+    for (const item of items) {
+      this.addRear(item);
+    }
+  }
+
+  /**
+   * Extends the deque by adding multiple items to the front (in order).
+   * Items are added so that the first item in the iterable becomes the new front.
+   * If maxlen is set, removes from rear as needed.
+   * @param {Iterable<T>} items The items to add.
+   * @TimeComplexity O(k) amortized - Where k is the number of items.
+   * @SpaceComplexity O(k) - May need to convert iterable to array for reverse order.
+   */
+  extendLeft(items: Iterable<T>): void {
+    const itemsArray = Array.from(items);
+
+    for (let i = itemsArray.length - 1; i >= 0; i--) {
+      this.addFront(itemsArray[i]);
+    }
+  }
+
+  /**
+   * Rotates the deque n steps. Positive n rotates right (rear to front),
+   * negative n rotates left (front to rear).
+   * @param {number} n Number of steps to rotate.
+   * @TimeComplexity O(min(n, count)) - Moves elements, but optimized.
+   * @SpaceComplexity O(1) - No extra space used.
+   */
+  rotate(n: number = 1): void {
+    if (this.isEmpty() || this.count === 1) return;
+
+    // Normalize n to be within [-count, count]
+    n = n % this.count;
+
+    if (n === 0) return;
+
+    if (n > 0) {
+      // Rotate right: move rear to front
+      for (let i = 0; i < n; i++) {
+        const item = this.removeRear();
+
+        if (item !== undefined) {
+          this.addFront(item);
+        }
+      }
+    } else {
+      // Rotate left: move front to rear
+      for (let i = 0; i < Math.abs(n); i++) {
+        const item = this.removeFront();
+
+        if (item !== undefined) {
+          this.addRear(item);
+        }
+      }
+    }
+  }
+
+  /**
    * Checks if the deque is empty.
    * @returns {boolean} `true` if the deque contains no elements, `false` otherwise.
    * @TimeComplexity O(1) - Constant time.
@@ -330,6 +433,24 @@ class CircularDeque<T> {
   }
 
   /**
+   * Removes all elements from the deque and resets to initial capacity.
+   * @TimeComplexity O(1) - Just reallocates buffer.
+   * @SpaceComplexity O(1) - Resets to initial capacity.
+   */
+  clear(): void {
+    const resetCapacity =
+      this.maxlen !== undefined
+        ? Math.min(this.maxlen, this.initialCapacity)
+        : this.initialCapacity;
+
+    this.buffer = new Array(resetCapacity);
+    this.frontIndex = 0;
+    this.rearIndex = 0;
+    this.count = 0;
+    this.capacity = resetCapacity;
+  }
+
+  /**
    * Converts the deque to an array from front to rear.
    * @returns {T[]} An array containing all elements in order.
    * @TimeComplexity O(n) - Iterates over all n elements.
@@ -345,6 +466,72 @@ class CircularDeque<T> {
     }
 
     return result;
+  }
+
+  /**
+   * Returns a string representation of the deque.
+   * @returns {string} A string representing the deque's content.
+   * @TimeComplexity O(n) - Iterates over all n elements.
+   * @SpaceComplexity O(n) - Creates a new string.
+   */
+  toString(): string {
+    if (this.isEmpty()) return '[EMPTY]';
+
+    let s = '[FRONT] ';
+
+    for (let i = 0; i < this.count; i++) {
+      const index = (this.frontIndex + i) % this.capacity;
+
+      s += `${this.buffer[index]}`;
+
+      if (i < this.count - 1) {
+        s += ' <-> ';
+      }
+    }
+    s += ' [REAR]';
+
+    return s;
+  }
+
+  /**
+   * Implements the Iterable protocol. Elements are yielded from front to rear.
+   * @yields {T} The value at the current position.
+   * @TimeComplexity O(n) - For a full iteration over n elements.
+   * @SpaceComplexity O(1) - Iteration uses constant extra space.
+   */
+  *[Symbol.iterator](): Iterator<T> {
+    for (let i = 0; i < this.count; i++) {
+      const index = (this.frontIndex + i) % this.capacity;
+
+      yield this.buffer[index]!;
+    }
+  }
+
+  /**
+   * Reverse iterator - yields elements from rear to front.
+   * @yields {T} The value at the current position (moving backward).
+   * @TimeComplexity O(n) - For a full iteration over n elements.
+   * @SpaceComplexity O(1) - Iteration uses constant extra space.
+   */
+  reverseIterator(): Iterable<T> {
+    return {
+      [Symbol.iterator]: (): Iterator<T> => {
+        let i = this.count - 1;
+
+        return {
+          next: () => {
+            if (i >= 0) {
+              const index = (this.frontIndex + i) % this.capacity;
+              const value = this.buffer[index]!;
+              i--;
+              return { value, done: false };
+            }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return { value: undefined as any, done: true };
+          },
+        };
+      },
+    };
   }
 }
 
