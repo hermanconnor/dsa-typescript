@@ -28,12 +28,12 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [ ] Dynamic Array
 - [ ] Bag
 - [x] Linked List (Singly) / (Doubly)
-- [x] Stack
+- [x] Stack (linked-list) / (array) / (array-fixed)
 - [x] Queue (linked-list) / (2-stacks) / (circular)
-- [x] Deque
-- [x] Graph (directed/adjacency list)
+- [x] Deque (linked-list) / (circular)
+- [x] Graph (directed-adjacency list)
 - [x] Binary Search Tree
-- [x] Heaps
+- [x] Heap (min heap) / (max heap)
 - [x] Priority Queue
 - [x] HashTable
 - [x] Trie
