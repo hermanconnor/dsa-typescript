@@ -27,7 +27,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 
 - [ ] Dynamic Array
 - [ ] Bag
-- [x] Linked List (Singly) / (Doubly)
+- [x] Linked List (singly) / (singly-circular) / (doubly)
 - [x] Stack (linked-list) / (array) / (array-fixed)
 - [x] Queue (linked-list) / (2-stacks) / (circular)
 - [x] Deque (linked-list) / (circular)
