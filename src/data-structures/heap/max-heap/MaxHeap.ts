@@ -35,7 +35,7 @@ class MaxHeap<T> {
    * Time Complexity: O(1)
    * @returns The number of elements (size) in the heap.
    */
-  public size(): number {
+  size(): number {
     return this.heap.length;
   }
 
@@ -44,7 +44,7 @@ class MaxHeap<T> {
    * Time Complexity: O(1)
    * @returns True if the heap contains no elements, false otherwise.
    */
-  public isEmpty(): boolean {
+  isEmpty(): boolean {
     return this.heap.length === 0;
   }
 
@@ -53,7 +53,7 @@ class MaxHeap<T> {
    * Time Complexity: O(1)
    * @returns The maximum element, or undefined if the heap is empty.
    */
-  public peekMax(): T | undefined {
+  peekMax(): T | undefined {
     if (this.isEmpty()) return undefined;
     return this.heap[0];
   }
@@ -63,7 +63,7 @@ class MaxHeap<T> {
    * Time Complexity: O(log N).
    * @param value - The element to insert.
    */
-  public insert(value: T): void {
+  insert(value: T): void {
     this.heap.push(value);
     const newIdx = this.heap.length - 1;
     // O(1): Update the index map for the new value
@@ -77,7 +77,7 @@ class MaxHeap<T> {
    * Time Complexity: O(log N).
    * @returns The maximum element, or undefined if the heap is empty.
    */
-  public extractMax(): T | undefined {
+  extractMax(): T | undefined {
     if (this.isEmpty()) {
       return undefined;
     }
@@ -111,7 +111,7 @@ class MaxHeap<T> {
    * @param value - The element to remove (must be the same object reference used for insertion).
    * @returns True if the element was found and removed, false otherwise.
    */
-  public remove(value: T): boolean {
+  remove(value: T): boolean {
     // O(1): Find the index using the map
     const idx = this.valueToHeapIndex.get(value);
     if (idx === undefined) return false;
@@ -145,7 +145,7 @@ class MaxHeap<T> {
    * @param newValue - The new value (priority) for the element.
    * @returns True if the element was found and updated, false otherwise.
    */
-  public updatePriority(oldValue: T, newValue: T): boolean {
+  updatePriority(oldValue: T, newValue: T): boolean {
     // O(1): Find the index of the old value
     const idx = this.valueToHeapIndex.get(oldValue);
     if (idx === undefined) return false;
@@ -171,7 +171,7 @@ class MaxHeap<T> {
    * Time Complexity: O(N).
    * @param arr - The array of elements to build the heap from.
    */
-  public buildHeap(arr: T[]): void {
+  buildHeap(arr: T[]): void {
     this.heap = [...arr];
     this.valueToHeapIndex.clear(); // O(1) map clear
 
@@ -191,7 +191,7 @@ class MaxHeap<T> {
    * Clears all elements from the heap.
    * Time Complexity: O(1).
    */
-  public clear(): void {
+  clear(): void {
     this.heap = [];
     this.valueToHeapIndex.clear();
   }
@@ -201,7 +201,7 @@ class MaxHeap<T> {
    * Time Complexity: O(N).
    * @returns A copy of the internal array.
    */
-  public toArray(): readonly T[] {
+  toArray(): readonly T[] {
     return [...this.heap];
   }
 
@@ -210,7 +210,7 @@ class MaxHeap<T> {
    * Time Complexity: O(N).
    * @returns True if the heap property holds for all nodes, false otherwise.
    */
-  public isValid(): boolean {
+  isValid(): boolean {
     for (let i = 0; i < this.heap.length; i++) {
       const left = this.getLeftChildIndex(i);
       const right = this.getRightChildIndex(i);
@@ -231,17 +231,6 @@ class MaxHeap<T> {
       }
     }
     return true;
-  }
-
-  /**
-   * Iterator that yields elements in priority order (drains the heap).
-   * Time Complexity: O(N log N) in total.
-   * @returns An iterator for the heap elements.
-   */
-  public *[Symbol.iterator](): Iterator<T> {
-    while (!this.isEmpty()) {
-      yield this.extractMax()!;
-    }
   }
 
   /**
@@ -344,6 +333,17 @@ class MaxHeap<T> {
    */
   private getRightChildIndex(idx: number): number {
     return 2 * idx + 2;
+  }
+
+  /**
+   * Iterator that yields elements in priority order (drains the heap).
+   * Time Complexity: O(N log N) in total.
+   * @returns An iterator for the heap elements.
+   */
+  *[Symbol.iterator](): Iterator<T> {
+    while (!this.isEmpty()) {
+      yield this.extractMax()!;
+    }
   }
 }
 
