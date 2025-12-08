@@ -27,7 +27,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 
 - [ ] Dynamic Array
 - [ ] Bag
-- [x] Linked List (singly) / (singly-circular) / (doubly)
+- [x] Linked List (singly) / (singly-circular) / (doubly) / (circular-doubly)
 - [x] Stack (linked-list) / (array) / (array-fixed)
 - [x] Queue (linked-list) / (2-stacks) / (circular)
 - [x] Deque (linked-list) / (circular)
@@ -37,7 +37,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Priority Queue
 - [x] HashTable
 - [x] Trie
-- [x] Union-Find (Disjoint Set)
+- [x] Union-Find(Disjoint Set)
 
 ## 🧮 Algorithms
 
