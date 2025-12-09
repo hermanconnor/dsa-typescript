@@ -1,23 +1,40 @@
 import PriorityQueue from '../../priority-queue/PriorityQueue';
 import Queue from '../../queue/list-queue/Queue';
 
+/**
+ * Represents a directed edge in the graph with an optional weight.
+ */
 interface Edge<T> {
   target: T;
   weight?: number;
 }
 
+/**
+ * Generic directed graph implementation using adjacency list representation.
+ * Supports weighted and unweighted edges, various traversal algorithms, and graph analysis.
+ *
+ * @template T The type of vertices in the graph
+ */
 class DirectedGraph<T> {
   private adjacencyList: Map<T, Edge<T>[]>;
 
+  /**
+   * Creates a new empty directed graph.
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
   constructor() {
     this.adjacencyList = new Map();
   }
 
   /**
-   * Adds a vertex to the graph.
+   * Adds a vertex to the graph if it doesn't already exist.
    *
    * @param vertex - The vertex to add
-   * @complexity O(1)
+   *
+   * @timeComplexity O(1) average case for Map operations
+   * @spaceComplexity O(1)
    */
   addVertex(vertex: T): void {
     if (!this.adjacencyList.has(vertex)) {
@@ -27,13 +44,15 @@ class DirectedGraph<T> {
 
   /**
    * Adds a directed edge from one vertex to another with an optional weight.
-   * If the edge already exists, updates its weight.
+   * Updates weight if edge already exists.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @param weight - Optional edge weight (defaults to undefined)
-   * @throws Error if either vertex doesn't exist
-   * @complexity O(E_out) where E_out is the out-degree of the source vertex
+   * @param from - Source vertex
+   * @param to - Target vertex
+   * @param weight - Optional edge weight
+   * @throws {Error} If either vertex doesn't exist
+   *
+   * @timeComplexity O(E) where E is the number of edges from source vertex (due to findIndex)
+   * @spaceComplexity O(1)
    */
   addEdge(from: T, to: T, weight?: number): void {
     if (!this.hasVertex(from)) {
@@ -55,23 +74,23 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Removes a vertex and all edges connected to it.
+   * Removes a vertex and all edges connected to it (incoming and outgoing).
    *
    * @param vertex - The vertex to remove
-   * @returns true if the vertex was removed, false if it didn't exist
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns True if vertex was removed, false if it didn't exist
+   * @timeComplexity O(V + E) where V is vertices and E is total edges
+   * @spaceComplexity O(E) in worst case
    */
   removeVertex(vertex: T): boolean {
-    if (!this.hasVertex(vertex)) {
-      return false;
-    }
+    if (!this.hasVertex(vertex)) return false;
 
     this.adjacencyList.delete(vertex);
 
-    for (const edges of this.adjacencyList.values()) {
-      const index = edges.findIndex((e) => e.target === vertex);
-      if (index !== -1) {
-        edges.splice(index, 1);
+    for (const [v, edges] of this.adjacencyList) {
+      const filtered = edges.filter((e) => e.target !== vertex);
+      // Only update if something was actually removed
+      if (filtered.length !== edges.length) {
+        this.adjacencyList.set(v, filtered);
       }
     }
 
@@ -79,25 +98,24 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Removes a directed edge between two vertices.
+   * Removes a directed edge from one vertex to another.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns true if the edge was removed, false if it didn't exist
-   * @complexity O(E_out) where E_out is the out-degree of the source vertex
+   * @param from - Source vertex
+   * @param to - Target vertex
+   * @returns True if edge was removed, false if it didn't exist
+   *
+   * @timeComplexity O(E) where E is the number of edges from source vertex
+   * @spaceComplexity O(1)
    */
   removeEdge(from: T, to: T): boolean {
     const edges = this.adjacencyList.get(from);
-    if (!edges) {
-      return false;
-    }
+    if (!edges) return false;
 
     const index = edges.findIndex((edge) => edge.target === to);
-    if (index === -1) {
-      return false;
-    }
+    if (index === -1) return false;
 
     edges.splice(index, 1);
+
     return true;
   }
 
@@ -105,20 +123,24 @@ class DirectedGraph<T> {
    * Checks if a vertex exists in the graph.
    *
    * @param vertex - The vertex to check
-   * @returns true if the vertex exists, false otherwise
-   * @complexity O(1)
+   * @returns True if vertex exists
+   *
+   * @timeComplexity O(1) average case
+   * @spaceComplexity O(1)
    */
   hasVertex(vertex: T): boolean {
     return this.adjacencyList.has(vertex);
   }
 
   /**
-   * Checks if a directed edge exists between two vertices.
+   * Checks if a directed edge exists from one vertex to another.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns true if the edge exists, false otherwise
-   * @complexity O(E_out) where E_out is the out-degree of the source vertex
+   * @param from - Source vertex
+   * @param to - Target vertex
+   * @returns True if edge exists
+   *
+   * @timeComplexity O(E) where E is the number of edges from source vertex
+   * @spaceComplexity O(1)
    */
   hasEdge(from: T, to: T): boolean {
     const edges = this.adjacencyList.get(from);
@@ -127,13 +149,14 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Gets all outgoing edges from a vertex.
-   * Returns a copy to prevent external modification.
+   * Gets all outgoing neighbors of a vertex.
    *
    * @param vertex - The vertex to get neighbors for
-   * @returns An array of edges with their targets and optional weights
-   * @throws Error if the vertex doesn't exist
-   * @complexity O(E_out) where E_out is the out-degree of the vertex
+   * @returns Array of edges to neighboring vertices
+   * @throws {Error} If vertex doesn't exist
+   *
+   * @timeComplexity O(E) where E is the number of outgoing edges from the vertex
+   * @spaceComplexity O(E)
    */
   getNeighbors(vertex: T): Edge<T>[] {
     if (!this.hasVertex(vertex)) {
@@ -144,43 +167,49 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Gets the weight of an edge between two vertices.
+   * Gets the weight of a directed edge between two vertices.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns The edge weight, or undefined if the edge doesn't exist
-   * @complexity O(E_out) where E_out is the out-degree of the source vertex
+   * @param from - Source vertex
+   * @param to - Target vertex
+   * @returns The edge weight, or undefined if edge doesn't exist
+   *
+   * @timeComplexity O(E) where E is the number of edges from source vertex
+   * @spaceComplexity O(1)
    */
   getEdgeWeight(from: T, to: T): number | undefined {
     const edges = this.adjacencyList.get(from);
-
     const edge = edges?.find((e) => e.target === to);
+
     return edge?.weight;
   }
 
   /**
    * Gets all vertices in the graph.
    *
-   * @returns An array of all vertices
-   * @complexity O(V) where V is the number of vertices
+   * @returns Array of all vertices
+   *
+   * @timeComplexity O(V) where V is the number of vertices
+   * @spaceComplexity O(V)
    */
   getAllVertices(): T[] {
     return Array.from(this.adjacencyList.keys());
   }
 
   /**
-   * Gets the total number of vertices in the graph.
+   * Gets the number of vertices in the graph.
    *
-   * @complexity O(1)
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
    */
   get vertexCount(): number {
     return this.adjacencyList.size;
   }
 
   /**
-   * Gets the total number of edges in the graph.
+   * Gets the total number of directed edges in the graph.
    *
-   * @complexity O(V) where V is the number of vertices
+   * @timeComplexity O(V) where V is the number of vertices
+   * @spaceComplexity O(1)
    */
   get edgeCount(): number {
     let count = 0;
@@ -196,9 +225,11 @@ class DirectedGraph<T> {
    * Gets the out-degree of a vertex (number of outgoing edges).
    *
    * @param vertex - The vertex to check
-   * @returns The number of outgoing edges
-   * @throws Error if the vertex doesn't exist
-   * @complexity O(1)
+   * @returns The out-degree of the vertex
+   * @throws {Error} If vertex doesn't exist
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
    */
   getOutDegree(vertex: T): number {
     if (!this.hasVertex(vertex)) {
@@ -212,9 +243,11 @@ class DirectedGraph<T> {
    * Gets the in-degree of a vertex (number of incoming edges).
    *
    * @param vertex - The vertex to check
-   * @returns The number of incoming edges
-   * @throws Error if the vertex doesn't exist
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns The in-degree of the vertex
+   * @throws {Error} If vertex doesn't exist
+   *
+   * @timeComplexity O(V + E) where V is vertices and E is total edges
+   * @spaceComplexity O(1)
    */
   getInDegree(vertex: T): number {
     if (!this.hasVertex(vertex)) {
@@ -222,18 +255,21 @@ class DirectedGraph<T> {
     }
 
     let count = 0;
+
     for (const edges of this.adjacencyList.values()) {
       count += edges.filter((e) => e.target === vertex).length;
     }
+
     return count;
   }
 
   /**
-   * Gets all source vertices (vertices with in-degree of 0).
-   * Optimized to compute all in-degrees in a single pass.
+   * Gets all source vertices (vertices with no incoming edges).
    *
-   * @returns An array of all source vertices
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns Array of source vertices
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   getSources(): T[] {
     const sources: T[] = [];
@@ -261,10 +297,12 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Gets all sink vertices (vertices with out-degree of 0).
+   * Gets all sink vertices (vertices with no outgoing edges).
    *
-   * @returns An array of all sink vertices
-   * @complexity O(V) where V is the number of vertices
+   * @returns Array of sink vertices
+   *
+   * @timeComplexity O(V)
+   * @spaceComplexity O(V) for result array
    */
   getSinks(): T[] {
     const sinks: T[] = [];
@@ -281,20 +319,22 @@ class DirectedGraph<T> {
   /**
    * Removes all vertices and edges from the graph.
    *
-   * @complexity O(1)
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
    */
   clear(): void {
     this.adjacencyList.clear();
   }
 
   /**
-   * Performs a breadth-first search traversal starting from a given vertex.
-   * Returns the vertices in the order they were visited.
+   * Performs breadth-first search and returns vertices in BFS order.
    *
-   * @param startVertex - The vertex to start the traversal from
-   * @returns An array of vertices in BFS order
-   * @throws Error if the start vertex doesn't exist
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @param startVertex - The vertex to start BFS from
+   * @returns Array of vertices in BFS order
+   * @throws {Error} If start vertex doesn't exist
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   getBFSOrder(startVertex: T): T[] {
     if (!this.hasVertex(startVertex)) {
@@ -325,14 +365,14 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Performs a depth-first search traversal starting from a given vertex.
-   * Returns the vertices in the order they were visited.
-   * Uses an iterative approach with a stack.
+   * Performs depth-first search and returns vertices in DFS order.
    *
-   * @param startVertex - The vertex to start the traversal from
-   * @returns An array of vertices in DFS order
-   * @throws Error if the start vertex doesn't exist
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @param startVertex - The vertex to start DFS from
+   * @returns Array of vertices in DFS order
+   * @throws {Error} If start vertex doesn't exist
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   getDFSOrder(startVertex: T): T[] {
     if (!this.hasVertex(startVertex)) {
@@ -365,13 +405,14 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Performs a breadth-first search traversal, calling a callback for each vertex visited.
-   * More memory-efficient than getBFSOrder() as it doesn't store all vertices.
+   * Traverses the graph using BFS and calls a callback for each vertex.
    *
-   * @param startVertex - The vertex to start the traversal from
+   * @param startVertex - The vertex to start from
    * @param callback - Function to call for each visited vertex
-   * @throws Error if the start vertex doesn't exist
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @throws {Error} If start vertex doesn't exist
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   traverseBFS(startVertex: T, callback: (vertex: T) => void): void {
     if (!this.hasVertex(startVertex)) {
@@ -399,13 +440,14 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Performs a depth-first search traversal, calling a callback for each vertex visited.
-   * More memory-efficient than getDFSOrder() as it doesn't store all vertices.
+   * Traverses the graph using DFS and calls a callback for each vertex.
    *
-   * @param startVertex - The vertex to start the traversal from
+   * @param startVertex - The vertex to start from
    * @param callback - Function to call for each visited vertex
-   * @throws Error if the start vertex doesn't exist
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @throws {Error} If start vertex doesn't exist
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   traverseDFS(startVertex: T, callback: (vertex: T) => void): void {
     if (!this.hasVertex(startVertex)) {
@@ -435,11 +477,12 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Detects if the graph contains a cycle using DFS with color marking.
-   * Uses white (unvisited), gray (in progress), and black (finished) marking.
+   * Detects if the directed graph contains a cycle using DFS with color marking.
    *
-   * @returns true if the graph contains a cycle, false otherwise
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns True if graph contains a cycle
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V) for recursion stack and color sets
    */
   hasCycle(): boolean {
     const white = new Set<T>(this.getAllVertices());
@@ -454,7 +497,7 @@ class DirectedGraph<T> {
 
       for (const { target } of neighbors) {
         if (black.has(target)) continue;
-        if (gray.has(target)) return true;
+        if (gray.has(target)) return true; // Back edge found
         if (dfs(target)) return true;
       }
 
@@ -474,8 +517,10 @@ class DirectedGraph<T> {
   /**
    * Checks if the graph is a Directed Acyclic Graph (DAG).
    *
-   * @returns true if the graph has no cycles, false otherwise
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns True if graph has no cycles
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   isDAG(): boolean {
     return !this.hasCycle();
@@ -483,10 +528,12 @@ class DirectedGraph<T> {
 
   /**
    * Performs topological sort using Kahn's algorithm (BFS-based).
-   * Returns vertices in topologically sorted order, or undefined if the graph has a cycle.
+   * Only works on DAGs.
    *
-   * @returns An array of vertices in topological order, or undefined if a cycle exists
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns Array of vertices in topological order, or undefined if graph has cycles
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   topologicalSort(): T[] | undefined {
     const inDegree = new Map<T, number>();
@@ -515,7 +562,6 @@ class DirectedGraph<T> {
 
     while (!queue.isEmpty()) {
       const vertex = queue.dequeue()!;
-
       result.push(vertex);
       const neighbors = this.getNeighbors(vertex);
 
@@ -533,11 +579,13 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Performs topological sort using DFS.
-   * Returns vertices in topologically sorted order, or undefined if the graph has a cycle.
+   * Performs topological sort using DFS-based algorithm.
+   * Only works on DAGs.
    *
-   * @returns An array of vertices in topological order, or undefined if a cycle exists
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns Array of vertices in topological order, or undefined if graph has cycles
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V) for recursion stack and visited set
    */
   topologicalSortDFS(): T[] | undefined {
     if (this.hasCycle()) return undefined;
@@ -569,10 +617,12 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Creates a transposed graph where all edge directions are reversed.
+   * Creates a transposed graph (all edges reversed).
    *
-   * @returns A new graph with all edges reversed
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns New graph with all edge directions reversed
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V + E)
    */
   transpose(): DirectedGraph<T> {
     const transposed = new DirectedGraph<T>();
@@ -592,11 +642,13 @@ class DirectedGraph<T> {
 
   /**
    * Finds all strongly connected components using Kosaraju's algorithm.
-   * A strongly connected component is a maximal set of vertices where every vertex
-   * is reachable from every other vertex in the set.
+   * A strongly connected component is a maximal set of vertices where every
+   * vertex is reachable from every other vertex.
    *
-   * @returns An array of components, where each component is an array of vertices
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns Array of components, where each component is an array of vertices
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V + E) for transposed graph and auxiliary structures
    */
   getStronglyConnectedComponents(): T[][] {
     // Kosaraju's algorithm
@@ -652,21 +704,21 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Checks if a path exists between two vertices using BFS.
+   * Checks if a directed path exists between two vertices.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns true if a path exists, false otherwise
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @param from - Starting vertex
+   * @param to - Target vertex
+   * @returns True if path exists
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   hasPath(from: T, to: T): boolean {
     if (!this.hasVertex(from) || !this.hasVertex(to)) {
       return false;
     }
 
-    if (from === to) {
-      return true;
-    }
+    if (from === to) return true;
 
     const visited = new Set<T>();
     const queue = new Queue<T>();
@@ -676,12 +728,12 @@ class DirectedGraph<T> {
 
     while (!queue.isEmpty()) {
       const vertex = queue.dequeue()!;
+
+      if (vertex === to) return true;
+
       const neighbors = this.getNeighbors(vertex);
 
       for (const { target } of neighbors) {
-        if (target === to) {
-          return true;
-        }
         if (!visited.has(target)) {
           visited.add(target);
           queue.enqueue(target);
@@ -693,13 +745,14 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Finds the shortest path between two vertices in an unweighted graph using BFS.
-   * For weighted graphs, use findShortestPathWeighted() instead.
+   * Finds the shortest path between two vertices (unweighted - minimum hops).
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns An array representing the shortest path, or undefined if no path exists
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @param from - Starting vertex
+   * @param to - Target vertex
+   * @returns Array of vertices in the path, or undefined if no path exists
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V)
    */
   findShortestPath(from: T, to: T): T[] | undefined {
     if (!this.hasVertex(from) || !this.hasVertex(to)) {
@@ -743,13 +796,15 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Finds the shortest weighted path between two vertices using Dijkstra's algorithm.
-   * Edge weights default to 1 if not specified. Does not work with negative weights.
+   * Finds the shortest weighted path using Dijkstra's algorithm.
+   * Works only with non-negative edge weights.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns An object with the path and total distance, or undefined if no path exists
-   * @complexity O((V + E) log V) using a priority queue
+   * @param from - Starting vertex
+   * @param to - Target vertex
+   * @returns Object with path and distance, or undefined if no path exists
+   *
+   * @timeComplexity O((V + E) log V) with priority queue
+   * @spaceComplexity O(V)
    */
   findShortestPathWeighted(
     from: T,
@@ -763,7 +818,6 @@ class DirectedGraph<T> {
       return { path: [from], distance: 0 };
     }
 
-    // Dijkstra's algorithm with priority queue
     const distances = new Map<T, number>();
     const previous = new Map<T, T | undefined>();
     const pq = new PriorityQueue<T>();
@@ -780,20 +834,13 @@ class DirectedGraph<T> {
       const current = pq.dequeue()!;
       const currentDist = distances.get(current)!;
 
-      // If we reached the target, we can stop
-      if (current === to) {
-        break;
-      }
+      if (current === to) break;
 
-      // Skip if we've already found a better path
-      if (currentDist === Infinity) {
-        break;
-      }
+      if (currentDist === Infinity) break;
 
-      // Update distances to neighbors
       const neighbors = this.getNeighbors(current);
       for (const { target, weight } of neighbors) {
-        const edgeWeight = weight ?? 1; // Default weight is 1
+        const edgeWeight = weight ?? 1;
         const newDistance = currentDist + edgeWeight;
         const oldDistance = distances.get(target)!;
 
@@ -805,13 +852,9 @@ class DirectedGraph<T> {
       }
     }
 
-    // Check if path exists
     const finalDistance = distances.get(to)!;
-    if (finalDistance === Infinity) {
-      return undefined;
-    }
+    if (finalDistance === Infinity) return undefined;
 
-    // Reconstruct path
     const path: T[] = [];
     let current: T | undefined = to;
     while (current !== undefined) {
@@ -824,12 +867,14 @@ class DirectedGraph<T> {
 
   /**
    * Finds the shortest weighted path using Bellman-Ford algorithm.
-   * Works with negative edge weights and can detect negative cycles.
+   * Works with negative edge weights and detects negative cycles.
    *
-   * @param from - The source vertex
-   * @param to - The target vertex
-   * @returns Object with path and distance, undefined if no path exists, or object indicating negative cycle
-   * @complexity O(V * E) where V is the number of vertices and E is the number of edges
+   * @param from - Starting vertex
+   * @param to - Target vertex
+   * @returns Object with path and distance, or indication of negative cycle, or undefined if no path
+   *
+   * @timeComplexity O(V * E)
+   * @spaceComplexity O(V)
    */
   findShortestPathBellmanFord(
     from: T,
@@ -863,7 +908,6 @@ class DirectedGraph<T> {
       for (const [source, edges] of this.adjacencyList) {
         const sourceDist = distances.get(source)!;
 
-        // Skip if source is unreachable
         if (sourceDist === Infinity) continue;
 
         for (const { target, weight } of edges) {
@@ -893,19 +937,16 @@ class DirectedGraph<T> {
         const newDistance = sourceDist + edgeWeight;
 
         if (newDistance < distances.get(target)!) {
-          // Negative cycle detected
           return { hasNegativeCycle: true };
         }
       }
     }
 
-    // Check if path exists to target
     const finalDistance = distances.get(to)!;
     if (finalDistance === Infinity) {
       return undefined;
     }
 
-    // Reconstruct path
     const path: T[] = [];
     let current: T | undefined = to;
     while (current !== undefined) {
@@ -918,13 +959,13 @@ class DirectedGraph<T> {
 
   /**
    * Computes shortest paths between all pairs of vertices using Floyd-Warshall algorithm.
-   * Handles weighted edges (defaults to 1 if not specified).
    *
-   * @returns A map where distances.get(u).get(v) gives the shortest distance from u to v
-   * @complexity O(V³) where V is the number of vertices
+   * @returns Map where distances[u][v] is the shortest distance from u to v
+   *
+   * @timeComplexity O(V³)
+   * @spaceComplexity O(V²)
    */
   getAllPairsShortestPaths(): Map<T, Map<T, number>> {
-    // Floyd-Warshall algorithm
     const vertices = this.getAllVertices();
     const dist = new Map<T, Map<T, number>>();
 
@@ -969,10 +1010,12 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Creates a deep copy of the graph with all vertices, edges, and weights.
+   * Creates a deep copy of the directed graph.
    *
-   * @returns A new DirectedGraph instance with the same structure
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns A new graph with the same vertices and edges
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V + E)
    */
   clone(): DirectedGraph<T> {
     const cloned = new DirectedGraph<T>();
@@ -993,10 +1036,12 @@ class DirectedGraph<T> {
   }
 
   /**
-   * Returns a string representation of the graph showing all vertices and their edges.
+   * Returns a string representation of the directed graph.
    *
-   * @returns A formatted string representation
-   * @complexity O(V + E) where V is the number of vertices and E is the number of edges
+   * @returns String showing all vertices and their outgoing edges
+   *
+   * @timeComplexity O(V + E)
+   * @spaceComplexity O(V + E)
    */
   toString(): string {
     let result = 'DirectedGraph:\n';
@@ -1008,19 +1053,17 @@ class DirectedGraph<T> {
         .join(', ');
       result += `  ${vertex} -> [${edgeStr}]\n`;
     }
+
     return result;
   }
 
   /**
-   * Makes the graph iterable using for...of loops.
-   * Each iteration yields a tuple of [vertex, edges] where edges is a copy of the edge array.
+   * Allows iteration over the graph using for...of loops.
    *
-   * @example
-   * for (const [vertex, edges] of graph) {
-   *   console.log(`${vertex} has ${edges.length} outgoing edges`);
-   * }
+   * @yields Tuples of [vertex, edges[]]
    *
-   * @complexity O(1) per iteration, O(V) for complete iteration
+   * @timeComplexity O(1) per iteration
+   * @spaceComplexity O(E) for copying edge arrays
    */
   *[Symbol.iterator](): Iterator<[T, Edge<T>[]]> {
     for (const [vertex, edges] of this.adjacencyList) {
