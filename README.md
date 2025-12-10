@@ -36,7 +36,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Tree (binary search tree)
 - [x] Heap (min heap) / (max heap)
 - [x] Priority Queue
-- [x] HashTable
+- [x] HashTable (hashmap) / (hashset)
 - [x] Trie
 - [x] Union-Find(Disjoint Set)
 
