@@ -31,8 +31,9 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Stack (linked-list) / (array) / (array-fixed)
 - [x] Queue (linked-list) / (2-stacks) / (circular)
 - [x] Deque (linked-list) / (circular)
-- [x] Graph (directed-adjacency list)
-- [x] Binary Search Tree
+- [x] Graph (directed-adjacency list) / (undirected-adjacency list)
+- [ ] Graph (directed-adjacency matrix) / (undirected-adjacency matrix)
+- [x] Tree (binary search tree)
 - [x] Heap (min heap) / (max heap)
 - [x] Priority Queue
 - [x] HashTable
