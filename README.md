@@ -25,7 +25,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 
 ## 📚 Data Structures
 
-- [ ] Dynamic Array
+- [x] Dynamic Array
 - [x] Bag
 - [x] Linked List (singly) / (singly-circular) / (doubly) / (circular-doubly)
 - [x] Stack (linked-list) / (array) / (array-fixed)
