@@ -578,4 +578,71 @@ describe('HashMap', () => {
       expect(dynamicMap.getSize()).toBe(100); // 50 remaining + 50 new
     });
   });
+
+  describe('toArray()', () => {
+    it('should convert map to array of entries', () => {
+      map.set('a', 1);
+      map.set('b', 2);
+      map.set('c', 3);
+
+      const arr = map.toArray();
+      expect(arr).toHaveLength(3);
+      expect(arr).toContainEqual(['a', 1]);
+      expect(arr).toContainEqual(['b', 2]);
+      expect(arr).toContainEqual(['c', 3]);
+    });
+
+    it('should return empty array for empty map', () => {
+      const arr = map.toArray();
+      expect(arr).toEqual([]);
+    });
+
+    it('should create a new array (not reference to internal structure)', () => {
+      map.set('key', 100);
+      const arr1 = map.toArray();
+      const arr2 = map.toArray();
+
+      expect(arr1).not.toBe(arr2);
+      expect(arr1).toEqual(arr2);
+    });
+  });
+
+  describe('toString()', () => {
+    it('should return string representation of map', () => {
+      map.set('apple', 1);
+      map.set('banana', 2);
+
+      const str = map.toString();
+      expect(str).toContain('HashMap');
+      expect(str).toContain('2'); // size
+      expect(str).toContain('apple');
+      expect(str).toContain('banana');
+      expect(str).toContain('=>');
+    });
+
+    it('should handle empty map', () => {
+      const str = map.toString();
+      expect(str).toContain('HashMap');
+      expect(str).toContain('0');
+    });
+
+    it('should handle single entry', () => {
+      map.set('key1', 100);
+      const str = map.toString();
+      expect(str).toContain('HashMap(1)');
+      expect(str).toContain('key1 => 100');
+    });
+
+    it('should handle different value types in string', () => {
+      const mixedMap = new HashMap<string, any>();
+      mixedMap.set('string', 'value');
+      mixedMap.set('number', 42);
+      mixedMap.set('boolean', true);
+
+      const str = mixedMap.toString();
+      expect(str).toContain('string => value');
+      expect(str).toContain('number => 42');
+      expect(str).toContain('boolean => true');
+    });
+  });
 });

@@ -185,6 +185,7 @@ class HashMap<K, V> {
         return v;
       }
     }
+
     return undefined;
   }
 
@@ -206,6 +207,7 @@ class HashMap<K, V> {
         return true;
       }
     }
+
     return false;
   }
 
@@ -230,11 +232,14 @@ class HashMap<K, V> {
         if (i !== lastIndex) {
           bucket[i] = bucket[lastIndex];
         }
+
         bucket.pop();
         this.size--;
+
         return true;
       }
     }
+
     return false;
   }
 
@@ -248,6 +253,31 @@ class HashMap<K, V> {
    */
   getSize(): number {
     return this.size;
+  }
+
+  /**
+   * Returns the current load factor (size / capacity).
+   * Useful for performance monitoring.
+   *
+   * @returns Current load factor as a decimal
+   *
+   * Time Complexity: O(1)
+   * Space Complexity: O(1)
+   */
+  getLoadFactor(): number {
+    return this.size / this.capacity;
+  }
+
+  /**
+   * Returns the current capacity (number of buckets).
+   *
+   * @returns Current capacity
+   *
+   * Time Complexity: O(1)
+   * Space Complexity: O(1)
+   */
+  getCapacity(): number {
+    return this.capacity;
   }
 
   /**
@@ -294,6 +324,34 @@ class HashMap<K, V> {
         boundCallback(value, key, this);
       }
     }
+  }
+
+  /**
+   * Converts the map to an array of [key, value] tuples.
+   *
+   * @returns Array of key-value pairs
+   *
+   * Time Complexity: O(n + m) where n = entries, m = capacity
+   * Space Complexity: O(n)
+   */
+  toArray(): Array<[K, V]> {
+    return Array.from(this.entries());
+  }
+
+  /**
+   * Returns a string representation of the map.
+   *
+   * @returns String representation showing size and entries
+   *
+   * Time Complexity: O(n)
+   * Space Complexity: O(n)
+   */
+  toString(): string {
+    const entries = this.toArray()
+      .map(([key, value]) => `${String(key)} => ${String(value)}`)
+      .join(', ');
+
+    return `HashMap(${this.size}) { ${entries} }`;
   }
 
   /**
@@ -350,31 +408,6 @@ class HashMap<K, V> {
    */
   [Symbol.iterator](): IterableIterator<[K, V]> {
     return this.entries();
-  }
-
-  /**
-   * Returns the current load factor (size / capacity).
-   * Useful for performance monitoring.
-   *
-   * @returns Current load factor as a decimal
-   *
-   * Time Complexity: O(1)
-   * Space Complexity: O(1)
-   */
-  getLoadFactor(): number {
-    return this.size / this.capacity;
-  }
-
-  /**
-   * Returns the current capacity (number of buckets).
-   *
-   * @returns Current capacity
-   *
-   * Time Complexity: O(1)
-   * Space Complexity: O(1)
-   */
-  getCapacity(): number {
-    return this.capacity;
   }
 }
 
