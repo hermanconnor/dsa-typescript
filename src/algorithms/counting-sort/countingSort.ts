@@ -8,10 +8,10 @@
  * @returns {number[]} A new, sorted array.
  *
  * @complexity
- * - **Time Complexity (Worst/Average/Best Case):** $O(n + k)$
+ * - **Time Complexity (Worst/Average/Best Case):** O(n + k)
  * (Where 'n' is the number of elements and 'k' is the range of input values (max - min)).
- * - **Space Complexity:** $O(n + k)$
- * (Requires $O(k)$ for the `count` array and $O(n)$ for the `output` array).
+ * - **Space Complexity:** O(n + k)
+ * (Requires O(k) for the `count` array and O(n) for the `output` array).
  */
 export function countingSort(arr: number[]): number[] {
   const n = arr.length;
