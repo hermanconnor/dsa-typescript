@@ -51,6 +51,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Insertion Sort
 - [x] Merge Sort
 - [x] Quick Sort
+- [x] Radix Sort
 - [x] Selection Sort
 
 ### Searching
