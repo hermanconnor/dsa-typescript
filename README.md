@@ -62,7 +62,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Jump Search
 - [x] Exponential Search
 - [ ] Depth-First Search (DFS)
-- [ ] Breadth-First Search (BFS)
+- [x] Breadth-First Search (BFS)
 
 ## 🛠️ Setup
 
