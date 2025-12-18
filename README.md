@@ -64,6 +64,10 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Depth-First Search (DFS)
 - [x] Breadth-First Search (BFS)
 
+### Graph Algorithms
+
+- [x] Dijkstra's Algorithm
+
 ## 🛠️ Setup
 
 To get started with the project, follow the steps below:
