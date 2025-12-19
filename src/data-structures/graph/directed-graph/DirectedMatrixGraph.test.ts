@@ -47,4 +47,39 @@ describe('DirectedMatrixGraph', () => {
       expect(() => graph.removeEdge(-1, 0)).toThrow('Invalid vertex index');
     });
   });
+
+  describe('getNeighbors', () => {
+    it('should return all neighbors of a vertex', () => {
+      graph.addEdge(0, 1);
+      graph.addEdge(0, 2);
+      graph.addEdge(0, 3);
+
+      expect(graph.getNeighbors(0)).toEqual([1, 2, 3]);
+    });
+
+    it('should return empty array for vertex with no neighbors', () => {
+      expect(graph.getNeighbors(0)).toEqual([]);
+    });
+  });
+
+  describe('getInDegree and getOutDegree', () => {
+    beforeEach(() => {
+      graph.addEdge(0, 1);
+      graph.addEdge(0, 2);
+      graph.addEdge(1, 2);
+      graph.addEdge(3, 1);
+    });
+
+    it('should calculate in-degree correctly', () => {
+      expect(graph.getInDegree(1)).toBe(2); // edges from 0 and 3
+      expect(graph.getInDegree(2)).toBe(2); // edges from 0 and 1
+      expect(graph.getInDegree(0)).toBe(0); // no incoming edges
+    });
+
+    it('should calculate out-degree correctly', () => {
+      expect(graph.getOutDegree(0)).toBe(2); // edges to 1 and 2
+      expect(graph.getOutDegree(1)).toBe(1); // edge to 2
+      expect(graph.getOutDegree(4)).toBe(0); // no outgoing edges
+    });
+  });
 });

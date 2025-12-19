@@ -117,6 +117,81 @@ class DirectedMatrixGraph {
 
     throw new Error('Invalid vertex index');
   }
+
+  /**
+   * Returns all vertices that have incoming edges from the given vertex.
+   *
+   * @param vertex - The vertex index to get neighbors for
+   * @returns An array of neighbor vertex indices
+   * @throws {Error} If vertex is an invalid index
+   *
+   * @timeComplexity O(V) where V is the number of vertices
+   * @spaceComplexity O(V) in worst case when vertex connects to all other vertices
+   */
+  getNeighbors(vertex: number): number[] {
+    if (!this.isValidVertex(vertex)) {
+      throw new Error('Invalid vertex index');
+    }
+
+    const neighbors: number[] = [];
+    for (let i = 0; i < this.vertices; i++) {
+      if (this.matrix[vertex][i] !== 0) {
+        neighbors.push(i);
+      }
+    }
+
+    return neighbors;
+  }
+
+  /**
+   * Calculates the in-degree of a vertex (number of incoming edges).
+   *
+   * @param vertex - The vertex index
+   * @returns The number of edges pointing to this vertex
+   * @throws {Error} If vertex is an invalid index
+   *
+   * @timeComplexity O(V) where V is the number of vertices
+   * @spaceComplexity O(1)
+   */
+  getInDegree(vertex: number): number {
+    if (!this.isValidVertex(vertex)) {
+      throw new Error('Invalid vertex index');
+    }
+
+    let count = 0;
+    for (let i = 0; i < this.vertices; i++) {
+      if (this.matrix[i][vertex] !== 0) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  /**
+   * Calculates the out-degree of a vertex (number of outgoing edges).
+   *
+   * @param vertex - The vertex index
+   * @returns The number of edges originating from this vertex
+   * @throws {Error} If vertex is an invalid index
+   *
+   * @timeComplexity O(V) where V is the number of vertices
+   * @spaceComplexity O(1)
+   */
+  getOutDegree(vertex: number): number {
+    if (!this.isValidVertex(vertex)) {
+      throw new Error('Invalid vertex index');
+    }
+
+    let count = 0;
+    for (let i = 0; i < this.vertices; i++) {
+      if (this.matrix[vertex][i] !== 0) {
+        count++;
+      }
+    }
+
+    return count;
+  }
 }
 
 export default DirectedMatrixGraph;
