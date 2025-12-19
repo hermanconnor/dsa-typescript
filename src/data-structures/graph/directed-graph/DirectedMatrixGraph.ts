@@ -1,3 +1,5 @@
+import Queue from '../../queue/list-queue/Queue';
+
 /**
  * A directed graph implementation using an adjacency matrix representation.
  * Supports weighted edges and provides efficient edge lookup operations.
@@ -191,6 +193,198 @@ class DirectedMatrixGraph {
     }
 
     return count;
+  }
+
+  /**
+   * Returns the total number of vertices in the graph.
+   *
+   * @returns The number of vertices
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
+  getVertexCount(): number {
+    return this.vertices;
+  }
+
+  /**
+   * Performs a breadth-first search traversal starting from the given vertex.
+   * Uses a queue to visit vertices level by level.
+   *
+   * @param start - The starting vertex index for BFS
+   * @returns An array of vertices in the order they were visited
+   * @throws {Error} If start is an invalid vertex index
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(V) for the visited array and queue
+   */
+  bfs(start: number): number[] {
+    if (!this.isValidVertex(start)) {
+      throw new Error('Invalid vertex index');
+    }
+
+    const visited = new Array(this.vertices).fill(false);
+    const result: number[] = [];
+
+    const queue = new Queue<number>();
+    queue.enqueue(start);
+    visited[start] = true;
+
+    while (!queue.isEmpty()) {
+      const vertex = queue.dequeue()!;
+      result.push(vertex);
+
+      for (let i = 0; i < this.vertices; i++) {
+        if (this.matrix[vertex][i] !== 0 && !visited[i]) {
+          visited[i] = true;
+          queue.enqueue(i);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Performs a depth-first search traversal starting from the given vertex.
+   * Uses an iterative approach with a stack.
+   *
+   * @param start - The starting vertex index for DFS
+   * @returns An array of vertices in the order they were visited
+   * @throws {Error} If start is an invalid vertex index
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(V) for the visited array and stack
+   */
+  dfs(start: number): number[] {
+    if (!this.isValidVertex(start)) {
+      throw new Error('Invalid vertex index');
+    }
+
+    const visited = new Array(this.vertices).fill(false);
+    const result: number[] = [];
+    const stack: number[] = [start];
+
+    while (stack.length > 0) {
+      const vertex = stack.pop()!;
+
+      if (!visited[vertex]) {
+        visited[vertex] = true;
+        result.push(vertex);
+
+        // Push neighbors in reverse order for left-to-right traversal
+        for (let i = this.vertices - 1; i >= 0; i--) {
+          if (this.matrix[vertex][i] !== 0 && !visited[i]) {
+            stack.push(i);
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Performs a depth-first search traversal using recursion.
+   *
+   * @param start - The starting vertex index for DFS
+   * @returns An array of vertices in the order they were visited
+   * @throws {Error} If start is an invalid vertex index
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(V) for the visited array and recursion call stack
+   */
+  dfsRecursive(start: number): number[] {
+    if (!this.isValidVertex(start)) {
+      throw new Error('Invalid vertex index');
+    }
+
+    const visited = new Array(this.vertices).fill(false);
+    const result: number[] = [];
+
+    const dfsHelper = (vertex: number) => {
+      visited[vertex] = true;
+      result.push(vertex);
+
+      for (let i = 0; i < this.vertices; i++) {
+        if (this.matrix[vertex][i] !== 0 && !visited[i]) {
+          dfsHelper(i);
+        }
+      }
+    };
+
+    dfsHelper(start);
+
+    return result;
+  }
+
+  /**
+   * Checks if there exists a directed path from source to destination vertex.
+   * Uses BFS to explore all reachable vertices from the source.
+   *
+   * @param src - The source vertex index
+   * @param dest - The destination vertex index
+   * @returns True if a path exists, false otherwise
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(V) for the visited array and queue
+   */
+  hasPath(src: number, dest: number): boolean {
+    if (!this.isValidVertex(src) || !this.isValidVertex(dest)) {
+      return false;
+    }
+
+    if (src === dest) return true;
+
+    const visited = new Array(this.vertices).fill(false);
+
+    const queue = new Queue<number>();
+    queue.enqueue(src);
+    visited[src] = true;
+
+    while (!queue.isEmpty()) {
+      const vertex = queue.dequeue()!;
+
+      for (let i = 0; i < this.vertices; i++) {
+        if (this.matrix[vertex][i] !== 0) {
+          if (i === dest) return true;
+
+          if (!visited[i]) {
+            visited[i] = true;
+            queue.enqueue(i);
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns a deep copy of the adjacency matrix.
+   * Useful for advanced graph algorithms that need direct matrix access.
+   *
+   * @returns A 2D array representing the adjacency matrix
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(V²) for the copied matrix
+   */
+  getMatrix(): number[][] {
+    return this.matrix.map((row) => [...row]);
+  }
+
+  /**
+   * Displays the adjacency matrix to the console.
+   * Useful for debugging and visualization of small graphs.
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(1)
+   */
+  display(): void {
+    console.log('Adjacency Matrix:');
+    for (let i = 0; i < this.vertices; i++) {
+      console.log(this.matrix[i].join(' '));
+    }
   }
 }
 
