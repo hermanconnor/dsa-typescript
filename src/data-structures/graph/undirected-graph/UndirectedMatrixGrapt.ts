@@ -38,7 +38,84 @@ class UndirectedMatrixGraph {
     return vertex >= 0 && vertex < this.vertices;
   }
 
-  addEdge(u: number, v: number, weight: number = 1): void {}
+  /**
+   * Adds an undirected edge between two vertices with an optional weight.
+   * The edge is added in both directions (u -> v and v -> u).
+   * If an edge already exists, it will be overwritten with the new weight.
+   *
+   * @param u - The first vertex index
+   * @param v - The second vertex index
+   * @param weight - The weight of the edge (default: 1)
+   * @throws {Error} If u or v are invalid vertex indices
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
+  addEdge(u: number, v: number, weight: number = 1): void {
+    if (this.isValidVertex(u) && this.isValidVertex(v)) {
+      this.matrix[u][v] = weight;
+      this.matrix[v][u] = weight; // Undirected: add edge in both directions
+    } else {
+      throw new Error('Invalid vertex index');
+    }
+  }
+
+  /**
+   * Removes the undirected edge between two vertices.
+   * The edge is removed in both directions.
+   *
+   * @param u - The first vertex index
+   * @param v - The second vertex index
+   * @throws {Error} If u or v are invalid vertex indices
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
+  removeEdge(u: number, v: number): void {
+    if (this.isValidVertex(u) && this.isValidVertex(v)) {
+      this.matrix[u][v] = 0;
+      this.matrix[v][u] = 0; // Undirected: remove edge in both directions
+    } else {
+      throw new Error('Invalid vertex index');
+    }
+  }
+
+  /**
+   * Checks if an edge exists between two vertices.
+   * Since the graph is undirected, hasEdge(u, v) === hasEdge(v, u).
+   *
+   * @param u - The first vertex index
+   * @param v - The second vertex index
+   * @returns True if an edge exists, false otherwise
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
+  hasEdge(u: number, v: number): boolean {
+    if (this.isValidVertex(u) && this.isValidVertex(v)) {
+      return this.matrix[u][v] !== 0;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns the weight of the edge between two vertices.
+   *
+   * @param u - The first vertex index
+   * @param v - The second vertex index
+   * @returns The weight of the edge (0 if no edge exists)
+   * @throws {Error} If u or v are invalid vertex indices
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
+  getWeight(u: number, v: number): number {
+    if (this.isValidVertex(u) && this.isValidVertex(v)) {
+      return this.matrix[u][v];
+    }
+    throw new Error('Invalid vertex index');
+  }
 
   /**
    * Returns the total number of vertices in the graph.
