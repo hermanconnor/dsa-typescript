@@ -185,6 +185,29 @@ class UndirectedMatrixGraph {
   }
 
   /**
+   * Returns the number of edges in the graph.
+   * In an undirected graph, we count each edge once (not twice).
+   *
+   * @returns The number of edges
+   *
+   * @timeComplexity O(V²)
+   * @spaceComplexity O(1)
+   */
+  getEdgeCount(): number {
+    let count = 0;
+
+    for (let i = 0; i < this.vertices; i++) {
+      for (let j = i; j < this.vertices; j++) {
+        if (this.matrix[i][j] !== 0) {
+          count++;
+        }
+      }
+    }
+
+    return count;
+  }
+
+  /**
    * Performs a breadth-first search traversal starting from the given vertex.
    * Uses a dedicated Queue class for true O(1) enqueue/dequeue operations.
    *
@@ -295,7 +318,137 @@ class UndirectedMatrixGraph {
     };
 
     dfsHelper(start);
+
     return result;
+  }
+
+  /**
+   * Checks if there exists a path between two vertices.
+   * In an undirected graph, if there's a path from u to v,
+   * there's also a path from v to u.
+   *
+   * @param u - The first vertex index
+   * @param v - The second vertex index
+   * @returns True if a path exists, false otherwise
+   *
+   * @timeComplexity O(V²) where V is the number of vertices
+   * @spaceComplexity O(V) for the visited array and queue
+   */
+  hasPath(u: number, v: number): boolean {
+    if (!this.isValidVertex(u) || !this.isValidVertex(v)) {
+      return false;
+    }
+
+    if (u === v) return true;
+
+    const visited = new Array(this.vertices).fill(false);
+    const queue = new Queue<number>();
+
+    queue.enqueue(u);
+    visited[u] = true;
+
+    while (!queue.isEmpty()) {
+      const vertex = queue.dequeue()!;
+
+      for (let i = 0; i < this.vertices; i++) {
+        if (this.matrix[vertex][i] !== 0) {
+          if (i === v) return true;
+
+          if (!visited[i]) {
+            visited[i] = true;
+            queue.enqueue(i);
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Finds all connected components in the graph.
+   * A connected component is a maximal set of vertices where each vertex
+   * is reachable from every other vertex in the set.
+   *
+   * @returns An array of arrays, where each inner array contains the vertices
+   *          in one connected component
+   *
+   * @timeComplexity O(V³) - performs BFS for each unvisited vertex
+   * @spaceComplexity O(V) for tracking visited vertices
+   *
+   * @example
+   * ```typescript
+   * // Graph with two components: {0,1,2} and {3,4}
+   * const result = graph.findConnectedComponents();
+   * // result: [[0, 1, 2], [3, 4]]
+   * ```
+   */
+  findConnectedComponents(): number[][] {
+    const visited = new Array(this.vertices).fill(false);
+    const components: number[][] = [];
+
+    for (let v = 0; v < this.vertices; v++) {
+      if (!visited[v]) {
+        const component = this.bfs(v);
+        component.forEach((vertex) => (visited[vertex] = true));
+        components.push(component);
+      }
+    }
+
+    return components;
+  }
+
+  /**
+   * Checks if the graph is connected (all vertices are reachable from any vertex).
+   *
+   * @returns True if the graph is connected, false otherwise
+   *
+   * @timeComplexity O(V²)
+   * @spaceComplexity O(V)
+   */
+  isConnected(): boolean {
+    if (this.vertices === 0) return true;
+
+    return this.bfs(0).length === this.vertices;
+  }
+
+  /**
+   * Detects if the graph contains a cycle.
+   * Uses DFS-based cycle detection.
+   *
+   * @returns True if the graph contains at least one cycle, false otherwise
+   *
+   * @timeComplexity O(V²)
+   * @spaceComplexity O(V) for visited array and recursion stack
+   */
+  hasCycle(): boolean {
+    const visited = new Array(this.vertices).fill(false);
+
+    const dfsCheckCycle = (vertex: number, parent: number): boolean => {
+      visited[vertex] = true;
+
+      for (let i = 0; i < this.vertices; i++) {
+        if (this.matrix[vertex][i] !== 0) {
+          if (!visited[i]) {
+            if (dfsCheckCycle(i, vertex)) return true;
+          } else if (i !== parent) {
+            // Found a back edge (visited vertex that's not the parent)
+            return true;
+          }
+        }
+      }
+
+      return false;
+    };
+
+    // Check all components
+    for (let v = 0; v < this.vertices; v++) {
+      if (!visited[v]) {
+        if (dfsCheckCycle(v, -1)) return true;
+      }
+    }
+
+    return false;
   }
 
   /**
