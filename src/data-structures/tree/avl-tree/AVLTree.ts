@@ -90,6 +90,41 @@ class AVLTree<T> {
   }
 
   /**
+   * Removes a value from the tree and rebalances.
+   * Time Complexity: O(log n)
+   */
+  delete(value: T): void {
+    this.root = this.deleteNode(this.root, value);
+  }
+
+  private deleteNode(node: Node<T> | null, value: T): Node<T> | null {
+    if (!node) return null;
+
+    const cmp = this.compare(value, node.value);
+
+    if (cmp < 0) {
+      node.left = this.deleteNode(node.left, value);
+    } else if (cmp > 0) {
+      node.right = this.deleteNode(node.right, value);
+    } else {
+      if (!node.left || !node.right) {
+        node = node.left || node.right;
+      } else {
+        // Node with two children: get inorder successor
+        const temp = this.getMin(node.right);
+        node.value = temp.value;
+        node.right = this.deleteNode(node.right, temp.value);
+      }
+    }
+
+    if (!node) return null;
+
+    this.updateHeight(node);
+
+    return this.rebalance(node);
+  }
+
+  /**
    * Performs rotations to fix balance factors > 1 or < -1.
    */
   private rebalance(node: Node<T>): Node<T> {

@@ -106,6 +106,63 @@ describe('AVLTree', () => {
     });
   });
 
+  describe('delete', () => {
+    beforeEach(() => {
+      [10, 5, 15, 3, 7, 12, 20].forEach((val) => tree.insert(val));
+    });
+
+    it('should delete leaf nodes', () => {
+      tree.delete(3);
+
+      expect(tree.search(3)).toBe(false);
+      expect(tree.inOrder()).toEqual([5, 7, 10, 12, 15, 20]);
+    });
+
+    it('should delete node with one child', () => {
+      tree.delete(5);
+
+      expect(tree.search(5)).toBe(false);
+      expect(tree.isBalanced()).toBe(true);
+    });
+
+    it('should delete node with two children', () => {
+      tree.delete(15);
+
+      expect(tree.search(15)).toBe(false);
+      expect(tree.isBalanced()).toBe(true);
+    });
+
+    it('should delete root node', () => {
+      tree.delete(10);
+
+      expect(tree.search(10)).toBe(false);
+      expect(tree.isBalanced()).toBe(true);
+    });
+
+    it('should maintain balance after deletions', () => {
+      tree.delete(3);
+      tree.delete(7);
+      tree.delete(12);
+
+      expect(tree.isBalanced()).toBe(true);
+    });
+
+    it('should handle deleting non-existent values', () => {
+      const initialOrder = tree.inOrder();
+
+      tree.delete(100);
+
+      expect(tree.inOrder()).toEqual(initialOrder);
+    });
+
+    it('should handle deleting all values', () => {
+      [10, 5, 15, 3, 7, 12, 20].forEach((val) => tree.delete(val));
+
+      expect(tree.isEmpty()).toBe(true);
+      expect(tree.inOrder()).toEqual([]);
+    });
+  });
+
   describe('height', () => {
     it('should return 0 for empty tree', () => {
       expect(tree.getTreeHeight()).toBe(0);
