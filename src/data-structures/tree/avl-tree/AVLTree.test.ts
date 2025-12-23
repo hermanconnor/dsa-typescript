@@ -21,6 +21,7 @@ describe('AVLTree', () => {
       tree.insert(10);
 
       expect(tree.isEmpty()).toBe(false);
+      expect(tree.search(10)).toBe(true);
       expect(tree.inOrder()).toEqual([10]);
     });
 
@@ -78,6 +79,84 @@ describe('AVLTree', () => {
 
       expect(tree.isBalanced()).toBe(true);
       expect(tree.inOrder()).toEqual([10, 20, 30]);
+    });
+  });
+
+  describe('search', () => {
+    beforeEach(() => {
+      [10, 5, 15, 3, 7, 12, 20].forEach((val) => tree.insert(val));
+    });
+
+    it('should find existing values', () => {
+      expect(tree.search(10)).toBe(true);
+      expect(tree.search(3)).toBe(true);
+      expect(tree.search(20)).toBe(true);
+    });
+
+    it('should not find non-existing values', () => {
+      expect(tree.search(1)).toBe(false);
+      expect(tree.search(100)).toBe(false);
+      expect(tree.search(8)).toBe(false);
+    });
+
+    it('should return false for empty tree', () => {
+      const emptyTree = new AVLTree<number>();
+
+      expect(emptyTree.search(10)).toBe(false);
+    });
+  });
+
+  describe('height', () => {
+    it('should return 0 for empty tree', () => {
+      expect(tree.getTreeHeight()).toBe(0);
+    });
+
+    it('should return 1 for single node', () => {
+      tree.insert(10);
+
+      expect(tree.getTreeHeight()).toBe(1);
+    });
+
+    it('should calculate correct height for balanced tree', () => {
+      [10, 5, 15, 3, 7, 12, 20].forEach((val) => tree.insert(val));
+
+      expect(tree.getTreeHeight()).toBe(3);
+    });
+
+    it('should maintain logarithmic height', () => {
+      // Insert 15 values - height should be ~4 (log2(15) ≈ 3.9)
+      for (let i = 1; i <= 15; i++) {
+        tree.insert(i);
+      }
+
+      expect(tree.getTreeHeight()).toBeLessThanOrEqual(5);
+    });
+  });
+
+  describe('custom comparator', () => {
+    interface Person {
+      name: string;
+      age: number;
+    }
+
+    it('should work with custom objects', () => {
+      const personTree = new AVLTree<Person>((a, b) => a.age - b.age);
+
+      personTree.insert({ name: 'Alice', age: 30 });
+      personTree.insert({ name: 'Bob', age: 25 });
+      personTree.insert({ name: 'Charlie', age: 35 });
+
+      const sorted = personTree.inOrder();
+
+      expect(sorted.map((p) => p.age)).toEqual([25, 30, 35]);
+    });
+
+    it('should work with reverse order', () => {
+      const reverseTree = new AVLTree<number>((a, b) => b - a);
+
+      [5, 3, 7, 1, 9].forEach((val) => reverseTree.insert(val));
+
+      expect(reverseTree.inOrder()).toEqual([9, 7, 5, 3, 1]);
     });
   });
 });
