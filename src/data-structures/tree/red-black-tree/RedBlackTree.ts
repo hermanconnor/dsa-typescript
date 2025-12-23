@@ -187,6 +187,192 @@ class RedBlackTree<T> {
   }
 
   /**
+   * Deletes a value from the Red-Black Tree
+   * @param {T} data - The data to delete
+   * @time O(log n) - search + fixup operations
+   * @space O(1) - iterative implementation
+   */
+  delete(data: T): void {
+    let z = this.root;
+
+    while (z !== this.nil && this.compare(data, z.data) !== 0) {
+      z = this.compare(data, z.data) < 0 ? z.left : z.right;
+    }
+
+    if (z === this.nil) return;
+
+    let y = z;
+    let yOriginalColor = y.color;
+    let x: Node<T>;
+
+    if (z.left === this.nil) {
+      x = z.right;
+      this.transplant(z, z.right);
+    } else if (z.right === this.nil) {
+      x = z.left;
+      this.transplant(z, z.left);
+    } else {
+      y = this.minimum(z.right);
+      yOriginalColor = y.color;
+      x = y.right;
+
+      if (y.parent === z) {
+        x.parent = y;
+      } else {
+        this.transplant(y, y.right);
+        y.right = z.right;
+        y.right.parent = y;
+      }
+
+      this.transplant(z, y);
+      y.left = z.left;
+      y.left.parent = y;
+      y.color = z.color;
+    }
+
+    if (yOriginalColor === Color.BLACK) {
+      this.fixDelete(x);
+    }
+  }
+
+  /**
+   * Fixes Red-Black Tree properties after deletion
+   * @param {Node<T>} x - The node to start fixing from
+   * @time O(log n)
+   * @space O(1)
+   * @private
+   */
+  private fixDelete(x: Node<T>): void {
+    while (x !== this.root && x.color === Color.BLACK) {
+      if (x === x.parent.left) {
+        let sibling = x.parent.right;
+
+        if (sibling.color === Color.RED) {
+          sibling.color = Color.BLACK;
+          x.parent.color = Color.RED;
+          this.rotateLeft(x.parent);
+          sibling = x.parent.right;
+        }
+
+        if (
+          sibling.left.color === Color.BLACK &&
+          sibling.right.color === Color.BLACK
+        ) {
+          sibling.color = Color.RED;
+          x = x.parent;
+        } else {
+          if (sibling.right.color === Color.BLACK) {
+            sibling.left.color = Color.BLACK;
+            sibling.color = Color.RED;
+            this.rotateRight(sibling);
+            sibling = x.parent.right;
+          }
+
+          sibling.color = x.parent.color;
+          x.parent.color = Color.BLACK;
+          sibling.right.color = Color.BLACK;
+          this.rotateLeft(x.parent);
+          x = this.root;
+        }
+      } else {
+        let sibling = x.parent.left;
+
+        if (sibling.color === Color.RED) {
+          sibling.color = Color.BLACK;
+          x.parent.color = Color.RED;
+          this.rotateRight(x.parent);
+          sibling = x.parent.left;
+        }
+
+        if (
+          sibling.right.color === Color.BLACK &&
+          sibling.left.color === Color.BLACK
+        ) {
+          sibling.color = Color.RED;
+          x = x.parent;
+        } else {
+          if (sibling.left.color === Color.BLACK) {
+            sibling.right.color = Color.BLACK;
+            sibling.color = Color.RED;
+            this.rotateLeft(sibling);
+            sibling = x.parent.left;
+          }
+
+          sibling.color = x.parent.color;
+          x.parent.color = Color.BLACK;
+          sibling.left.color = Color.BLACK;
+          this.rotateRight(x.parent);
+          x = this.root;
+        }
+      }
+    }
+
+    x.color = Color.BLACK;
+  }
+
+  /**
+   * Replaces the subtree rooted at u with the subtree rooted at v
+   * @param {Node<T>} u - The node to replace
+   * @param {Node<T>} v - The replacement node
+   * @time O(1)
+   * @space O(1)
+   * @private
+   */
+  private transplant(u: Node<T>, v: Node<T>): void {
+    if (u.parent === this.nil) {
+      this.root = v;
+    } else if (u === u.parent.left) {
+      u.parent.left = v;
+    } else {
+      u.parent.right = v;
+    }
+
+    v.parent = u.parent;
+  }
+
+  /**
+   * Finds the minimum node in a subtree
+   * @param {Node<T>} node - The root of the subtree
+   * @returns {Node<T>} The minimum node
+   * @time O(log n)
+   * @space O(1)
+   * @private
+   */
+  private minimum(node: Node<T>): Node<T> {
+    while (node.left !== this.nil) {
+      node = node.left;
+    }
+
+    return node;
+  }
+
+  /**
+   * Performs an in-order traversal of the tree
+   * @param {(data: T) => void} callback - Function to call for each node
+   * @time O(n) - visits each node once
+   * @space O(log n) - recursion stack depth
+   */
+  inOrder(callback: (data: T) => void): void {
+    this.inOrderHelper(this.root, callback);
+  }
+
+  /**
+   * Helper function for in-order traversal
+   * @param {Node<T>} node - Current node
+   * @param {(data: T) => void} callback - Function to call for each node
+   * @time O(n)
+   * @space O(log n)
+   * @private
+   */
+  private inOrderHelper(node: Node<T>, callback: (data: T) => void): void {
+    if (node !== this.nil) {
+      this.inOrderHelper(node.left, callback);
+      callback(node.data);
+      this.inOrderHelper(node.right, callback);
+    }
+  }
+
+  /**
    * Gets the physical height of the tree
    * @returns {number} The height of the tree
    * @time O(n) - must visit all nodes
@@ -272,6 +458,32 @@ class RedBlackTree<T> {
 
     x.right = y;
     y.parent = x;
+  }
+
+  /**
+   * Gets the black height of the tree
+   * @returns {number} The black height
+   * @time O(log n) - only needs to traverse one path
+   * @space O(log n) - recursion stack depth
+   */
+  getBlackHeight(): number {
+    return this.getBlackHeightHelper(this.root);
+  }
+
+  /**
+   * Helper function to calculate black height
+   * @param {Node<T>} node - Current node
+   * @returns {number} Black height of the subtree
+   * @time O(log n)
+   * @space O(log n)
+   * @private
+   */
+  private getBlackHeightHelper(node: Node<T>): number {
+    if (node === this.nil) return 1;
+
+    const leftBH = this.getBlackHeightHelper(node.left);
+
+    return leftBH + (node.color === Color.BLACK ? 1 : 0);
   }
 
   /**

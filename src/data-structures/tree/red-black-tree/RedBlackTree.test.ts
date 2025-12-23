@@ -15,6 +15,7 @@ describe('RedBlackTree', () => {
       const tree = new RedBlackTree<{ id: number; name: string }>(
         (a, b) => a.id - b.id,
       );
+
       tree.insert({ id: 5, name: 'Alice' });
       tree.insert({ id: 3, name: 'Bob' });
 
@@ -45,6 +46,16 @@ describe('RedBlackTree', () => {
         expect(tree.search(v)).toBe(true);
       });
       expect(tree.isValid()).toBe(true);
+    });
+
+    it('should not insert duplicates', () => {
+      tree.insert(5);
+      tree.insert(5);
+      tree.insert(5);
+
+      const values: number[] = [];
+      tree.inOrder((v) => values.push(v));
+      expect(values).toEqual([5]);
     });
 
     it('should maintain Red-Black properties after insertions', () => {
@@ -78,7 +89,6 @@ describe('RedBlackTree', () => {
     it('should work with string values', () => {
       const strTree = new RedBlackTree<string>();
       const values = ['dog', 'cat', 'bird', 'fish', 'hamster'];
-
       values.forEach((v) => strTree.insert(v));
 
       expect(strTree.isValid()).toBe(true);
@@ -115,6 +125,125 @@ describe('RedBlackTree', () => {
     });
   });
 
+  describe('Delete', () => {
+    let tree: RedBlackTree<number>;
+
+    beforeEach(() => {
+      tree = new RedBlackTree<number>();
+    });
+
+    it('should delete a leaf node', () => {
+      [10, 5, 15].forEach((v) => tree.insert(v));
+
+      tree.delete(5);
+
+      expect(tree.search(5)).toBe(false);
+      expect(tree.search(10)).toBe(true);
+      expect(tree.search(15)).toBe(true);
+      expect(tree.isValid()).toBe(true);
+    });
+
+    it('should delete a node with one child', () => {
+      [10, 5, 15, 3].forEach((v) => tree.insert(v));
+
+      tree.delete(5);
+
+      expect(tree.search(5)).toBe(false);
+      expect(tree.search(3)).toBe(true);
+      expect(tree.isValid()).toBe(true);
+    });
+
+    it('should delete a node with two children', () => {
+      [10, 5, 15, 3, 7, 12, 17].forEach((v) => tree.insert(v));
+
+      tree.delete(10);
+
+      expect(tree.search(10)).toBe(false);
+      expect(tree.isValid()).toBe(true);
+    });
+
+    it('should delete the root node', () => {
+      tree.insert(10);
+      tree.delete(10);
+
+      expect(tree.search(10)).toBe(false);
+      expect(tree.getHeight()).toBe(0);
+      expect(tree.isValid()).toBe(true);
+    });
+
+    it('should handle deleting non-existing values', () => {
+      [10, 5, 15].forEach((v) => tree.insert(v));
+
+      tree.delete(100);
+
+      expect(tree.search(10)).toBe(true);
+      expect(tree.search(5)).toBe(true);
+      expect(tree.search(15)).toBe(true);
+      expect(tree.isValid()).toBe(true);
+    });
+
+    it('should maintain Red-Black properties after multiple deletions', () => {
+      const values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      values.forEach((v) => tree.insert(v));
+
+      [2, 4, 6, 8].forEach((v) => tree.delete(v));
+
+      expect(tree.isValid()).toBe(true);
+      [2, 4, 6, 8].forEach((v) => {
+        expect(tree.search(v)).toBe(false);
+      });
+      [1, 3, 5, 7, 9, 10].forEach((v) => {
+        expect(tree.search(v)).toBe(true);
+      });
+    });
+
+    it('should handle deleting all nodes', () => {
+      const values = [10, 5, 15, 3, 7, 12, 17];
+
+      values.forEach((v) => tree.insert(v));
+      values.forEach((v) => tree.delete(v));
+
+      expect(tree.getHeight()).toBe(0);
+      expect(tree.isValid()).toBe(true);
+      values.forEach((v) => {
+        expect(tree.search(v)).toBe(false);
+      });
+    });
+  });
+
+  describe('In-Order Traversal', () => {
+    it('should return elements in sorted order', () => {
+      const tree = new RedBlackTree<number>();
+
+      const values = [7, 3, 18, 10, 22, 8, 11, 26];
+      values.forEach((v) => tree.insert(v));
+
+      const result: number[] = [];
+      tree.inOrder((v) => result.push(v));
+
+      expect(result).toEqual([3, 7, 8, 10, 11, 18, 22, 26]);
+    });
+
+    it('should work with empty tree', () => {
+      const tree = new RedBlackTree<number>();
+      const result: number[] = [];
+
+      tree.inOrder((v) => result.push(v));
+
+      expect(result).toEqual([]);
+    });
+
+    it('should work with single element', () => {
+      const tree = new RedBlackTree<number>();
+
+      tree.insert(42);
+      const result: number[] = [];
+      tree.inOrder((v) => result.push(v));
+
+      expect(result).toEqual([42]);
+    });
+  });
+
   describe('Height', () => {
     it('should return 0 for empty tree', () => {
       const tree = new RedBlackTree<number>();
@@ -124,6 +253,7 @@ describe('RedBlackTree', () => {
 
     it('should return correct height for balanced insertions', () => {
       const tree = new RedBlackTree<number>();
+
       [10, 5, 15].forEach((v) => tree.insert(v));
 
       expect(tree.getHeight()).toBeGreaterThan(0);
@@ -132,7 +262,6 @@ describe('RedBlackTree', () => {
 
     it('should maintain logarithmic height', () => {
       const tree = new RedBlackTree<number>();
-
       const n = 100;
       for (let i = 1; i <= n; i++) {
         tree.insert(i);
@@ -144,11 +273,45 @@ describe('RedBlackTree', () => {
     });
   });
 
+  describe('Black Height', () => {
+    it('should return 1 for empty tree', () => {
+      const tree = new RedBlackTree<number>();
+
+      expect(tree.getBlackHeight()).toBe(1);
+    });
+
+    it('should return consistent black height', () => {
+      const tree = new RedBlackTree<number>();
+      const values = [10, 5, 15, 3, 7, 12, 17];
+      values.forEach((v) => tree.insert(v));
+
+      const blackHeight = tree.getBlackHeight();
+
+      expect(blackHeight).toBeGreaterThan(0);
+    });
+  });
+
   describe('Validation', () => {
     it('should validate empty tree', () => {
       const tree = new RedBlackTree<number>();
 
       expect(tree.isValid()).toBe(true);
+    });
+
+    it('should validate tree after various operations', () => {
+      const tree = new RedBlackTree<number>();
+
+      // Insert phase
+      for (let i = 1; i <= 50; i++) {
+        tree.insert(i);
+        expect(tree.isValid()).toBe(true);
+      }
+
+      // Delete phase
+      for (let i = 1; i <= 25; i++) {
+        tree.delete(i);
+        expect(tree.isValid()).toBe(true);
+      }
     });
 
     it('should validate with random operations', () => {
