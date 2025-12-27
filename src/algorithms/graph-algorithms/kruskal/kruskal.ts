@@ -1,4 +1,4 @@
-import UnionFind from '../../data-structures/union-find/UnionFind';
+import UnionFind from '../../../data-structures/union-find/UnionFind';
 
 /**
  * Represents an edge in a weighted graph.

@@ -1,4 +1,4 @@
-import PriorityQueue from '../../data-structures/priority-queue/PriorityQueue';
+import PriorityQueue from '../../../data-structures/priority-queue/PriorityQueue';
 
 /**
  * Represents a weighted edge in the graph.

@@ -71,6 +71,13 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] Prim's Algorithm
 - [x] Bellman-Ford Algorithm
 
+### Dynamic Programming
+
+- [ ] Fibonacci
+- [ ] Longest Common Subsequence
+- [ ] Knapsack Problem
+- [ ] Coin Change
+
 ## 🛠️ Setup
 
 To get started with the project, follow the steps below:
