@@ -74,8 +74,8 @@ A comprehensive collection of data structures and algorithms implemented in Type
 ### Dynamic Programming
 
 - [x] Fibonacci
-- [ ] Longest Common Subsequence
-- [ ] Knapsack Problem
+- [x] Longest Common Subsequence
+- [x] Knapsack Problem
 - [x] Coin Change
 
 ## 🛠️ Setup
