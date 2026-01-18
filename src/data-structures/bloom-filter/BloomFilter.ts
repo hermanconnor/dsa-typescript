@@ -50,6 +50,18 @@ class BloomFilter<T = string> {
 
   contains(item: T): boolean {}
 
+  getStats() {}
+
+  /**
+   * Clears all bits in the filter, resetting it to an empty state.
+   *
+   * Time Complexity: O(m/8) where m is the bit array size
+   * Space Complexity: O(1) - modifies existing array in place
+   */
+  clear(): void {
+    this.bits.fill(0);
+  }
+
   /**
    * Converts an item to a string representation for hashing.
    *
@@ -68,7 +80,26 @@ class BloomFilter<T = string> {
     return JSON.stringify(item);
   }
 
-  private fnv1a(str: string, seed: number): number {}
+  /**
+   * FNV-1a hash function implementation.
+   *
+   * @param str - The string to hash
+   * @param seed - The initial hash seed value
+   * @returns A 32-bit unsigned integer hash
+   *
+   * Time Complexity: O(L) where L is the length of the string
+   * Space Complexity: O(1) - only uses a single hash variable
+   */
+  private fnv1a(str: string, seed: number): number {
+    let hash = seed;
+
+    for (let i = 0; i < str.length; i++) {
+      hash ^= str.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193);
+    }
+
+    return hash >>> 0;
+  }
 
   private getHashes(item: T): { h1: number; h2: number } {}
 
