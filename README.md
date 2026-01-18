@@ -39,6 +39,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 - [x] HashTable (hashmap) / (hashset)
 - [x] Trie
 - [x] Union-Find(Disjoint Set)
+- [ ] Bloom Filter
 
 ## 🧮 Algorithms
 
