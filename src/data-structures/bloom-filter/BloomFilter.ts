@@ -46,11 +46,74 @@ class BloomFilter<T = string> {
     this.customHashFn = hashFn;
   }
 
-  add(item: T): void {}
+  /**
+   * Adds an item to the Bloom filter by setting k bits (where k is the hash count).
+   *
+   * @param item - The item to add to the filter
+   *
+   * Time Complexity: O(k * L) where k is hashCount and L is the length of the stringified item
+   * Space Complexity: O(1) - no additional space beyond the existing bit array
+   */
+  add(item: T): void {
+    const { h1, h2 } = this.getHashes(item);
 
-  contains(item: T): boolean {}
+    for (let i = 0; i < this.hashCount; i++) {
+      // Kirsch-Mitzenmacher Optimization: h_i(x) = (h1 + i * h2) % m
+      const combinedHash = (h1 + i * h2) >>> 0;
 
-  getStats() {}
+      this.setBit(combinedHash % this.size);
+    }
+  }
+
+  /**
+   * Checks if an item might be in the set.
+   * Returns false if the item is definitely NOT in the set.
+   * Returns true if the item MIGHT be in the set (could be a false positive).
+   *
+   * @param item - The item to check
+   * @returns true if the item might be in the set, false if it's definitely not
+   *
+   * Time Complexity: O(k * L) where k is hashCount and L is the length of the stringified item
+   * Space Complexity: O(1) - no additional space required
+   */
+  contains(item: T): boolean {
+    const { h1, h2 } = this.getHashes(item);
+
+    for (let i = 0; i < this.hashCount; i++) {
+      const combinedHash = (h1 + i * h2) >>> 0;
+
+      if (!this.getBit(combinedHash % this.size)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  getStats(): {
+    size: number;
+    hashCount: number;
+    bitsSet: number;
+    fillRatio: number;
+  } {
+    let bitsSet = 0;
+
+    for (let i = 0; i < this.bits.length; i++) {
+      let byte = this.bits[i];
+
+      while (byte > 0) {
+        byte &= byte - 1;
+        bitsSet++;
+      }
+    }
+
+    return {
+      size: this.size,
+      hashCount: this.hashCount,
+      bitsSet,
+      fillRatio: bitsSet / this.size,
+    };
+  }
 
   /**
    * Clears all bits in the filter, resetting it to an empty state.
@@ -101,7 +164,33 @@ class BloomFilter<T = string> {
     return hash >>> 0;
   }
 
-  private getHashes(item: T): { h1: number; h2: number } {}
+  /**
+   * Generates two hash values using either a custom hash function or FNV-1a.
+   * If a custom hash function is provided, it uses that for h1 and
+   * a secondary internal hash for h2.
+   *
+   * @param item - The item to hash
+   * @returns An object containing two hash values h1 and h2
+   *
+   * Time Complexity: O(L) where L is the length of the stringified item
+   * Space Complexity: O(L) for the stringified representation (if not using custom hash)
+   */
+  private getHashes(item: T): { h1: number; h2: number } {
+    if (this.customHashFn) {
+      const h1 = this.customHashFn(item) >>> 0;
+      // Generate a secondary hash by shifting/mixing the first
+      const h2 = (h1 ^ (h1 >>> 16)) >>> 0;
+
+      return { h1, h2 };
+    }
+
+    const str = this.stringify(item);
+
+    return {
+      h1: this.fnv1a(str, 0x811c9dc5),
+      h2: this.fnv1a(str, 0x01000193),
+    };
+  }
 
   /**
    * Gets the value of a bit at the specified position in the bit array.
