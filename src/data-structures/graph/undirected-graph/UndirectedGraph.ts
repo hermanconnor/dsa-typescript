@@ -638,17 +638,17 @@ class UndirectedGraph<T> {
 
     const distances = new Map<T, number>();
     const previous = new Map<T, T | undefined>();
-    const pq = new PriorityQueue<T>();
+    const pq = new PriorityQueue<T>('min');
 
     for (const vertex of this.getAllVertices()) {
       const distance = vertex === from ? 0 : Infinity;
       distances.set(vertex, distance);
       previous.set(vertex, undefined);
-      pq.enqueue(vertex, distance);
+      pq.push(vertex, distance);
     }
 
-    while (!pq.isEmpty()) {
-      const current = pq.dequeue()!;
+    while (!pq.empty) {
+      const current = pq.pop()!;
       const currentDist = distances.get(current)!;
 
       if (current === to) break;
@@ -664,7 +664,7 @@ class UndirectedGraph<T> {
         if (newDistance < oldDistance) {
           distances.set(target, newDistance);
           previous.set(target, current);
-          pq.updatePriority(target, newDistance);
+          pq.push(target, newDistance);
         }
       }
     }
@@ -763,13 +763,14 @@ class UndirectedGraph<T> {
       vertex: T;
       from: T | null;
       weight: number;
-    }>();
+    }>('min');
+
     let totalWeight = 0;
 
-    pq.enqueue({ vertex: start, from: null, weight: 0 }, 0);
+    pq.push({ vertex: start, from: null, weight: 0 }, 0);
 
-    while (!pq.isEmpty()) {
-      const { vertex, from, weight } = pq.dequeue()!;
+    while (!pq.empty) {
+      const { vertex, from, weight } = pq.pop()!;
 
       if (visited.has(vertex)) continue;
 
@@ -784,7 +785,7 @@ class UndirectedGraph<T> {
       for (const { target, weight: edgeWeight } of neighbors) {
         if (!visited.has(target)) {
           const w = edgeWeight ?? 1;
-          pq.enqueue({ vertex: target, from: vertex, weight: w }, w);
+          pq.push({ vertex: target, from: vertex, weight: w }, w);
         }
       }
     }

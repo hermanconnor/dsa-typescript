@@ -68,14 +68,14 @@ export function prim<T>(
   /** * The Priority Queue stores vertices we can reach.
    * Priority is determined by the weight of the edge used to reach that vertex.
    */
-  const pq = new PriorityQueue<T>();
+  const pq = new PriorityQueue<T>('min');
 
   // 3. Initialize: The first vertex is reached with 0 cost.
-  pq.enqueue(startVertex, 0);
+  pq.push(startVertex, 0);
 
-  while (!pq.isEmpty()) {
+  while (!pq.empty) {
     // 4. Greedily pick the vertex with the smallest incoming edge weight.
-    const current = pq.dequeue()!;
+    const current = pq.pop()!;
 
     // If we have already processed this vertex, skip it (standard safety check).
     if (visited.has(current)) continue;
@@ -113,7 +113,7 @@ export function prim<T>(
          * Because our PQ's .enqueue() handles existing values by removing/re-inserting,
          * we ensure the PQ size stays O(V).
          */
-        pq.enqueue(to, weight);
+        pq.push(to, weight);
       }
     }
   }

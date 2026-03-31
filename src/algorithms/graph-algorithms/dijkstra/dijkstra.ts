@@ -37,17 +37,17 @@ export function dijkstra<T>(
   const distances = new Map<T, number>();
   const previous = new Map<T, T | null>();
   // PriorityQueue must also be generic over TNode
-  const pq = new PriorityQueue<T>();
+  const pq = new PriorityQueue<T>('min');
 
   // 1. Initialize: start node has distance 0, all others infinity (implicitly)
   distances.set(start, 0);
   previous.set(start, null);
   // Priority queue stores the node and its current known distance (priority)
-  pq.enqueue(start, 0);
+  pq.push(start, 0);
 
-  while (!pq.isEmpty()) {
+  while (!pq.empty) {
     // 2. Extract the node 'current' with the smallest distance
-    const current = pq.dequeue()!;
+    const current = pq.pop()!;
     const currentDist = distances.get(current)!;
 
     // Get neighbors of current node
@@ -65,7 +65,7 @@ export function dijkstra<T>(
         previous.set(to, current);
 
         // Update priority queue (enqueue handles both insert and update)
-        pq.enqueue(to, newDist);
+        pq.push(to, newDist);
       }
     }
   }

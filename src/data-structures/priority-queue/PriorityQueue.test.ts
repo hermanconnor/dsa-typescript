@@ -1,435 +1,276 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import PriorityQueue from './PriorityQueue';
 
-describe('PriorityQueue', () => {
-  let queue: PriorityQueue<string>;
+// ── Max Heap (default) ────────────────────────────────────────────────────────
+
+describe('PriorityQueue – max heap (default)', () => {
+  let pq: PriorityQueue<string>;
 
   beforeEach(() => {
-    queue = new PriorityQueue<string>();
+    pq = new PriorityQueue<string>();
   });
 
-  describe('constructor', () => {
-    it('should create an empty queue', () => {
-      expect(queue.isEmpty()).toBe(true);
-      expect(queue.size()).toBe(0);
-    });
-
-    it('should initialize with array of values (default priority 0)', () => {
-      const q = new PriorityQueue<string>(['a', 'b', 'c']);
-      expect(q.size()).toBe(3);
-      expect(q.isEmpty()).toBe(false);
-    });
-
-    it('should initialize with array of priority objects', () => {
-      const q = new PriorityQueue<string>([
-        { value: 'low', priority: 10 },
-        { value: 'high', priority: 1 },
-        { value: 'medium', priority: 5 },
-      ]);
-      expect(q.size()).toBe(3);
-      expect(q.dequeue()).toBe('high');
-      expect(q.dequeue()).toBe('medium');
-      expect(q.dequeue()).toBe('low');
-    });
+  it('starts empty', () => {
+    expect(pq.size).toBe(0);
+    expect(pq.empty).toBe(true);
   });
 
-  describe('enqueue', () => {
-    it('should add items to the queue', () => {
-      queue.enqueue('task1', 5);
-      expect(queue.size()).toBe(1);
-      expect(queue.isEmpty()).toBe(false);
-    });
-
-    it('should maintain priority order (lower number = higher priority)', () => {
-      queue.enqueue('low', 10);
-      queue.enqueue('high', 1);
-      queue.enqueue('medium', 5);
-
-      expect(queue.dequeue()).toBe('high');
-      expect(queue.dequeue()).toBe('medium');
-      expect(queue.dequeue()).toBe('low');
-    });
-
-    it('should handle FIFO ordering for equal priorities', () => {
-      queue.enqueue('first', 5);
-      queue.enqueue('second', 5);
-      queue.enqueue('third', 5);
-
-      expect(queue.dequeue()).toBe('first');
-      expect(queue.dequeue()).toBe('second');
-      expect(queue.dequeue()).toBe('third');
-    });
-
-    it('should update existing item when enqueued again', () => {
-      queue.enqueue('task', 10);
-      queue.enqueue('task', 1);
-
-      expect(queue.size()).toBe(1);
-      expect(queue.getPriority('task')).toBe(1);
-    });
+  it('peek() returns undefined on empty queue', () => {
+    expect(pq.peek()).toBeUndefined();
   });
 
-  describe('dequeue', () => {
-    beforeEach(() => {
-      queue.enqueue('low', 10);
-      queue.enqueue('high', 1);
-      queue.enqueue('medium', 5);
-    });
-
-    it('should remove and return highest priority item', () => {
-      const item = queue.dequeue();
-      expect(item).toBe('high');
-      expect(queue.size()).toBe(2);
-    });
-
-    it('should return undefined when queue is empty', () => {
-      const emptyQueue = new PriorityQueue<string>();
-      expect(emptyQueue.dequeue()).toBeUndefined();
-    });
-
-    it('should maintain order after multiple dequeues', () => {
-      expect(queue.dequeue()).toBe('high');
-      expect(queue.dequeue()).toBe('medium');
-      expect(queue.dequeue()).toBe('low');
-      expect(queue.dequeue()).toBeUndefined();
-    });
+  it('pop() returns undefined on empty queue', () => {
+    expect(pq.pop()).toBeUndefined();
   });
 
-  describe('peek', () => {
-    it('should return highest priority item without removing it', () => {
-      queue.enqueue('low', 10);
-      queue.enqueue('high', 1);
+  it('peek() returns the highest-priority item without removing it', () => {
+    pq.push('low', 1);
+    pq.push('high', 10);
+    pq.push('mid', 5);
 
-      expect(queue.peek()).toBe('high');
-      expect(queue.size()).toBe(2);
-    });
-
-    it('should return undefined for empty queue', () => {
-      expect(queue.peek()).toBeUndefined();
-    });
+    expect(pq.peek()).toBe('high');
+    expect(pq.size).toBe(3);
   });
 
-  describe('peekPriority', () => {
-    it('should return priority of next item', () => {
-      queue.enqueue('task', 5);
-      expect(queue.peekPriority()).toBe(5);
-    });
+  it('pop() removes and returns items in descending priority order', () => {
+    pq.push('a', 3);
+    pq.push('b', 1);
+    pq.push('c', 2);
 
-    it('should return undefined for empty queue', () => {
-      expect(queue.peekPriority()).toBeUndefined();
-    });
-
-    it('should return lowest priority number', () => {
-      queue.enqueue('low', 10);
-      queue.enqueue('high', 1);
-      queue.enqueue('medium', 5);
-
-      expect(queue.peekPriority()).toBe(1);
-    });
+    expect(pq.pop()).toBe('a');
+    expect(pq.pop()).toBe('c');
+    expect(pq.pop()).toBe('b');
+    expect(pq.pop()).toBeUndefined();
   });
 
-  describe('contains', () => {
-    beforeEach(() => {
-      queue.enqueue('task1', 5);
-      queue.enqueue('task2', 10);
-    });
-
-    it('should return true for existing items', () => {
-      expect(queue.contains('task1')).toBe(true);
-      expect(queue.contains('task2')).toBe(true);
-    });
-
-    it('should return false for non-existing items', () => {
-      expect(queue.contains('task3')).toBe(false);
-    });
-
-    it('should return false after item is dequeued', () => {
-      queue.dequeue();
-      expect(queue.contains('task1')).toBe(false);
-    });
+  it('size decrements on each pop', () => {
+    pq.push('x', 1);
+    pq.push('y', 2);
+    expect(pq.size).toBe(2);
+    pq.pop();
+    expect(pq.size).toBe(1);
+    pq.pop();
+    expect(pq.size).toBe(0);
+    expect(pq.empty).toBe(true);
   });
 
-  describe('getPriority', () => {
-    beforeEach(() => {
-      queue.enqueue('task1', 5);
-      queue.enqueue('task2', 10);
-    });
+  it('handles a single element correctly', () => {
+    pq.push('only', 42);
+    expect(pq.peek()).toBe('only');
+    expect(pq.pop()).toBe('only');
+    expect(pq.empty).toBe(true);
+  });
+});
 
-    it('should return priority of existing item', () => {
-      expect(queue.getPriority('task1')).toBe(5);
-      expect(queue.getPriority('task2')).toBe(10);
-    });
+// ── Min Heap ──────────────────────────────────────────────────────────────────
 
-    it('should return undefined for non-existing item', () => {
-      expect(queue.getPriority('task3')).toBeUndefined();
-    });
+describe('PriorityQueue – min heap', () => {
+  it('pop() returns items in ascending priority order', () => {
+    const pq = new PriorityQueue<string>('min');
+
+    pq.push('high', 100);
+    pq.push('low', 1);
+    pq.push('mid', 50);
+
+    expect(pq.pop()).toBe('low');
+    expect(pq.pop()).toBe('mid');
+    expect(pq.pop()).toBe('high');
   });
 
-  describe('size', () => {
-    it('should return 0 for empty queue', () => {
-      expect(queue.size()).toBe(0);
-    });
+  it('peek() returns the lowest-priority item', () => {
+    const pq = new PriorityQueue<string>('min');
 
-    it('should return correct size after operations', () => {
-      queue.enqueue('task1', 5);
-      expect(queue.size()).toBe(1);
+    pq.push('a', 10);
+    pq.push('b', 2);
 
-      queue.enqueue('task2', 10);
-      expect(queue.size()).toBe(2);
+    expect(pq.peek()).toBe('b');
+  });
+});
 
-      queue.dequeue();
-      expect(queue.size()).toBe(1);
-    });
+// ── FIFO Stability ────────────────────────────────────────────────────────────
+
+describe('FIFO stability on equal priorities', () => {
+  it('max heap: earlier insertion wins on tie', () => {
+    const pq = new PriorityQueue<string>('max');
+
+    pq.push('first', 5);
+    pq.push('second', 5);
+    pq.push('third', 5);
+
+    expect(pq.pop()).toBe('first');
+    expect(pq.pop()).toBe('second');
+    expect(pq.pop()).toBe('third');
   });
 
-  describe('isEmpty', () => {
-    it('should return true for empty queue', () => {
-      expect(queue.isEmpty()).toBe(true);
-    });
+  it('min heap: earlier insertion wins on tie', () => {
+    const pq = new PriorityQueue<string>('min');
 
-    it('should return false for non-empty queue', () => {
-      queue.enqueue('task', 5);
-      expect(queue.isEmpty()).toBe(false);
-    });
+    pq.push('first', 1);
+    pq.push('second', 1);
 
-    it('should return true after clearing queue', () => {
-      queue.enqueue('task', 5);
-      queue.dequeue();
-      expect(queue.isEmpty()).toBe(true);
-    });
+    expect(pq.pop()).toBe('first');
+    expect(pq.pop()).toBe('second');
+  });
+});
+
+// ── Update (push duplicate key) ───────────────────────────────────────────────
+
+describe('push() on duplicate key updates priority', () => {
+  it('promotes an item when its priority increases (max heap)', () => {
+    const pq = new PriorityQueue<string>('max');
+
+    pq.push('a', 1);
+    pq.push('b', 5);
+    pq.push('a', 10); // update 'a' from 1 → 10
+
+    expect(pq.size).toBe(2); // no new entry added
+    expect(pq.pop()).toBe('a');
+    expect(pq.pop()).toBe('b');
   });
 
-  describe('clear', () => {
-    beforeEach(() => {
-      queue.enqueue('task1', 5);
-      queue.enqueue('task2', 10);
-      queue.enqueue('task3', 1);
-    });
+  it('demotes an item when its priority decreases (max heap)', () => {
+    const pq = new PriorityQueue<string>('max');
 
-    it('should remove all items from queue', () => {
-      queue.clear();
-      expect(queue.isEmpty()).toBe(true);
-      expect(queue.size()).toBe(0);
-    });
+    pq.push('a', 10);
+    pq.push('b', 5);
+    pq.push('a', 1); // demote 'a' from 10 → 1
 
-    it('should allow adding items after clear', () => {
-      queue.clear();
-      queue.enqueue('new', 5);
-      expect(queue.size()).toBe(1);
-      expect(queue.peek()).toBe('new');
-    });
-
-    it('should clear entryFinder map', () => {
-      queue.clear();
-      expect(queue.contains('task1')).toBe(false);
-      expect(queue.getPriority('task1')).toBeUndefined();
-    });
+    expect(pq.pop()).toBe('b');
+    expect(pq.pop()).toBe('a');
   });
 
-  describe('updatePriority', () => {
-    beforeEach(() => {
-      queue.enqueue('task1', 10);
-      queue.enqueue('task2', 5);
-      queue.enqueue('task3', 1);
-    });
+  it('promotes an item when its priority decreases (min heap)', () => {
+    const pq = new PriorityQueue<string>('min');
 
-    it('should update priority of existing item', () => {
-      const result = queue.updatePriority('task1', 0);
-      expect(result).toBe(true);
-      expect(queue.getPriority('task1')).toBe(0);
-      expect(queue.peek()).toBe('task1');
-    });
+    pq.push('a', 10);
+    pq.push('b', 5);
+    pq.push('a', 1); // update 'a' from 10 → 1
 
-    it('should return false for non-existing item', () => {
-      const result = queue.updatePriority('nonexistent', 5);
-      expect(result).toBe(false);
-    });
-
-    it('should maintain queue size after update', () => {
-      const sizeBefore = queue.size();
-      queue.updatePriority('task2', 20);
-      expect(queue.size()).toBe(sizeBefore);
-    });
-
-    it('should reorder queue correctly after priority update', () => {
-      queue.updatePriority('task1', 0); // Was 10, now highest priority
-      expect(queue.dequeue()).toBe('task1');
-      expect(queue.dequeue()).toBe('task3');
-      expect(queue.dequeue()).toBe('task2');
-    });
+    expect(pq.size).toBe(2);
+    expect(pq.pop()).toBe('a');
+    expect(pq.pop()).toBe('b');
   });
 
-  describe('remove', () => {
-    beforeEach(() => {
-      queue.enqueue('task1', 10);
-      queue.enqueue('task2', 5);
-      queue.enqueue('task3', 1);
-    });
+  it('size does not grow on duplicate push', () => {
+    const pq = new PriorityQueue<string>();
 
-    it('should remove existing item', () => {
-      const result = queue.remove('task2');
-      expect(result).toBe(true);
-      expect(queue.size()).toBe(2);
-      expect(queue.contains('task2')).toBe(false);
-    });
+    pq.push('x', 1);
+    pq.push('x', 99);
 
-    it('should return false for non-existing item', () => {
-      const result = queue.remove('nonexistent');
-      expect(result).toBe(false);
-    });
+    expect(pq.size).toBe(1);
+  });
+});
 
-    it('should maintain correct order after removal', () => {
-      queue.remove('task2');
-      expect(queue.dequeue()).toBe('task3');
-      expect(queue.dequeue()).toBe('task1');
-    });
+// ── Custom Key Selector ───────────────────────────────────────────────────────
 
-    it('should remove from entryFinder', () => {
-      queue.remove('task1');
-      expect(queue.getPriority('task1')).toBeUndefined();
-    });
+describe('custom keySelector', () => {
+  interface Task {
+    id: number;
+    name: string;
+  }
+
+  it('deduplicates by custom key', () => {
+    const pq = new PriorityQueue<Task, number>('max', (t) => t.id);
+
+    pq.push({ id: 1, name: 'original' }, 5);
+    pq.push({ id: 1, name: 'updated' }, 10);
+
+    expect(pq.size).toBe(1);
+    expect(pq.pop()?.name).toBe('updated');
   });
 
-  describe('toArray', () => {
-    it('should return empty array for empty queue', () => {
-      expect(queue.toArray()).toEqual([]);
-    });
+  it('treats different ids as separate entries', () => {
+    const pq = new PriorityQueue<Task, number>('max', (t) => t.id);
 
-    it('should return array of all values', () => {
-      queue.enqueue('task1', 5);
-      queue.enqueue('task2', 10);
-      queue.enqueue('task3', 1);
+    pq.push({ id: 1, name: 'A' }, 3);
+    pq.push({ id: 2, name: 'B' }, 7);
 
-      const array = queue.toArray();
-      expect(array).toHaveLength(3);
-      expect(array).toContain('task1');
-      expect(array).toContain('task2');
-      expect(array).toContain('task3');
-    });
+    expect(pq.size).toBe(2);
+    expect(pq.pop()?.id).toBe(2);
+  });
+});
 
-    it('should not modify the queue', () => {
-      queue.enqueue('task1', 5);
-      queue.enqueue('task2', 10);
+// ── PriorityQueue.from() ──────────────────────────────────────────────────────
 
-      const sizeBefore = queue.size();
-      queue.toArray();
-      expect(queue.size()).toBe(sizeBefore);
-    });
+describe('PriorityQueue.from()', () => {
+  it('builds a max heap from an array and pops in correct order', () => {
+    const pq = PriorityQueue.from(['a', 'b', 'c', 'd'], (s) => s.charCodeAt(0));
+
+    expect(pq.size).toBe(4);
+    expect(pq.pop()).toBe('d');
+    expect(pq.pop()).toBe('c');
+    expect(pq.pop()).toBe('b');
+    expect(pq.pop()).toBe('a');
   });
 
-  describe('iterator', () => {
-    beforeEach(() => {
-      queue.enqueue('low', 10);
-      queue.enqueue('high', 1);
-      queue.enqueue('medium', 5);
-    });
+  it('builds a min heap from an array', () => {
+    const pq = PriorityQueue.from([30, 10, 20], (n) => n, 'min');
 
-    it('should iterate in priority order', () => {
-      const items = [...queue];
-      expect(items).toEqual(['high', 'medium', 'low']);
-    });
-
-    it('should drain the queue', () => {
-      const items = [...queue];
-      expect(items).toHaveLength(3);
-      expect(queue.isEmpty()).toBe(true);
-      expect(queue.size()).toBe(0);
-    });
-
-    it('should work with for...of loop', () => {
-      const items: string[] = [];
-      for (const item of queue) {
-        items.push(item);
-      }
-      expect(items).toEqual(['high', 'medium', 'low']);
-    });
+    expect(pq.pop()).toBe(10);
+    expect(pq.pop()).toBe(20);
+    expect(pq.pop()).toBe(30);
   });
 
-  describe('complex scenarios', () => {
-    it('should handle mixed operations correctly', () => {
-      queue.enqueue('task1', 5);
-      queue.enqueue('task2', 3);
-      queue.enqueue('task3', 7);
+  it('handles an empty array', () => {
+    const pq = PriorityQueue.from<string>([], (s) => s.length);
 
-      expect(queue.dequeue()).toBe('task2');
-
-      queue.enqueue('task4', 1);
-      queue.updatePriority('task3', 2);
-
-      expect(queue.dequeue()).toBe('task4');
-      expect(queue.dequeue()).toBe('task3');
-      expect(queue.dequeue()).toBe('task1');
-    });
-
-    it('should handle enqueue of same value multiple times', () => {
-      queue.enqueue('task', 10);
-      queue.enqueue('task', 5);
-      queue.enqueue('task', 1);
-
-      expect(queue.size()).toBe(1);
-      expect(queue.getPriority('task')).toBe(1);
-    });
-
-    it('should work with different data types', () => {
-      const numQueue = new PriorityQueue<number>();
-      numQueue.enqueue(100, 10);
-      numQueue.enqueue(50, 5);
-      numQueue.enqueue(10, 1);
-
-      expect(numQueue.dequeue()).toBe(10);
-      expect(numQueue.dequeue()).toBe(50);
-      expect(numQueue.dequeue()).toBe(100);
-    });
-
-    it('should handle negative priorities', () => {
-      queue.enqueue('negative', -5);
-      queue.enqueue('positive', 5);
-      queue.enqueue('zero', 0);
-
-      expect(queue.dequeue()).toBe('negative');
-      expect(queue.dequeue()).toBe('zero');
-      expect(queue.dequeue()).toBe('positive');
-    });
-
-    it('should maintain FIFO with priority updates', () => {
-      queue.enqueue('first', 5);
-      queue.enqueue('second', 5);
-      queue.updatePriority('first', 5); // Re-enqueue effectively
-
-      // After update, 'first' should have a newer counter
-      expect(queue.dequeue()).toBe('second');
-      expect(queue.dequeue()).toBe('first');
-    });
+    expect(pq.empty).toBe(true);
+    expect(pq.pop()).toBeUndefined();
   });
 
-  describe('edge cases', () => {
-    it('should handle single item operations', () => {
-      queue.enqueue('only', 5);
-      expect(queue.peek()).toBe('only');
-      expect(queue.dequeue()).toBe('only');
-      expect(queue.isEmpty()).toBe(true);
-    });
+  it('handles a single-element array', () => {
+    const pq = PriorityQueue.from(['only'], (s) => s.length);
 
-    it('should handle remove on last item', () => {
-      queue.enqueue('only', 5);
-      queue.remove('only');
-      expect(queue.isEmpty()).toBe(true);
-    });
+    expect(pq.size).toBe(1);
+    expect(pq.pop()).toBe('only');
+  });
 
-    it('should handle operations on empty queue gracefully', () => {
-      expect(queue.dequeue()).toBeUndefined();
-      expect(queue.peek()).toBeUndefined();
-      expect(queue.peekPriority()).toBeUndefined();
-      expect(queue.remove('nonexistent')).toBe(false);
-      expect(queue.updatePriority('nonexistent', 5)).toBe(false);
-    });
+  it('produces the same order as push()-based construction', () => {
+    const items = [5, 3, 8, 1, 9, 2, 7];
 
-    it('should handle large number of items', () => {
-      for (let i = 0; i < 1000; i++) {
-        queue.enqueue(`task${i}`, i);
-      }
-      expect(queue.size()).toBe(1000);
-      expect(queue.peek()).toBe('task0');
-    });
+    const fromPq = PriorityQueue.from(items, (n) => n);
+    const pushPq = new PriorityQueue<number>();
+    items.forEach((n) => pushPq.push(n, n));
+
+    const fromOrder: number[] = [];
+    const pushOrder: number[] = [];
+    while (!fromPq.empty) fromOrder.push(fromPq.pop()!);
+    while (!pushPq.empty) pushOrder.push(pushPq.pop()!);
+
+    expect(fromOrder).toEqual(pushOrder);
+  });
+
+  it('accepts a custom keySelector', () => {
+    interface Task {
+      id: number;
+    }
+
+    const pq = PriorityQueue.from<Task, number>(
+      [{ id: 3 }, { id: 1 }, { id: 2 }],
+      (t) => t.id,
+      'min',
+      (t) => t.id,
+    );
+
+    expect(pq.pop()?.id).toBe(1);
+    expect(pq.pop()?.id).toBe(2);
+    expect(pq.pop()?.id).toBe(3);
+  });
+});
+
+// ── Large / Stress ────────────────────────────────────────────────────────────
+
+describe('stress test', () => {
+  it('correctly sorts 1000 random priorities', () => {
+    const pq = new PriorityQueue<number>('max');
+    const values = Array.from({ length: 1000 }, () => Math.random() * 10000);
+    values.forEach((v) => pq.push(v, v));
+
+    const result: number[] = [];
+    while (!pq.empty) result.push(pq.pop()!);
+
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).toBeLessThanOrEqual(result[i - 1]);
+    }
   });
 });

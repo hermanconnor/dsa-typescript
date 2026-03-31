@@ -813,29 +813,27 @@ class DirectedGraph<T> {
     if (!this.hasVertex(from) || !this.hasVertex(to)) {
       return undefined;
     }
-
     if (from === to) {
       return { path: [from], distance: 0 };
     }
 
     const distances = new Map<T, number>();
     const previous = new Map<T, T | undefined>();
-    const pq = new PriorityQueue<T>();
+    const pq = new PriorityQueue<T>('min');
 
     // Initialize distances
     for (const vertex of this.getAllVertices()) {
       const distance = vertex === from ? 0 : Infinity;
       distances.set(vertex, distance);
       previous.set(vertex, undefined);
-      pq.enqueue(vertex, distance);
+      pq.push(vertex, distance);
     }
 
-    while (!pq.isEmpty()) {
-      const current = pq.dequeue()!;
+    while (!pq.empty) {
+      const current = pq.pop()!;
       const currentDist = distances.get(current)!;
 
       if (current === to) break;
-
       if (currentDist === Infinity) break;
 
       const neighbors = this.getNeighbors(current);
@@ -847,7 +845,7 @@ class DirectedGraph<T> {
         if (newDistance < oldDistance) {
           distances.set(target, newDistance);
           previous.set(target, current);
-          pq.updatePriority(target, newDistance);
+          pq.push(target, newDistance);
         }
       }
     }

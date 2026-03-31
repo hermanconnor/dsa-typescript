@@ -1,5 +1,5 @@
 /**
- * A Universal Heap (Priority Queue) implementation.
+ * A Universal Heap implementation.
  * Supports Min-Heap or Max-Heap logic based on a custom comparator.
  * * Space Complexity: O(n) where n is the number of elements in the heap.
  * * @template T - The type of elements held in the heap.
@@ -141,6 +141,11 @@ class Heap<T extends object | number | string> {
   /** Time Complexity: O(1) */
   peek(): T | undefined {
     return this.heap[0];
+  }
+
+  clear(): void {
+    this.heap = [];
+    this.valueToHeapIndex.clear();
   }
 
   /**
