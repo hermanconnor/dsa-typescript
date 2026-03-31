@@ -220,4 +220,20 @@ class Heap<T extends object | number | string> {
   }
 }
 
+/**
+ * Convenience factory for a Min-Heap.
+ * Default comparator works for numbers and strings.
+ */
+export const createMinHeap = <T extends object | number | string>(
+  compareFn: (a: T, b: T) => number = (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+) => new Heap<T>(compareFn);
+
+/**
+ * Convenience factory for a Max-Heap.
+ * Default comparator works for numbers and strings.
+ */
+export const createMaxHeap = <T extends object | number | string>(
+  compareFn: (a: T, b: T) => number = (a, b) => (a < b ? 1 : a > b ? -1 : 0),
+) => new Heap<T>(compareFn);
+
 export default Heap;
