@@ -67,6 +67,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 
 ### Graph Algorithms
 
+- [x] A\* (A-Star)
 - [x] Dijkstra's Algorithm
 - [x] Kruskal's Algorithm
 - [x] Prim's Algorithm
