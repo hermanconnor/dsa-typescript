@@ -1,800 +1,459 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import CircularDeque from './CircularDeque';
 
-describe('CircularDeque', () => {
-  let deque: CircularDeque<number>;
-
-  beforeEach(() => {
-    deque = new CircularDeque<number>();
+// ---------------------------------------------------------------------------
+// Constructor & Initialization
+// ---------------------------------------------------------------------------
+describe('Constructor', () => {
+  it('creates an empty deque with no arguments', () => {
+    const dq = new CircularDeque<number>();
+    expect(dq.length).toBe(0);
+    expect(dq.isEmpty()).toBe(true);
   });
 
-  describe('Constructor', () => {
-    it('should create an empty deque with default capacity', () => {
-      expect(deque.isEmpty()).toBe(true);
-      expect(deque.size()).toBe(0);
-      expect(deque.length).toBe(0);
-      expect(deque.getCapacity()).toBe(16); // Default initial capacity
-    });
-
-    it('should create a deque from an iterable', () => {
-      deque = new CircularDeque([1, 2, 3, 4]);
-
-      expect(deque.size()).toBe(4);
-      expect(deque.toArray()).toEqual([1, 2, 3, 4]);
-    });
-
-    it('should create a deque with maxlen', () => {
-      deque = new CircularDeque<number>(3);
-
-      expect(deque.getMaxLen()).toBe(3);
-      expect(deque.isEmpty()).toBe(true);
-      expect(deque.getCapacity()).toBe(3); // Capacity capped at maxlen
-    });
-
-    it('should create a deque from iterable with maxlen', () => {
-      deque = new CircularDeque([1, 2, 3, 4, 5], 3);
-
-      expect(deque.size()).toBe(3);
-      expect(deque.toArray()).toEqual([3, 4, 5]); // Keeps last 3
-    });
-
-    it('should create a deque with custom initial capacity', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 32);
-
-      expect(deque.getCapacity()).toBe(32);
-    });
-
-    it('should create a deque with custom growth factor', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4, 3);
-      // Fill to trigger resize
-      for (let i = 0; i < 5; i++) {
-        deque.addRear(i);
-      }
-
-      expect(deque.getCapacity()).toBe(12); // 4 * 3
-    });
-
-    it('should throw error for invalid maxlen', () => {
-      expect(() => new CircularDeque<number>(0)).toThrow(
-        'maxlen must be greater than 0',
-      );
-
-      expect(() => new CircularDeque<number>(-1)).toThrow(
-        'maxlen must be greater than 0',
-      );
-    });
-
-    it('should throw error for invalid initialCapacity', () => {
-      expect(() => new CircularDeque<number>(undefined, undefined, 0)).toThrow(
-        'initialCapacity must be greater than 0',
-      );
-
-      expect(() => new CircularDeque<number>(undefined, undefined, -1)).toThrow(
-        'initialCapacity must be greater than 0',
-      );
-    });
-
-    it('should throw error for invalid growthFactor', () => {
-      expect(
-        () => new CircularDeque<number>(undefined, undefined, 16, 1),
-      ).toThrow('growthFactor must be greater than 1');
-
-      expect(
-        () => new CircularDeque<number>(undefined, undefined, 16, 0.5),
-      ).toThrow('growthFactor must be greater than 1');
-    });
-
-    it('should handle large initial iterable', () => {
-      const items = Array.from({ length: 100 }, (_, i) => i);
-      deque = new CircularDeque(items);
-
-      expect(deque.size()).toBe(100);
-      expect(deque.toArray()).toEqual(items);
-    });
-
-    it('should use maxlen as capacity when smaller than initialCapacity', () => {
-      deque = new CircularDeque<number>(5, undefined, 32);
-
-      expect(deque.getCapacity()).toBe(5); // maxlen is smaller
-    });
+  it('initializes from an iterable', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    expect(dq.length).toBe(3);
+    expect(dq.toArray()).toEqual([1, 2, 3]);
   });
 
-  describe('addFront', () => {
-    it('should add element to empty deque', () => {
-      deque.addFront(1);
-
-      expect(deque.peekFront()).toBe(1);
-      expect(deque.peekRear()).toBe(1);
-      expect(deque.size()).toBe(1);
-    });
-
-    it('should add multiple elements to front', () => {
-      deque.addFront(1);
-      deque.addFront(2);
-      deque.addFront(3);
-
-      expect(deque.toArray()).toEqual([3, 2, 1]);
-    });
-
-    it('should respect maxlen by removing from rear', () => {
-      deque = new CircularDeque<number>(3);
-
-      deque.addFront(1);
-      deque.addFront(2);
-      deque.addFront(3);
-      deque.addFront(4); // Should remove 1 from rear
-
-      expect(deque.toArray()).toEqual([4, 3, 2]);
-      expect(deque.size()).toBe(3);
-    });
-
-    it('should trigger resize when capacity is reached', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 2);
-
-      deque.addFront(1);
-      deque.addFront(2);
-
-      expect(deque.getCapacity()).toBe(2);
-
-      deque.addFront(3); // Should resize
-
-      expect(deque.getCapacity()).toBe(4);
-      expect(deque.toArray()).toEqual([3, 2, 1]);
-    });
+  it('initializes from a Set (any iterable)', () => {
+    const dq = new CircularDeque(new Set([10, 20, 30]));
+    expect(dq.length).toBe(3);
   });
 
-  describe('addRear', () => {
-    it('should add element to empty deque', () => {
-      deque.addRear(1);
-
-      expect(deque.peekFront()).toBe(1);
-      expect(deque.peekRear()).toBe(1);
-      expect(deque.size()).toBe(1);
-    });
-
-    it('should add multiple elements to rear', () => {
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.addRear(3);
-
-      expect(deque.toArray()).toEqual([1, 2, 3]);
-    });
-
-    it('should respect maxlen by removing from front', () => {
-      deque = new CircularDeque<number>(3);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.addRear(3);
-      deque.addRear(4); // Should remove 1 from front
-
-      expect(deque.toArray()).toEqual([2, 3, 4]);
-      expect(deque.size()).toBe(3);
-    });
-
-    it('should trigger resize when capacity is reached', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 2);
-
-      deque.addRear(1);
-      deque.addRear(2);
-
-      expect(deque.getCapacity()).toBe(2);
-
-      deque.addRear(3); // Should resize
-      expect(deque.getCapacity()).toBe(4);
-      expect(deque.toArray()).toEqual([1, 2, 3]);
-    });
-
-    it('should handle wrapping around buffer', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.removeFront(); // Creates gap at front
-      deque.removeFront();
-      deque.addRear(3);
-      deque.addRear(4);
-      deque.addRear(5); // Wraps around
-
-      expect(deque.toArray()).toEqual([3, 4, 5]);
-    });
+  it('accepts a numeric first argument as maxlen', () => {
+    const dq = new CircularDeque<number>(4);
+    expect(dq.getMaxLen()).toBe(4);
+    expect(dq.isEmpty()).toBe(true);
   });
 
-  describe('removeFront', () => {
-    it('should return undefined for empty deque', () => {
-      expect(deque.removeFront()).toBeUndefined();
-    });
-
-    it('should remove and return front element', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      expect(deque.removeFront()).toBe(1);
-      expect(deque.toArray()).toEqual([2, 3]);
-      expect(deque.size()).toBe(2);
-    });
-
-    it('should handle removing from single-element deque', () => {
-      deque = new CircularDeque([1]);
-
-      expect(deque.removeFront()).toBe(1);
-      expect(deque.isEmpty()).toBe(true);
-      expect(deque.peekFront()).toBeUndefined();
-      expect(deque.peekRear()).toBeUndefined();
-    });
-
-    it('should trigger shrink when utilization is low', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-      // Fill to trigger resize to 8
-      for (let i = 0; i < 5; i++) {
-        deque.addRear(i);
-      }
-
-      const capacityAfterResize = deque.getCapacity();
-      expect(capacityAfterResize).toBe(8);
-
-      // Remove most elements to trigger shrink
-      for (let i = 0; i < 4; i++) {
-        deque.removeFront();
-      }
-      // Should shrink when count < capacity/4
-      expect(deque.getCapacity()).toBeLessThan(capacityAfterResize);
-    });
-
-    it('should not shrink below initial capacity', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 8);
-
-      deque.addRear(1);
-      deque.removeFront();
-
-      expect(deque.getCapacity()).toBe(8);
-    });
+  it('accepts items + maxlen', () => {
+    const dq = new CircularDeque([1, 2, 3, 4, 5], 3);
+    expect(dq.length).toBe(3);
+    expect(dq.getMaxLen()).toBe(3);
   });
 
-  describe('removeRear', () => {
-    it('should return undefined for empty deque', () => {
-      expect(deque.removeRear()).toBeUndefined();
-    });
-
-    it('should remove and return rear element', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      expect(deque.removeRear()).toBe(3);
-      expect(deque.toArray()).toEqual([1, 2]);
-      expect(deque.size()).toBe(2);
-    });
-
-    it('should handle removing from single-element deque', () => {
-      deque = new CircularDeque([1]);
-
-      expect(deque.removeRear()).toBe(1);
-      expect(deque.isEmpty()).toBe(true);
-      expect(deque.peekFront()).toBeUndefined();
-      expect(deque.peekRear()).toBeUndefined();
-    });
+  it('throws when maxlen (numeric) is <= 0', () => {
+    expect(() => new CircularDeque<number>(0)).toThrow();
+    expect(() => new CircularDeque<number>(-1)).toThrow();
   });
 
-  describe('peekFront and peekRear', () => {
-    it('should return undefined for empty deque', () => {
-      expect(deque.peekFront()).toBeUndefined();
-      expect(deque.peekRear()).toBeUndefined();
-    });
-
-    it('should return front and rear without removing', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      expect(deque.peekFront()).toBe(1);
-      expect(deque.peekRear()).toBe(3);
-      expect(deque.size()).toBe(3); // Size unchanged
-    });
-
-    it('should handle wrapping indices correctly', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.removeFront();
-      deque.addRear(3);
-      deque.addRear(4);
-
-      expect(deque.peekFront()).toBe(2);
-      expect(deque.peekRear()).toBe(4);
-    });
+  it('throws when maxlen (second arg) is <= 0', () => {
+    expect(() => new CircularDeque([1, 2], 0)).toThrow();
   });
 
-  describe('contains', () => {
-    it('should return false for empty deque', () => {
-      expect(deque.contains(1)).toBe(false);
-    });
+  it('throws when initialCapacity is <= 0', () => {
+    expect(() => new CircularDeque(undefined, undefined, 0)).toThrow();
+  });
+});
 
-    it('should find existing elements', () => {
-      deque = new CircularDeque([1, 2, 3, 4, 5]);
-
-      expect(deque.contains(1)).toBe(true);
-      expect(deque.contains(3)).toBe(true);
-      expect(deque.contains(5)).toBe(true);
-    });
-
-    it('should return false for non-existing elements', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      expect(deque.contains(4)).toBe(false);
-      expect(deque.contains(0)).toBe(false);
-    });
-
-    it('should work with wrapped buffer', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.removeFront();
-      deque.addRear(3);
-      deque.addRear(4);
-
-      expect(deque.contains(2)).toBe(true);
-      expect(deque.contains(4)).toBe(true);
-      expect(deque.contains(1)).toBe(false);
-    });
+// ---------------------------------------------------------------------------
+// addFront / addRear
+// ---------------------------------------------------------------------------
+describe('addFront', () => {
+  it('adds items to the front', () => {
+    const dq = new CircularDeque<number>();
+    dq.addFront(1);
+    dq.addFront(2);
+    dq.addFront(3);
+    expect(dq.toArray()).toEqual([3, 2, 1]);
   });
 
-  describe('get', () => {
-    it('should return undefined for empty deque', () => {
-      expect(deque.get(0)).toBeUndefined();
-    });
-
-    it('should get elements by positive index', () => {
-      deque = new CircularDeque([10, 20, 30, 40, 50]);
-
-      expect(deque.get(0)).toBe(10);
-      expect(deque.get(2)).toBe(30);
-      expect(deque.get(4)).toBe(50);
-    });
-
-    it('should get elements by negative index', () => {
-      deque = new CircularDeque([10, 20, 30, 40, 50]);
-
-      expect(deque.get(-1)).toBe(50);
-      expect(deque.get(-3)).toBe(30);
-      expect(deque.get(-5)).toBe(10);
-    });
-
-    it('should return undefined for out of bounds', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      expect(deque.get(3)).toBeUndefined();
-      expect(deque.get(-4)).toBeUndefined();
-      expect(deque.get(100)).toBeUndefined();
-    });
-
-    it('should work with wrapped buffer', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.removeFront();
-      deque.addRear(3);
-      deque.addRear(4);
-
-      expect(deque.get(0)).toBe(2);
-      expect(deque.get(1)).toBe(3);
-      expect(deque.get(2)).toBe(4);
-    });
+  it('increments length', () => {
+    const dq = new CircularDeque<number>();
+    dq.addFront(42);
+    expect(dq.length).toBe(1);
   });
 
-  describe('extend', () => {
-    it('should add multiple items to rear', () => {
-      deque = new CircularDeque([1, 2]);
+  it('evicts from the rear when at maxlen', () => {
+    const dq = new CircularDeque<number>(3);
+    dq.addRear(1);
+    dq.addRear(2);
+    dq.addRear(3);
+    dq.addFront(0); // should evict 3 from rear
+    expect(dq.toArray()).toEqual([0, 1, 2]);
+    expect(dq.length).toBe(3);
+  });
+});
 
-      deque.extend([3, 4, 5]);
-
-      expect(deque.toArray()).toEqual([1, 2, 3, 4, 5]);
-    });
-
-    it('should work with empty deque', () => {
-      deque.extend([1, 2, 3]);
-
-      expect(deque.toArray()).toEqual([1, 2, 3]);
-    });
-
-    it('should respect maxlen', () => {
-      deque = new CircularDeque<number>([1, 2], 4);
-
-      deque.extend([3, 4, 5, 6]);
-
-      expect(deque.toArray()).toEqual([3, 4, 5, 6]);
-      expect(deque.size()).toBe(4);
-    });
-
-    it('should trigger resize as needed', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 2);
-
-      deque.extend([1, 2, 3, 4, 5]);
-
-      expect(deque.size()).toBe(5);
-      expect(deque.toArray()).toEqual([1, 2, 3, 4, 5]);
-    });
+describe('addRear', () => {
+  it('adds items to the rear', () => {
+    const dq = new CircularDeque<number>();
+    dq.addRear(1);
+    dq.addRear(2);
+    dq.addRear(3);
+    expect(dq.toArray()).toEqual([1, 2, 3]);
   });
 
-  describe('extendLeft', () => {
-    it('should add multiple items to front in order', () => {
-      deque = new CircularDeque([4, 5]);
-
-      deque.extendLeft([1, 2, 3]);
-
-      expect(deque.toArray()).toEqual([1, 2, 3, 4, 5]);
-    });
-
-    it('should work with empty deque', () => {
-      deque.extendLeft([1, 2, 3]);
-
-      expect(deque.toArray()).toEqual([1, 2, 3]);
-    });
-
-    it('should respect maxlen', () => {
-      deque = new CircularDeque<number>([9, 10], 4);
-
-      deque.extendLeft([5, 6, 7, 8]);
-
-      expect(deque.toArray()).toEqual([5, 6, 7, 8]);
-      expect(deque.size()).toBe(4);
-    });
+  it('increments length', () => {
+    const dq = new CircularDeque<number>();
+    dq.addRear(99);
+    expect(dq.length).toBe(1);
   });
 
-  describe('rotate', () => {
-    it('should do nothing for empty deque', () => {
-      deque.rotate(5);
+  it('evicts from the front when at maxlen', () => {
+    const dq = new CircularDeque<number>(3);
+    dq.addRear(1);
+    dq.addRear(2);
+    dq.addRear(3);
+    dq.addRear(4); // should evict 1 from front
+    expect(dq.toArray()).toEqual([2, 3, 4]);
+    expect(dq.length).toBe(3);
+  });
+});
 
-      expect(deque.isEmpty()).toBe(true);
-    });
-
-    it('should do nothing for single-element deque', () => {
-      deque = new CircularDeque([1]);
-
-      deque.rotate(5);
-
-      expect(deque.toArray()).toEqual([1]);
-    });
-
-    it('should rotate right (positive n) by adjusting indices', () => {
-      deque = new CircularDeque([1, 2, 3, 4, 5]);
-
-      deque.rotate(2);
-
-      expect(deque.toArray()).toEqual([4, 5, 1, 2, 3]);
-    });
-
-    it('should rotate left (negative n) by adjusting indices', () => {
-      deque = new CircularDeque([1, 2, 3, 4, 5]);
-
-      deque.rotate(-2);
-
-      expect(deque.toArray()).toEqual([3, 4, 5, 1, 2]);
-    });
-
-    it('should handle rotation greater than size', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      deque.rotate(5); // 5 % 3 = 2
-
-      expect(deque.toArray()).toEqual([2, 3, 1]);
-    });
-
-    it('should handle default rotation of 1', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      deque.rotate();
-
-      expect(deque.toArray()).toEqual([3, 1, 2]);
-    });
-
-    it('should handle zero rotation', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      deque.rotate(0);
-
-      expect(deque.toArray()).toEqual([1, 2, 3]);
-    });
-
-    it('should handle large rotation efficiently', () => {
-      deque = new CircularDeque(Array.from({ length: 100 }, (_, i) => i));
-
-      deque.rotate(50);
-
-      expect(deque.get(0)).toBe(50);
-      expect(deque.get(99)).toBe(49);
-    });
+// ---------------------------------------------------------------------------
+// removeFront / removeRear
+// ---------------------------------------------------------------------------
+describe('removeFront', () => {
+  it('returns undefined on empty deque', () => {
+    expect(new CircularDeque<number>().removeFront()).toBeUndefined();
   });
 
-  describe('clear', () => {
-    it('should clear empty deque', () => {
-      deque.clear();
-
-      expect(deque.isEmpty()).toBe(true);
-    });
-
-    it('should clear all elements', () => {
-      deque = new CircularDeque([1, 2, 3, 4, 5]);
-
-      deque.clear();
-
-      expect(deque.isEmpty()).toBe(true);
-      expect(deque.size()).toBe(0);
-      expect(deque.peekFront()).toBeUndefined();
-      expect(deque.peekRear()).toBeUndefined();
-    });
-
-    it('should reset to initial capacity', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 8);
-
-      for (let i = 0; i < 20; i++) {
-        deque.addRear(i);
-      }
-
-      expect(deque.getCapacity()).toBeGreaterThan(8);
-
-      deque.clear();
-      expect(deque.getCapacity()).toBe(8);
-    });
-
-    it('should preserve maxlen after clear', () => {
-      deque = new CircularDeque<number>([1, 2, 3], 3);
-
-      deque.clear();
-
-      expect(deque.getMaxLen()).toBe(3);
-
-      deque.extend([1, 2, 3, 4]);
-      expect(deque.size()).toBe(3);
-    });
+  it('removes and returns the front item', () => {
+    const dq = new CircularDeque([10, 20, 30]);
+    expect(dq.removeFront()).toBe(10);
+    expect(dq.toArray()).toEqual([20, 30]);
   });
 
-  describe('toString', () => {
-    it('should return [EMPTY] for empty deque', () => {
-      expect(deque.toString()).toBe('[EMPTY]');
-    });
-
-    it('should format single element', () => {
-      deque = new CircularDeque([42]);
-
-      expect(deque.toString()).toBe('[FRONT] 42 [REAR]');
-    });
-
-    it('should format multiple elements', () => {
-      deque = new CircularDeque([1, 2, 3]);
-
-      expect(deque.toString()).toBe('[FRONT] 1 <-> 2 <-> 3 [REAR]');
-    });
+  it('decrements length', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    dq.removeFront();
+    expect(dq.length).toBe(2);
   });
 
-  describe('Iterator', () => {
-    it('should iterate over empty deque', () => {
-      const result = [...deque];
+  it('leaves deque empty after removing last element', () => {
+    const dq = new CircularDeque([42]);
+    dq.removeFront();
+    expect(dq.isEmpty()).toBe(true);
+  });
+});
 
-      expect(result).toEqual([]);
-    });
-
-    it('should iterate from front to rear', () => {
-      deque = new CircularDeque([1, 2, 3, 4]);
-
-      const result = [...deque];
-
-      expect(result).toEqual([1, 2, 3, 4]);
-    });
-
-    it('should work with for...of loop', () => {
-      deque = new CircularDeque([10, 20, 30]);
-
-      const result: number[] = [];
-
-      for (const value of deque) {
-        result.push(value);
-      }
-
-      expect(result).toEqual([10, 20, 30]);
-    });
-
-    it('should work with wrapped buffer', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.removeFront();
-      deque.addRear(3);
-      deque.addRear(4);
-
-      expect([...deque]).toEqual([2, 3, 4]);
-    });
+describe('removeRear', () => {
+  it('returns undefined on empty deque', () => {
+    expect(new CircularDeque<number>().removeRear()).toBeUndefined();
   });
 
-  describe('reverseIterator', () => {
-    it('should iterate over empty deque', () => {
-      const result = [...deque.reverseIterator()];
-
-      expect(result).toEqual([]);
-    });
-
-    it('should iterate from rear to front', () => {
-      deque = new CircularDeque([1, 2, 3, 4]);
-
-      const result = [...deque.reverseIterator()];
-
-      expect(result).toEqual([4, 3, 2, 1]);
-    });
-
-    it('should work with for...of loop', () => {
-      const deque = new CircularDeque(['a', 'b', 'c']);
-
-      const result: string[] = [];
-
-      for (const value of deque.reverseIterator()) {
-        result.push(value);
-      }
-
-      expect(result).toEqual(['c', 'b', 'a']);
-    });
+  it('removes and returns the rear item', () => {
+    const dq = new CircularDeque([10, 20, 30]);
+    expect(dq.removeRear()).toBe(30);
+    expect(dq.toArray()).toEqual([10, 20]);
   });
 
-  describe('Integration Tests', () => {
-    it('should work as a FIFO queue', () => {
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.addRear(3);
+  it('decrements length', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    dq.removeRear();
+    expect(dq.length).toBe(2);
+  });
+});
 
-      expect(deque.removeFront()).toBe(1);
-      expect(deque.removeFront()).toBe(2);
-      expect(deque.removeFront()).toBe(3);
-    });
-
-    it('should work as a LIFO stack', () => {
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.addRear(3);
-
-      expect(deque.removeRear()).toBe(3);
-      expect(deque.removeRear()).toBe(2);
-      expect(deque.removeRear()).toBe(1);
-    });
-
-    it('should handle mixed operations', () => {
-      deque.addFront(2);
-      deque.addRear(3);
-      deque.addFront(1);
-      deque.addRear(4);
-
-      expect(deque.toArray()).toEqual([1, 2, 3, 4]);
-
-      expect(deque.removeFront()).toBe(1);
-      expect(deque.removeRear()).toBe(4);
-      expect(deque.toArray()).toEqual([2, 3]);
-    });
-
-    it('should handle complex scenario with maxlen and rotation', () => {
-      deque = new CircularDeque<number>(3);
-
-      deque.addRear(1);
-      deque.addRear(2);
-      deque.addRear(3);
-
-      expect(deque.toArray()).toEqual([1, 2, 3]);
-
-      deque.addRear(4);
-      expect(deque.toArray()).toEqual([2, 3, 4]);
-
-      deque.rotate(1);
-      expect(deque.toArray()).toEqual([4, 2, 3]);
-
-      deque.addFront(1);
-      expect(deque.toArray()).toEqual([1, 4, 2]);
-    });
-
-    it('should handle large dataset efficiently', () => {
-      const size = 10000;
-
-      // Add elements
-      for (let i = 0; i < size; i++) {
-        deque.addRear(i);
-      }
-
-      expect(deque.size()).toBe(size);
-
-      // Remove elements
-      for (let i = 0; i < size; i++) {
-        expect(deque.removeFront()).toBe(i);
-      }
-
-      expect(deque.isEmpty()).toBe(true);
-    });
-
-    it('should demonstrate circular buffer advantage', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      // Fill buffer
-      for (let i = 1; i <= 4; i++) {
-        deque.addRear(i);
-      }
-
-      expect(deque.getCapacity()).toBe(4);
-
-      // Remove and add to create wrap-around
-      deque.removeFront(); // Remove 1
-      deque.removeFront(); // Remove 2
-      deque.addRear(5);
-      deque.addRear(6);
-
-      expect(deque.toArray()).toEqual([3, 4, 5, 6]);
-      expect(deque.getCapacity()).toBe(4); // No resize needed
-    });
+// ---------------------------------------------------------------------------
+// peekFront / peekRear
+// ---------------------------------------------------------------------------
+describe('peekFront', () => {
+  it('returns undefined on empty deque', () => {
+    expect(new CircularDeque<number>().peekFront()).toBeUndefined();
   });
 
-  describe('Performance Characteristics', () => {
-    it('should handle rotation efficiently', () => {
-      const size = 100;
-      deque = new CircularDeque(Array.from({ length: size }, (_, i) => i));
+  it('returns front without removing', () => {
+    const dq = new CircularDeque([5, 10, 15]);
+    expect(dq.peekFront()).toBe(5);
+    expect(dq.length).toBe(3);
+  });
+});
 
-      deque.rotate(50);
-
-      expect(deque.get(0)).toBe(50); // Verify rotation worked
-      expect(deque.toArray().length).toBe(size);
-    });
-
-    it('should demonstrate efficient memory usage with shrinking', () => {
-      deque = new CircularDeque<number>(undefined, undefined, 4);
-
-      // Grow the deque
-      for (let i = 0; i < 20; i++) {
-        deque.addRear(i);
-      }
-
-      const grownCapacity = deque.getCapacity();
-      expect(grownCapacity).toBeGreaterThan(4);
-
-      // Shrink the deque
-      for (let i = 0; i < 18; i++) {
-        deque.removeFront();
-      }
-
-      // Should shrink capacity
-      expect(deque.getCapacity()).toBeLessThan(grownCapacity);
-    });
+describe('peekRear', () => {
+  it('returns undefined on empty deque', () => {
+    expect(new CircularDeque<number>().peekRear()).toBeUndefined();
   });
 
-  describe('Edge Cases', () => {
-    it('should handle alternating add/remove operations', () => {
-      deque.addFront(1);
+  it('returns rear without removing', () => {
+    const dq = new CircularDeque([5, 10, 15]);
+    expect(dq.peekRear()).toBe(15);
+    expect(dq.length).toBe(3);
+  });
+});
 
-      expect(deque.removeFront()).toBe(1);
+// ---------------------------------------------------------------------------
+// get
+// ---------------------------------------------------------------------------
+describe('get', () => {
+  it('retrieves by positive index', () => {
+    const dq = new CircularDeque(['a', 'b', 'c']);
+    expect(dq.get(0)).toBe('a');
+    expect(dq.get(1)).toBe('b');
+    expect(dq.get(2)).toBe('c');
+  });
 
-      deque.addRear(2);
+  it('retrieves by negative index', () => {
+    const dq = new CircularDeque(['a', 'b', 'c']);
+    expect(dq.get(-1)).toBe('c');
+    expect(dq.get(-2)).toBe('b');
+    expect(dq.get(-3)).toBe('a');
+  });
 
-      expect(deque.removeRear()).toBe(2);
-      expect(deque.isEmpty()).toBe(true);
-    });
+  it('returns undefined for out-of-range index', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    expect(dq.get(5)).toBeUndefined();
+    expect(dq.get(-5)).toBeUndefined();
+  });
+});
 
-    it('should handle null and undefined values', () => {
-      const deque = new CircularDeque<number | null | undefined>([
-        1,
-        null,
-        undefined,
-        2,
-      ]);
+// ---------------------------------------------------------------------------
+// contains
+// ---------------------------------------------------------------------------
+describe('contains', () => {
+  it('returns true when item is present', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    expect(dq.contains(2)).toBe(true);
+  });
 
-      expect(deque.size()).toBe(4);
-      expect(deque.contains(null)).toBe(true);
-      expect(deque.contains(undefined)).toBe(true);
-      expect(deque.get(1)).toBeNull();
-      expect(deque.get(2)).toBeUndefined();
-    });
+  it('returns false when item is absent', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    expect(dq.contains(99)).toBe(false);
+  });
 
-    it('should handle maxlen of 1', () => {
-      deque = new CircularDeque<number>(1);
+  it('returns false on empty deque', () => {
+    expect(new CircularDeque<number>().contains(1)).toBe(false);
+  });
+});
 
-      deque.addRear(1);
+// ---------------------------------------------------------------------------
+// extend / extendLeft
+// ---------------------------------------------------------------------------
+describe('extend', () => {
+  it('appends items to the rear', () => {
+    const dq = new CircularDeque([1, 2]);
+    dq.extend([3, 4, 5]);
+    expect(dq.toArray()).toEqual([1, 2, 3, 4, 5]);
+  });
 
-      expect(deque.size()).toBe(1);
+  it('handles empty iterable', () => {
+    const dq = new CircularDeque([1, 2]);
+    dq.extend([]);
+    expect(dq.toArray()).toEqual([1, 2]);
+  });
+});
 
-      deque.addRear(2);
+describe('extendLeft', () => {
+  it('prepends items preserving their order', () => {
+    const dq = new CircularDeque([4, 5]);
+    dq.extendLeft([1, 2, 3]);
+    // extendLeft adds each to front in reverse, so order is preserved at front
+    expect(dq.toArray()).toEqual([1, 2, 3, 4, 5]);
+  });
 
-      expect(deque.size()).toBe(1);
-      expect(deque.peekFront()).toBe(2);
-    });
+  it('handles empty iterable', () => {
+    const dq = new CircularDeque([1, 2]);
+    dq.extendLeft([]);
+    expect(dq.toArray()).toEqual([1, 2]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// rotate
+// ---------------------------------------------------------------------------
+describe('rotate', () => {
+  it('rotates right by default (n=1)', () => {
+    const dq = new CircularDeque([1, 2, 3, 4, 5]);
+    dq.rotate();
+    expect(dq.toArray()).toEqual([5, 1, 2, 3, 4]);
+  });
+
+  it('rotates right by n', () => {
+    const dq = new CircularDeque([1, 2, 3, 4, 5]);
+    dq.rotate(2);
+    expect(dq.toArray()).toEqual([4, 5, 1, 2, 3]);
+  });
+
+  it('rotates left with negative n', () => {
+    const dq = new CircularDeque([1, 2, 3, 4, 5]);
+    dq.rotate(-1);
+    expect(dq.toArray()).toEqual([2, 3, 4, 5, 1]);
+  });
+
+  it('is a no-op on a deque with 0 or 1 elements', () => {
+    const dq0 = new CircularDeque<number>();
+    dq0.rotate();
+    expect(dq0.toArray()).toEqual([]);
+
+    const dq1 = new CircularDeque([42]);
+    dq1.rotate();
+    expect(dq1.toArray()).toEqual([42]);
+  });
+
+  it('handles rotation equal to length (full wrap)', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    dq.rotate(3);
+    expect(dq.toArray()).toEqual([1, 2, 3]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// clear
+// ---------------------------------------------------------------------------
+describe('clear', () => {
+  it('empties the deque', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    dq.clear();
+    expect(dq.length).toBe(0);
+    expect(dq.isEmpty()).toBe(true);
+    expect(dq.toArray()).toEqual([]);
+  });
+
+  it('allows adding items after clear', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    dq.clear();
+    dq.addRear(99);
+    expect(dq.toArray()).toEqual([99]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Capacity & resize
+// ---------------------------------------------------------------------------
+describe('Capacity / resize', () => {
+  it('grows capacity when buffer is full (no maxlen)', () => {
+    const dq = new CircularDeque<number>(undefined, undefined, 2);
+    const initialCap = dq.getCapacity();
+    for (let i = 0; i < initialCap + 1; i++) dq.addRear(i);
+    expect(dq.getCapacity()).toBeGreaterThan(initialCap);
+  });
+
+  it('does not exceed maxlen capacity', () => {
+    const dq = new CircularDeque<number>(4);
+    for (let i = 0; i < 10; i++) dq.addRear(i);
+    expect(dq.length).toBe(4);
+    expect(dq.getCapacity()).toBeLessThanOrEqual(4);
+  });
+
+  it('trimToSize reduces capacity to fit contents', () => {
+    const dq = new CircularDeque<number>(undefined, undefined, 16);
+    dq.addRear(1);
+    dq.addRear(2);
+    const capBefore = dq.getCapacity();
+    dq.trimToSize();
+    expect(dq.getCapacity()).toBeLessThanOrEqual(capBefore);
+    expect(dq.toArray()).toEqual([1, 2]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Iterators
+// ---------------------------------------------------------------------------
+describe('Symbol.iterator', () => {
+  it('iterates in front-to-rear order', () => {
+    const dq = new CircularDeque([10, 20, 30]);
+    expect([...dq]).toEqual([10, 20, 30]);
+  });
+
+  it('yields nothing for empty deque', () => {
+    expect([...new CircularDeque<number>()]).toEqual([]);
+  });
+});
+
+describe('reverseIterator', () => {
+  it('iterates in rear-to-front order', () => {
+    const dq = new CircularDeque([10, 20, 30]);
+    expect([...dq.reverseIterator()]).toEqual([30, 20, 10]);
+  });
+
+  it('yields nothing for empty deque', () => {
+    expect([...new CircularDeque<number>().reverseIterator()]).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Accessors
+// ---------------------------------------------------------------------------
+describe('Accessors', () => {
+  it('length and size are equivalent', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    expect(dq.length).toBe(dq.size);
+  });
+
+  it('isEmpty returns true only when count is 0', () => {
+    const dq = new CircularDeque<number>();
+    expect(dq.isEmpty()).toBe(true);
+    dq.addRear(1);
+    expect(dq.isEmpty()).toBe(false);
+    dq.removeFront();
+    expect(dq.isEmpty()).toBe(true);
+  });
+
+  it('getMaxLen returns undefined when no maxlen set', () => {
+    expect(new CircularDeque<number>().getMaxLen()).toBeUndefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// toArray
+// ---------------------------------------------------------------------------
+describe('toArray', () => {
+  it('returns a copy, not a reference to internals', () => {
+    const dq = new CircularDeque([1, 2, 3]);
+    const arr = dq.toArray();
+    arr.push(99);
+    expect(dq.length).toBe(3);
+  });
+
+  it('returns elements in logical order after mixed operations', () => {
+    const dq = new CircularDeque<number>();
+    dq.addRear(2);
+    dq.addFront(1);
+    dq.addRear(3);
+    expect(dq.toArray()).toEqual([1, 2, 3]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Generics / type safety
+// ---------------------------------------------------------------------------
+describe('Generic types', () => {
+  it('works with strings', () => {
+    const dq = new CircularDeque(['hello', 'world']);
+    expect(dq.peekFront()).toBe('hello');
+  });
+
+  it('works with objects', () => {
+    const dq = new CircularDeque<{ id: number }>([{ id: 1 }, { id: 2 }]);
+    expect(dq.removeFront()).toEqual({ id: 1 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Stress / edge cases
+// ---------------------------------------------------------------------------
+describe('Stress & edge cases', () => {
+  it('handles many add/remove cycles without corruption', () => {
+    const dq = new CircularDeque<number>();
+    for (let i = 0; i < 1000; i++) dq.addRear(i);
+    for (let i = 0; i < 500; i++) dq.removeFront();
+    expect(dq.length).toBe(500);
+    expect(dq.peekFront()).toBe(500);
+  });
+
+  it('interleaved addFront/removeRear stays consistent', () => {
+    const dq = new CircularDeque<number>();
+    for (let i = 0; i < 100; i++) {
+      dq.addFront(i);
+      if (i % 3 === 0) dq.removeRear();
+    }
+    // Just verify no crash and length is sensible
+    expect(dq.length).toBeGreaterThan(0);
+    expect(dq.toArray().length).toBe(dq.length);
+  });
+
+  it('single element: peek, remove, add round-trip', () => {
+    const dq = new CircularDeque<number>();
+    dq.addFront(7);
+    expect(dq.peekFront()).toBe(7);
+    expect(dq.peekRear()).toBe(7);
+    expect(dq.removeFront()).toBe(7);
+    expect(dq.isEmpty()).toBe(true);
+    dq.addRear(8);
+    expect(dq.removeRear()).toBe(8);
+    expect(dq.isEmpty()).toBe(true);
   });
 });

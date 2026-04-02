@@ -1,328 +1,252 @@
 /**
  * @class CircularDeque
- * @description A generic double-ended queue (deque) implemented using a circular buffer.
- * Provides O(1) amortized operations at both ends with efficient memory usage.
- * @template T The type of elements held in the deque.
+ * @description A high-performance generic double-ended queue implemented with a circular buffer.
+ * Uses bitwise wrapping and Power-of-Two sizing for O(1) operations.
+ * * @template T The type of elements held in the deque.
  */
 class CircularDeque<T> {
   private buffer: (T | undefined)[];
-  private frontIndex: number;
-  private rearIndex: number;
-  private count: number;
+  private frontIndex: number = 0;
+  private rearIndex: number = 0;
+  private count: number = 0;
   private capacity: number;
   private readonly initialCapacity: number;
-  private readonly growthFactor: number;
   private readonly maxlen?: number;
 
+  /**
+   * @constructor
+   * @param itemsOrMaxlen Initial items to add or the maximum length of the deque.
+   * @param maxlen Optional maximum length if items are provided as the first argument.
+   * @param initialCapacity The starting internal buffer size (will be rounded up to power of 2).
+   * * @time O(N) where N is the number of initial items.
+   * @space O(K) where K is the initial capacity.
+   */
   constructor(
-    itemsOrCapacity?: Iterable<T> | number,
+    itemsOrMaxlen?: Iterable<T> | number,
     maxlen?: number,
     initialCapacity: number = 16,
-    growthFactor: number = 2,
   ) {
-    // Handle overloaded signatures
-    let items: Iterable<T> | undefined;
-    let maxlenValue: number | undefined;
+    const getNextPowerOfTwo = (n: number) =>
+      n <= 1 ? 1 : Math.pow(2, Math.ceil(Math.log2(n)));
 
-    if (typeof itemsOrCapacity === 'number') {
-      maxlenValue = itemsOrCapacity;
-    } else {
-      items = itemsOrCapacity;
-      maxlenValue = maxlen;
+    let items: T[] | undefined;
+
+    // Handle overloaded constructor arguments
+    if (typeof itemsOrMaxlen === 'number') {
+      if (itemsOrMaxlen <= 0) throw new Error('maxlen must be greater than 0');
+      this.maxlen = itemsOrMaxlen;
+    } else if (itemsOrMaxlen) {
+      items = Array.from(itemsOrMaxlen);
+      this.maxlen = maxlen;
+
+      if (this.maxlen !== undefined && this.maxlen <= 0) {
+        throw new Error('maxlen must be greater than 0');
+      }
     }
 
-    // Validate maxlen
-    if (maxlenValue !== undefined && maxlenValue <= 0) {
-      throw new Error('maxlen must be greater than 0');
-    }
-
-    // Validate initialCapacity
-    if (initialCapacity <= 0) {
+    if (initialCapacity <= 0)
       throw new Error('initialCapacity must be greater than 0');
-    }
 
-    // Validate growthFactor
-    if (growthFactor <= 1) {
-      throw new Error('growthFactor must be greater than 1');
-    }
-
-    this.maxlen = maxlenValue;
-    this.initialCapacity = Math.max(1, initialCapacity);
-    this.growthFactor = growthFactor;
-
-    // If maxlen is set and smaller than initialCapacity, use maxlen as capacity
-    this.capacity =
-      this.maxlen !== undefined
-        ? Math.min(this.maxlen, this.initialCapacity)
-        : this.initialCapacity;
+    // Setup initial power-of-two capacity for bitwise optimization
+    this.initialCapacity = getNextPowerOfTwo(initialCapacity);
+    this.capacity = this.maxlen
+      ? getNextPowerOfTwo(Math.min(this.maxlen, this.initialCapacity))
+      : this.initialCapacity;
 
     this.buffer = new Array(this.capacity);
-    this.frontIndex = 0;
-    this.rearIndex = 0;
-    this.count = 0;
 
-    // Initialize with items if provided
     if (items) {
-      const itemsArray = Array.from(items);
-      const startIdx = this.maxlen
-        ? Math.max(0, itemsArray.length - this.maxlen)
-        : 0;
-
-      this.initializeFromItems(itemsArray, startIdx);
+      this.extend(items);
     }
   }
 
   /**
+   * Optimized Bitwise Wrap
+   * Replaces (index % capacity) for Power-of-Two capacities.
    * @private
-   * @description Initializes the circular buffer from an array of items.
-   * @param {T[]} items The array of elements to initialize the deque with.
-   * @param {number} startIdx The index to begin building the deque from.
-   * @returns {void}
-   * @TimeComplexity O(k) - Linear time, where k is the number of elements added.
-   * @SpaceComplexity O(1) - Uses existing buffer space.
+   * * @time O(1)
+   * @space O(1)
    */
-  private initializeFromItems(items: T[], startIdx: number): void {
-    for (let i = startIdx; i < items.length; i++) {
-      // May need to resize if items exceed initial capacity
-      if (this.count === this.capacity && this.maxlen === undefined) {
-        this.resize();
-      }
-
-      this.buffer[this.rearIndex] = items[i];
-      this.rearIndex = (this.rearIndex + 1) % this.capacity;
-      this.count++;
-    }
+  private wrap(index: number): number {
+    return index & (this.capacity - 1);
   }
 
   /**
+   * Doubles the internal buffer size and realigns elements.
    * @private
-   * @description Resizes the internal buffer when capacity is reached.
-   * @returns {void}
-   * @TimeComplexity O(n) - Copies all n elements to new buffer.
-   * @SpaceComplexity O(n) - Allocates new buffer of increased size.
+   * * @time O(N) where N is current count.
+   * @space O(N) for the new buffer.
    */
   private resize(): void {
-    // Don't resize if we have a maxlen constraint and we're at it
-    if (this.maxlen !== undefined && this.count >= this.maxlen) return;
+    const newCapacity = this.capacity * 2;
+    const newBuffer = new Array(newCapacity);
 
-    const newCapacity =
-      this.maxlen !== undefined
-        ? Math.min(Math.floor(this.capacity * this.growthFactor), this.maxlen)
-        : Math.floor(this.capacity * this.growthFactor);
-
-    // Ensure we actually increase capacity
-    if (newCapacity <= this.capacity) return;
-
-    const newBuffer = new Array<T | undefined>(newCapacity);
-
-    // Copy elements in order from front to rear
+    // Copy elements in order to the start of the new buffer
     for (let i = 0; i < this.count; i++) {
-      newBuffer[i] = this.buffer[(this.frontIndex + i) % this.capacity];
+      newBuffer[i] = this.buffer[this.wrap(this.frontIndex + i)];
     }
 
     this.buffer = newBuffer;
+    this.capacity = newCapacity;
     this.frontIndex = 0;
     this.rearIndex = this.count;
-    this.capacity = newCapacity;
   }
 
   /**
-   * @private
-   * @description Shrinks the buffer when count falls below threshold.
-   * Helps reduce memory usage for long-lived deques.
-   * @returns {void}
-   * @TimeComplexity O(n) - Copies all n elements to new buffer.
-   * @SpaceComplexity O(n) - Allocates new smaller buffer.
+   * Reduces the internal buffer size to the smallest power of 2 that fits the current count.
+   * * @time O(N)
+   * @space O(N)
    */
-  private maybeShrink(): void {
-    // Don't shrink below initial capacity
-    if (this.capacity <= this.initialCapacity) {
-      return;
-    }
+  trimToSize(): void {
+    if (this.count === this.capacity) return;
 
-    // Don't shrink if maxlen is set (capacity is optimized for it)
-    if (this.maxlen !== undefined) return;
-
-    // Shrink if utilization is less than 25%
-    const shrinkThreshold = this.capacity / 4;
-    if (this.count > shrinkThreshold) return;
+    const getNextPowerOfTwo = (n: number) =>
+      n <= 1 ? 2 : Math.pow(2, Math.ceil(Math.log2(n)));
 
     const newCapacity = Math.max(
       this.initialCapacity,
-      Math.floor(this.capacity / this.growthFactor),
+      getNextPowerOfTwo(this.count),
     );
 
-    const newBuffer = new Array<T | undefined>(newCapacity);
-
-    // Copy elements in order
-    for (let i = 0; i < this.count; i++) {
-      newBuffer[i] = this.buffer[(this.frontIndex + i) % this.capacity];
+    if (newCapacity < this.capacity) {
+      const newBuffer = new Array(newCapacity);
+      for (let i = 0; i < this.count; i++) {
+        newBuffer[i] = this.buffer[this.wrap(this.frontIndex + i)];
+      }
+      this.buffer = newBuffer;
+      this.capacity = newCapacity;
+      this.frontIndex = 0;
+      this.rearIndex = this.count;
     }
-
-    this.buffer = newBuffer;
-    this.frontIndex = 0;
-    this.rearIndex = this.count;
-    this.capacity = newCapacity;
   }
 
   /**
-   * Adds an element to the front of the deque.
-   * If maxlen is set and exceeded, removes from the rear.
-   * @param {T} item The element to add.
-   * @TimeComplexity O(1) amortized - May trigger O(n) resize occasionally.
-   * @SpaceComplexity O(1) - Constant space for the operation.
+   * Adds an item to the front of the deque.
+   * If capacity is reached and maxlen is set, the rear item is dropped.
+   * * @time O(1) Amortized (O(N) if resize is triggered).
+   * @space O(1) Amortized.
    */
   addFront(item: T): void {
-    // Handle maxlen constraint
+    if (this.count === this.capacity) {
+      if (this.maxlen === undefined || this.capacity < this.maxlen) {
+        this.resize();
+      }
+    }
+
+    // Handle fixed-size deque behavior (evict rear if full)
     if (this.maxlen !== undefined && this.count === this.maxlen) {
       this.removeRear();
     }
 
-    // Resize if needed (only when no maxlen)
-    if (this.count === this.capacity) {
-      this.resize();
-    }
-
-    this.frontIndex = (this.frontIndex - 1 + this.capacity) % this.capacity;
+    this.frontIndex = this.wrap(this.frontIndex - 1);
     this.buffer[this.frontIndex] = item;
     this.count++;
   }
 
   /**
-   * Adds an element to the rear of the deque.
-   * If maxlen is set and exceeded, removes from the front.
-   * @param {T} item The element to add.
-   * @TimeComplexity O(1) amortized - May trigger O(n) resize occasionally.
-   * @SpaceComplexity O(1) - Constant space for the operation.
+   * Adds an item to the rear of the deque.
+   * If capacity is reached and maxlen is set, the front item is dropped.
+   * * @time O(1) Amortized.
+   * @space O(1) Amortized.
    */
   addRear(item: T): void {
-    // Handle maxlen constraint
+    if (this.count === this.capacity) {
+      if (this.maxlen === undefined || this.capacity < this.maxlen) {
+        this.resize();
+      }
+    }
+
+    // Handle fixed-size deque behavior (evict front if full)
     if (this.maxlen !== undefined && this.count === this.maxlen) {
       this.removeFront();
     }
 
-    // Resize if needed (only when no maxlen)
-    if (this.count === this.capacity) {
-      this.resize();
-    }
-
     this.buffer[this.rearIndex] = item;
-    this.rearIndex = (this.rearIndex + 1) % this.capacity;
+    this.rearIndex = this.wrap(this.rearIndex + 1);
     this.count++;
   }
 
   /**
-   * Removes and returns the element from the front of the deque.
-   * @returns {T | undefined} The element at the front, or `undefined` if empty.
-   * @TimeComplexity O(1) amortized - May trigger O(n) shrink occasionally.
-   * @SpaceComplexity O(1) - Constant space for the operation.
+   * Removes and returns the item from the front.
+   * * @time O(1)
+   * @space O(1)
    */
   removeFront(): T | undefined {
     if (this.count === 0) return undefined;
 
     const value = this.buffer[this.frontIndex];
-    this.buffer[this.frontIndex] = undefined; // Allow garbage collection
-
-    this.frontIndex = (this.frontIndex + 1) % this.capacity;
+    this.buffer[this.frontIndex] = undefined; // Avoid memory leaks (GC)
+    this.frontIndex = this.wrap(this.frontIndex + 1);
     this.count--;
-
-    // Consider shrinking if buffer is underutilized
-    this.maybeShrink();
 
     return value;
   }
 
   /**
-   * Removes and returns the element from the rear of the deque.
-   * @returns {T | undefined} The element at the rear, or `undefined` if empty.
-   * @TimeComplexity O(1) amortized - May trigger O(n) shrink occasionally.
-   * @SpaceComplexity O(1) - Constant space for the operation.
+   * Removes and returns the item from the rear.
+   * * @time O(1)
+   * @space O(1)
    */
   removeRear(): T | undefined {
     if (this.count === 0) return undefined;
-
-    this.rearIndex = (this.rearIndex - 1 + this.capacity) % this.capacity;
+    this.rearIndex = this.wrap(this.rearIndex - 1);
     const value = this.buffer[this.rearIndex];
-
-    this.buffer[this.rearIndex] = undefined; // Allow garbage collection
+    this.buffer[this.rearIndex] = undefined; // Avoid memory leaks (GC)
     this.count--;
-
-    // Consider shrinking if buffer is underutilized
-    this.maybeShrink();
 
     return value;
   }
 
   /**
-   * Returns the element at the front without removing it.
-   * @returns {T | undefined} The element at the front, or `undefined` if empty.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
+   * Returns the item at the front without removing it.
+   * * @time O(1)
+   * @space O(1)
    */
   peekFront(): T | undefined {
     return this.count === 0 ? undefined : this.buffer[this.frontIndex];
   }
 
   /**
-   * Returns the element at the rear without removing it.
-   * @returns {T | undefined} The element at the rear, or `undefined` if empty.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
+   * Returns the item at the rear without removing it.
+   * * @time O(1)
+   * @space O(1)
    */
   peekRear(): T | undefined {
-    if (this.count === 0) return undefined;
-
-    const index = (this.rearIndex - 1 + this.capacity) % this.capacity;
-
-    return this.buffer[index];
+    return this.count === 0
+      ? undefined
+      : this.buffer[this.wrap(this.rearIndex - 1)];
   }
 
   /**
-   * Checks if the deque contains a specific item.
-   * Uses strict equality (===) for comparison.
-   * @param {T} item The item to search for.
-   * @returns {boolean} `true` if the item is found, `false` otherwise.
-   * @TimeComplexity O(n) - May need to check all elements.
-   * @SpaceComplexity O(1) - No extra space used.
+   * Accesses an item by its logical index.
+   * Supports negative indexing (e.g., -1 is the last item).
+   * * @time O(1)
+   * @space O(1)
+   */
+  get(index: number): T | undefined {
+    if (index < 0) index = this.count + index;
+    if (index < 0 || index >= this.count) return undefined;
+
+    return this.buffer[this.wrap(this.frontIndex + index)];
+  }
+
+  /**
+   * Checks if an item exists in the deque using strict equality.
+   * * @time O(N)
+   * @space O(1)
    */
   contains(item: T): boolean {
     for (let i = 0; i < this.count; i++) {
-      const index = (this.frontIndex + i) % this.capacity;
-
-      if (this.buffer[index] === item) return true;
+      if (this.buffer[this.wrap(this.frontIndex + i)] === item) return true;
     }
 
     return false;
   }
 
   /**
-   * Returns the element at the specified index (0-based from front).
-   * Negative indices count from the rear (-1 is last element).
-   * @param {number} index The index of the element to retrieve.
-   * @returns {T | undefined} The element at the index, or `undefined` if out of bounds.
-   * @TimeComplexity O(1) - Direct array access with modulo arithmetic.
-   * @SpaceComplexity O(1) - No extra space used.
-   */
-  get(index: number): T | undefined {
-    // Handle negative indices
-    if (index < 0) {
-      index = this.count + index;
-    }
-
-    // Out of bounds check
-    if (index < 0 || index >= this.count) return undefined;
-
-    const actualIndex = (this.frontIndex + index) % this.capacity;
-
-    return this.buffer[actualIndex];
-  }
-
-  /**
-   * Extends the deque by adding multiple items to the rear.
-   * If maxlen is set, removes from front as needed.
-   * @param {Iterable<T>} items The items to add.
-   * @TimeComplexity O(k) amortized - Where k is the number of items.
-   * @SpaceComplexity O(1) - Constant extra space (excluding new elements).
+   * Adds multiple items to the rear.
+   * * @time O(M) where M is the number of items.
+   * @space O(1) (excluding potential resizing).
    */
   extend(items: Iterable<T>): void {
     for (const item of items) {
@@ -331,15 +255,12 @@ class CircularDeque<T> {
   }
 
   /**
-   * Extends the deque by adding multiple items to the front (in order).
-   * Items are added so that the first item in the iterable becomes the new front.
-   * If maxlen is set, removes from rear as needed.
-   * @param {Iterable<T>} items The items to add.
-   * @TimeComplexity O(k) amortized - Where k is the number of items.
-   * @SpaceComplexity O(k) - May need to convert iterable to array for reverse order.
+   * Adds multiple items to the front, maintaining their relative order.
+   * * @time O(M) where M is the number of items.
+   * @space O(M) if items is not an array (due to Array.from).
    */
   extendLeft(items: Iterable<T>): void {
-    const itemsArray = Array.from(items);
+    const itemsArray = Array.isArray(items) ? items : Array.from(items);
 
     for (let i = itemsArray.length - 1; i >= 0; i--) {
       this.addFront(itemsArray[i]);
@@ -347,191 +268,93 @@ class CircularDeque<T> {
   }
 
   /**
-   * Rotates the deque n steps. Positive n rotates right (rear to front),
-   * negative n rotates left (front to rear).
-   * @param {number} n Number of steps to rotate.
-   * @TimeComplexity O(min(n, count)) - Moves elements, but optimized.
-   * @SpaceComplexity O(1) - No extra space used.
+   * Rotates the deque n steps to the right (positive) or left (negative).
+   * * @time O(K) where K is the number of effective shifts.
+   * @space O(1)
    */
   rotate(n: number = 1): void {
-    if (this.isEmpty() || this.count === 1) return;
+    if (this.count <= 1) return;
+    const shift = ((n % this.count) + this.count) % this.count;
+    if (shift === 0) return;
 
-    // Normalize n to be within [-count, count]
-    n = n % this.count;
-
-    if (n === 0) return;
-
-    if (n > 0) {
-      // Rotate right: move rear to front
-      for (let i = 0; i < n; i++) {
-        const item = this.removeRear();
-
-        if (item !== undefined) {
-          this.addFront(item);
-        }
-      }
-    } else {
-      // Rotate left: move front to rear
-      for (let i = 0; i < Math.abs(n); i++) {
-        const item = this.removeFront();
-
-        if (item !== undefined) {
-          this.addRear(item);
-        }
-      }
+    // Rotate right: move items from rear to front
+    for (let i = 0; i < shift; i++) {
+      this.addFront(this.removeRear()!);
     }
   }
 
   /**
-   * Checks if the deque is empty.
-   * @returns {boolean} `true` if the deque contains no elements, `false` otherwise.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
+   * Resets the deque and clears the buffer for GC.
+   * * @time O(K) where K is current capacity.
+   * @space O(1)
    */
+  clear(): void {
+    this.buffer.fill(undefined);
+    this.frontIndex = 0;
+    this.rearIndex = 0;
+    this.count = 0;
+  }
+
+  /** @returns True if deque has no items. */
   isEmpty(): boolean {
     return this.count === 0;
   }
 
-  /**
-   * Returns the number of elements in the deque.
-   * @returns {number} The current number of elements.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
-   */
+  /** @returns The number of items in the deque. */
   get length(): number {
     return this.count;
   }
 
-  /**
-   * Returns the number of elements in the deque (method form for compatibility).
-   * @returns {number} The current number of elements.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
-   */
-  size(): number {
+  /** @returns The number of items in the deque. */
+  get size(): number {
     return this.count;
   }
 
-  /**
-   * Returns the current capacity of the internal buffer.
-   * @returns {number} The current capacity.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
-   */
+  /** @returns The current internal buffer capacity. */
   getCapacity(): number {
     return this.capacity;
   }
 
-  /**
-   * Returns the maximum length of the deque, if set.
-   * @returns {number | undefined} The maximum length, or `undefined` if not set.
-   * @TimeComplexity O(1) - Constant time.
-   * @SpaceComplexity O(1) - No extra space used.
-   */
+  /** @returns The maximum allowed length, if any. */
   getMaxLen(): number | undefined {
     return this.maxlen;
   }
 
   /**
-   * Removes all elements from the deque and resets to initial capacity.
-   * @TimeComplexity O(1) - Just reallocates buffer.
-   * @SpaceComplexity O(1) - Resets to initial capacity.
-   */
-  clear(): void {
-    const resetCapacity =
-      this.maxlen !== undefined
-        ? Math.min(this.maxlen, this.initialCapacity)
-        : this.initialCapacity;
-
-    this.buffer = new Array(resetCapacity);
-    this.frontIndex = 0;
-    this.rearIndex = 0;
-    this.count = 0;
-    this.capacity = resetCapacity;
-  }
-
-  /**
-   * Converts the deque to an array from front to rear.
-   * @returns {T[]} An array containing all elements in order.
-   * @TimeComplexity O(n) - Iterates over all n elements.
-   * @SpaceComplexity O(n) - Creates a new array of size n.
+   * Returns a standard array containing the deque elements in order.
+   * * @time O(N)
+   * @space O(N)
    */
   toArray(): T[] {
-    const result: T[] = [];
+    const result: T[] = new Array(this.count);
 
     for (let i = 0; i < this.count; i++) {
-      const index = (this.frontIndex + i) % this.capacity;
-
-      result.push(this.buffer[index]!);
+      result[i] = this.buffer[this.wrap(this.frontIndex + i)]!;
     }
 
     return result;
   }
 
   /**
-   * Returns a string representation of the deque.
-   * @returns {string} A string representing the deque's content.
-   * @TimeComplexity O(n) - Iterates over all n elements.
-   * @SpaceComplexity O(n) - Creates a new string.
+   * Iterates over elements from front to rear.
+   * * @time O(N)
+   * @space O(1)
    */
-  toString(): string {
-    if (this.isEmpty()) return '[EMPTY]';
-
-    let s = '[FRONT] ';
-
+  *[Symbol.iterator](): IterableIterator<T> {
     for (let i = 0; i < this.count; i++) {
-      const index = (this.frontIndex + i) % this.capacity;
-
-      s += `${this.buffer[index]}`;
-
-      if (i < this.count - 1) {
-        s += ' <-> ';
-      }
-    }
-    s += ' [REAR]';
-
-    return s;
-  }
-
-  /**
-   * Implements the Iterable protocol. Elements are yielded from front to rear.
-   * @yields {T} The value at the current position.
-   * @TimeComplexity O(n) - For a full iteration over n elements.
-   * @SpaceComplexity O(1) - Iteration uses constant extra space.
-   */
-  *[Symbol.iterator](): Iterator<T> {
-    for (let i = 0; i < this.count; i++) {
-      const index = (this.frontIndex + i) % this.capacity;
-
-      yield this.buffer[index]!;
+      yield this.buffer[this.wrap(this.frontIndex + i)]!;
     }
   }
 
   /**
-   * Reverse iterator - yields elements from rear to front.
-   * @yields {T} The value at the current position (moving backward).
-   * @TimeComplexity O(n) - For a full iteration over n elements.
-   * @SpaceComplexity O(1) - Iteration uses constant extra space.
+   * Iterates over elements from rear to front.
+   * * @time O(N)
+   * @space O(1)
    */
-  reverseIterator(): Iterable<T> {
-    return {
-      [Symbol.iterator]: (): Iterator<T> => {
-        let i = this.count - 1;
-
-        return {
-          next: () => {
-            if (i >= 0) {
-              const index = (this.frontIndex + i) % this.capacity;
-              const value = this.buffer[index]!;
-              i--;
-              return { value, done: false };
-            }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return { value: undefined as any, done: true };
-          },
-        };
-      },
-    };
+  *reverseIterator(): IterableIterator<T> {
+    for (let i = this.count - 1; i >= 0; i--) {
+      yield this.buffer[this.wrap(this.frontIndex + i)]!;
+    }
   }
 }
 
