@@ -6,9 +6,9 @@
  */
 class CircularQueue<T> {
   private queue: (T | undefined)[];
-  private head: number;
-  private tail: number;
-  private count: number;
+  private head: number = 0;
+  private tail: number = 0;
+  private count: number = 0;
   private readonly capacity: number;
 
   /**
@@ -23,41 +23,29 @@ class CircularQueue<T> {
    * new CircularQueue([1,2,3,4,5], 3)  // Keeps only [3,4,5], capacity 3
    */
   constructor(itemsOrCapacity?: Iterable<T> | number, capacity?: number) {
-    // Handle overloaded signatures
-    let items: Iterable<T> | undefined;
-    let maxCapacity: number | undefined;
+    let initialItems: T[] = [];
 
+    // Resolve capacity and initial items
     if (typeof itemsOrCapacity === 'number') {
-      maxCapacity = itemsOrCapacity;
+      this.capacity = itemsOrCapacity;
+    } else if (itemsOrCapacity) {
+      initialItems = Array.from(itemsOrCapacity);
+      // Logic: Use provided capacity, or items length, or default to 10
+      this.capacity = capacity ?? Math.max(initialItems.length, 10);
     } else {
-      items = itemsOrCapacity;
-      maxCapacity = capacity;
+      this.capacity = 10;
     }
 
-    // Convert items to array if provided
-    const itemsArray = items ? Array.from(items) : [];
-
-    // Determine capacity
-    if (maxCapacity !== undefined) {
-      if (maxCapacity <= 0) {
-        throw new Error('Capacity must be greater than 0');
-      }
-      this.capacity = maxCapacity;
-    } else {
-      // Default capacity: 10, or the number of items if greater than 10
-      this.capacity = Math.max(itemsArray.length || 10, 10);
+    if (this.capacity <= 0) {
+      throw new Error('Capacity must be greater than 0');
     }
 
-    // Initialize queue with fixed capacity
     this.queue = new Array(this.capacity);
-    this.head = 0;
-    this.tail = 0;
-    this.count = 0;
 
-    // Enqueue initial items (drops oldest if exceeding capacity)
-    const startIdx = Math.max(0, itemsArray.length - this.capacity);
-    for (let i = startIdx; i < itemsArray.length; i++) {
-      this.enqueue(itemsArray[i]);
+    // Efficiently load initial items (taking only the last N items that fit capacity)
+    const start = Math.max(0, initialItems.length - this.capacity);
+    for (let i = start; i < initialItems.length; i++) {
+      this.enqueue(initialItems[i]);
     }
   }
 
@@ -69,16 +57,17 @@ class CircularQueue<T> {
    * @SpaceComplexity O(1) - No additional space
    */
   enqueue(item: T): void {
-    // If full, advance head to drop oldest item
     if (this.count === this.capacity) {
-      this.queue[this.head] = undefined; // Clear reference for GC
+      // Buffer is full: overwrite the head and move it forward
+      this.queue[this.tail] = item;
       this.head = (this.head + 1) % this.capacity;
-      this.count--;
+      this.tail = (this.tail + 1) % this.capacity;
+    } else {
+      // Buffer has space
+      this.queue[this.tail] = item;
+      this.tail = (this.tail + 1) % this.capacity;
+      this.count++;
     }
-
-    this.queue[this.tail] = item;
-    this.tail = (this.tail + 1) % this.capacity;
-    this.count++;
   }
 
   /**
@@ -88,15 +77,16 @@ class CircularQueue<T> {
    * @SpaceComplexity O(1) - No additional space
    */
   dequeue(): T | undefined {
-    if (this.count === 0) {
-      return undefined;
-    }
+    if (this.count === 0) return undefined;
 
     const item = this.queue[this.head];
     this.queue[this.head] = undefined; // Clear reference for GC
-    this.head = (this.head + 1) % this.capacity;
-    this.count--;
 
+    // Use conditional for speed instead of modulo for simple increments
+    this.head++;
+    if (this.head === this.capacity) this.head = 0;
+
+    this.count--;
     return item;
   }
 
@@ -150,7 +140,7 @@ class CircularQueue<T> {
    * @TimeComplexity O(1) - Constant time
    * @SpaceComplexity O(1) - No additional space
    */
-  size(): number {
+  get size(): number {
     return this.count;
   }
 
@@ -160,7 +150,7 @@ class CircularQueue<T> {
    * @TimeComplexity O(1) - Constant time
    * @SpaceComplexity O(1) - No additional space
    */
-  getCapacity(): number {
+  get maxCapacity(): number {
     return this.capacity;
   }
 
@@ -171,16 +161,13 @@ class CircularQueue<T> {
    * @SpaceComplexity O(1) - No additional space
    */
   clear(): void {
-    // Clear references for garbage collection
     if (this.count > 0) {
       let idx = this.head;
-
       for (let i = 0; i < this.count; i++) {
         this.queue[idx] = undefined;
         idx = (idx + 1) % this.capacity;
       }
     }
-
     this.head = 0;
     this.tail = 0;
     this.count = 0;
@@ -193,11 +180,11 @@ class CircularQueue<T> {
    * @SpaceComplexity O(n) - Creates new array
    */
   toArray(): T[] {
-    const result: T[] = [];
-    let idx = this.head;
+    const result = new Array<T>(this.count);
 
+    let idx = this.head;
     for (let i = 0; i < this.count; i++) {
-      result.push(this.queue[idx]!);
+      result[i] = this.queue[idx]!;
       idx = (idx + 1) % this.capacity;
     }
 

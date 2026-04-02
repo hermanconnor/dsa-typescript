@@ -7,37 +7,37 @@ describe('CircularQueue', () => {
       const queue = new CircularQueue<number>(5);
 
       expect(queue.isEmpty()).toBe(true);
-      expect(queue.size()).toBe(0);
-      expect(queue.getCapacity()).toBe(5);
+      expect(queue.size).toBe(0);
+      expect(queue.maxCapacity).toBe(5);
     });
 
     it('should create an empty queue with default capacity of 10', () => {
       const queue = new CircularQueue<number>();
       expect(queue.isEmpty()).toBe(true);
-      expect(queue.getCapacity()).toBe(10);
+      expect(queue.maxCapacity).toBe(10);
     });
 
     it('should create a queue from an iterable', () => {
       const queue = new CircularQueue([1, 2, 3, 4, 5]);
 
-      expect(queue.size()).toBe(5);
+      expect(queue.size).toBe(5);
       expect(queue.toArray()).toEqual([1, 2, 3, 4, 5]);
-      expect(queue.getCapacity()).toBe(10); // Default capacity
+      expect(queue.maxCapacity).toBe(10); // Default capacity
     });
 
     it('should create a queue from iterable with specified capacity', () => {
       const queue = new CircularQueue([1, 2, 3], 5);
 
-      expect(queue.size()).toBe(3);
-      expect(queue.getCapacity()).toBe(5);
+      expect(queue.size).toBe(3);
+      expect(queue.maxCapacity).toBe(5);
       expect(queue.toArray()).toEqual([1, 2, 3]);
     });
 
     it('should drop oldest items when iterable exceeds capacity', () => {
       const queue = new CircularQueue([1, 2, 3, 4, 5, 6, 7], 5);
 
-      expect(queue.size()).toBe(5);
-      expect(queue.getCapacity()).toBe(5);
+      expect(queue.size).toBe(5);
+      expect(queue.maxCapacity).toBe(5);
       expect(queue.toArray()).toEqual([3, 4, 5, 6, 7]);
     });
 
@@ -57,14 +57,14 @@ describe('CircularQueue', () => {
       const set = new Set([1, 2, 3, 4]);
       const queue = new CircularQueue(set, 5);
 
-      expect(queue.size()).toBe(4);
+      expect(queue.size).toBe(4);
       expect(queue.toArray()).toEqual([1, 2, 3, 4]);
     });
 
     it('should work with string as iterable', () => {
       const queue = new CircularQueue('abc', 5);
 
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
       expect(queue.toArray()).toEqual(['a', 'b', 'c']);
     });
 
@@ -72,8 +72,8 @@ describe('CircularQueue', () => {
       const items = Array.from({ length: 15 }, (_, i) => i);
       const queue = new CircularQueue(items);
 
-      expect(queue.getCapacity()).toBe(15);
-      expect(queue.size()).toBe(15);
+      expect(queue.maxCapacity).toBe(15);
+      expect(queue.size).toBe(15);
     });
   });
 
@@ -83,7 +83,7 @@ describe('CircularQueue', () => {
 
       queue.enqueue(1);
 
-      expect(queue.size()).toBe(1);
+      expect(queue.size).toBe(1);
       expect(queue.peek()).toBe(1);
     });
 
@@ -95,7 +95,7 @@ describe('CircularQueue', () => {
       queue.enqueue(3);
 
       expect(queue.toArray()).toEqual([1, 2, 3]);
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
     });
 
     it('should automatically drop oldest item when at capacity', () => {
@@ -109,7 +109,7 @@ describe('CircularQueue', () => {
 
       queue.enqueue(4); // Should drop 1
 
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
       expect(queue.toArray()).toEqual([2, 3, 4]);
     });
 
@@ -133,7 +133,7 @@ describe('CircularQueue', () => {
         queue.enqueue(i);
       }
 
-      expect(queue.size()).toBe(5);
+      expect(queue.size).toBe(5);
       expect(queue.toArray()).toEqual([15, 16, 17, 18, 19]);
     });
   });
@@ -149,7 +149,7 @@ describe('CircularQueue', () => {
       const queue = new CircularQueue([1, 2, 3], 5);
 
       expect(queue.dequeue()).toBe(1);
-      expect(queue.size()).toBe(2);
+      expect(queue.size).toBe(2);
       expect(queue.toArray()).toEqual([2, 3]);
     });
 
@@ -203,7 +203,7 @@ describe('CircularQueue', () => {
       const queue = new CircularQueue([1, 2, 3], 5);
 
       expect(queue.peek()).toBe(1);
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
       expect(queue.peek()).toBe(1); // Still 1
     });
 
@@ -240,7 +240,7 @@ describe('CircularQueue', () => {
       const queue = new CircularQueue([1, 2, 3], 5);
 
       expect(queue.peekBack()).toBe(3);
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
       expect(queue.peekBack()).toBe(3); // Still 3
     });
 
@@ -313,22 +313,22 @@ describe('CircularQueue', () => {
     it('should return 0 for empty queue', () => {
       const queue = new CircularQueue<number>(5);
 
-      expect(queue.size()).toBe(0);
+      expect(queue.size).toBe(0);
     });
 
     it('should track size correctly through operations', () => {
       const queue = new CircularQueue<number>(5);
 
-      expect(queue.size()).toBe(0);
+      expect(queue.size).toBe(0);
 
       queue.enqueue(1);
-      expect(queue.size()).toBe(1);
+      expect(queue.size).toBe(1);
 
       queue.enqueue(2);
-      expect(queue.size()).toBe(2);
+      expect(queue.size).toBe(2);
 
       queue.dequeue();
-      expect(queue.size()).toBe(1);
+      expect(queue.size).toBe(1);
     });
 
     it('should maintain size at capacity when dropping items', () => {
@@ -338,21 +338,21 @@ describe('CircularQueue', () => {
       queue.enqueue(2);
       queue.enqueue(3);
 
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
 
       queue.enqueue(4); // Drops oldest
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
     });
 
     it('should return correct capacity', () => {
       const queue = new CircularQueue<number>(7);
 
-      expect(queue.getCapacity()).toBe(7);
+      expect(queue.maxCapacity).toBe(7);
 
       queue.enqueue(1);
       queue.enqueue(2);
 
-      expect(queue.getCapacity()).toBe(7); // Unchanged
+      expect(queue.maxCapacity).toBe(7); // Unchanged
     });
   });
 
@@ -363,9 +363,9 @@ describe('CircularQueue', () => {
       queue.clear();
 
       expect(queue.isEmpty()).toBe(true);
-      expect(queue.size()).toBe(0);
+      expect(queue.size).toBe(0);
       expect(queue.toArray()).toEqual([]);
-      expect(queue.getCapacity()).toBe(10); // Capacity unchanged
+      expect(queue.maxCapacity).toBe(10); // Capacity unchanged
     });
 
     it('should allow enqueue after clear', () => {
@@ -374,7 +374,7 @@ describe('CircularQueue', () => {
       queue.clear();
       queue.enqueue(10);
 
-      expect(queue.size()).toBe(1);
+      expect(queue.size).toBe(1);
       expect(queue.peek()).toBe(10);
     });
 
@@ -388,7 +388,7 @@ describe('CircularQueue', () => {
       queue.enqueue({ id: 2 });
       queue.clear();
       // After clear, internal array should have undefined references
-      expect(queue.size()).toBe(0);
+      expect(queue.size).toBe(0);
       expect(queue.isEmpty()).toBe(true);
     });
 
@@ -397,7 +397,7 @@ describe('CircularQueue', () => {
       queue.clear();
 
       expect(queue.isEmpty()).toBe(true);
-      expect(queue.size()).toBe(0);
+      expect(queue.size).toBe(0);
     });
   });
 
@@ -441,7 +441,7 @@ describe('CircularQueue', () => {
       const arr = queue.toArray();
       arr.push(4);
 
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
       expect(queue.toArray()).toEqual([1, 2, 3]);
     });
   });
@@ -531,7 +531,7 @@ describe('CircularQueue', () => {
         queue.enqueue(i);
       }
 
-      expect(queue.size()).toBe(100);
+      expect(queue.size).toBe(100);
       expect(queue.isFull()).toBe(true);
 
       // Should have last 100 items
@@ -573,7 +573,7 @@ describe('CircularQueue', () => {
 
       // Net gain of 1 item per cycle, but never exceeds capacity during dequeues
       // After stabilizing: enqueue 3, dequeue 2 = net +1, but stays at 3
-      expect(queue.size()).toBe(3);
+      expect(queue.size).toBe(3);
     });
 
     it('should maintain integrity after stress test', () => {
@@ -590,10 +590,10 @@ describe('CircularQueue', () => {
       }
 
       // Verify queue is in valid state
-      expect(queue.size()).toBeLessThanOrEqual(5);
+      expect(queue.size).toBeLessThanOrEqual(5);
       const arr = queue.toArray();
 
-      expect(arr.length).toBe(queue.size());
+      expect(arr.length).toBe(queue.size);
 
       // Verify FIFO order
       if (arr.length > 1) {
@@ -609,11 +609,11 @@ describe('CircularQueue', () => {
       const queue = new CircularQueue<number>(1);
 
       queue.enqueue(1);
-      expect(queue.size()).toBe(1);
+      expect(queue.size).toBe(1);
 
       queue.enqueue(2); // Drops 1
 
-      expect(queue.size()).toBe(1);
+      expect(queue.size).toBe(1);
       expect(queue.peek()).toBe(2);
     });
 
