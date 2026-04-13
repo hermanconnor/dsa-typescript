@@ -152,6 +152,78 @@ class Bag<T, K = T> {
   }
 
   /**
+   * Internal helper to check counts using a pre-calculated key.
+   * Public to allow other Bag instances to access it during set operations.
+   */
+  countByKey(key: K): number {
+    return this.counts.get(key) || 0;
+  }
+
+  /**
+   * Returns a new Bag containing all elements from both bags.
+   * * @timeComplexity O(N + M)
+   * @spaceComplexity O(N + M)
+   */
+  union(other: Bag<T, K>): Bag<T, K> {
+    // We MUST pass the current keySelector to the new bag
+    const result = new Bag<T, K>(undefined, this.keySelector);
+
+    // Use this.items.get(key) to get the actual T object
+    for (const [key, count] of this.counts) {
+      result.addMany(this.items.get(key)!, count);
+    }
+
+    for (const [key, count] of other.counts) {
+      result.addMany(other.items.get(key)!, count);
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns a new Bag containing only elements present in both,
+   * with counts equal to the minimum found in either bag.
+   * * @timeComplexity O(min(N, M))
+   */
+  intersect(other: Bag<T, K>): Bag<T, K> {
+    const result = new Bag<T, K>(undefined, this.keySelector);
+
+    // Iterate over the smaller map
+    const [smaller, larger] =
+      this.counts.size <= other.uniqueSize ? [this, other] : [other, this];
+
+    for (const [key, count] of smaller.counts) {
+      const otherCount = larger.countByKey(key);
+
+      if (otherCount > 0) {
+        const item = smaller.items.get(key)!;
+        result.addMany(item, Math.min(count, otherCount));
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Returns a new Bag with counts of 'other' subtracted from 'this'.
+   * * @timeComplexity O(N)
+   */
+  difference(other: Bag<T, K>): Bag<T, K> {
+    const result = new Bag<T, K>(undefined, this.keySelector);
+
+    for (const [key, count] of this.counts) {
+      const otherCount = other.countByKey(key);
+
+      if (count > otherCount) {
+        const item = this.items.get(key)!;
+        result.addMany(item, count - otherCount);
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Checks whether the bag contains at least one instance of the given item.
    *
    * @param {T} item - The item to check for
