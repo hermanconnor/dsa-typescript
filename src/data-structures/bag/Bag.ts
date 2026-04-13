@@ -135,6 +135,23 @@ class Bag<T, K = T> {
   }
 
   /**
+   * Completely removes all occurrences of an item from the bag.
+   *
+   * @timeComplexity O(1) average case
+   * @spaceComplexity O(1)
+   */
+  removeAll(item: T): void {
+    const key = this.keySelector(item);
+    const currentCount = this.counts.get(key);
+
+    if (currentCount !== undefined) {
+      this.counts.delete(key);
+      this.items.delete(key);
+      this.totalSize -= currentCount;
+    }
+  }
+
+  /**
    * Checks whether the bag contains at least one instance of the given item.
    *
    * @param {T} item - The item to check for
@@ -161,15 +178,25 @@ class Bag<T, K = T> {
   }
 
   /**
-   * Returns the total number of items in the bag (counting duplicates).
+   * Returns an iterator of [item, count] pairs.
    *
-   * @returns {number} The total size of the bag
-   *
-   * @timeComplexity O(1)
-   * @spaceComplexity O(1)
+   * @timeComplexity O(u) where u is the number of unique items
    */
-  size(): number {
-    return this.totalSize;
+  *entries(): IterableIterator<[T, number]> {
+    for (const [key, count] of this.counts) {
+      // Since we always add to items when we add to counts,
+      // the '!' (non-null assertion) is safe here.
+      yield [this.items.get(key)!, count];
+    }
+  }
+
+  /**
+   * Returns the number of distinct items currently in the bag.
+   * * Time Complexity: O(1)
+   * Space Complexity: O(1)
+   */
+  get uniqueSize(): number {
+    return this.counts.size;
   }
 
   /**
@@ -182,6 +209,18 @@ class Bag<T, K = T> {
    */
   uniqueItems(): T[] {
     return Array.from(this.items.values());
+  }
+
+  /**
+   * Returns the total number of items in the bag (counting duplicates).
+   *
+   * @returns {number} The total size of the bag
+   *
+   * @timeComplexity O(1)
+   * @spaceComplexity O(1)
+   */
+  size(): number {
+    return this.totalSize;
   }
 
   /**
@@ -209,22 +248,15 @@ class Bag<T, K = T> {
   }
 
   /**
-   * Returns an iterator that yields each item in the bag according to its count.
-   * Each item is yielded once for each instance in the bag.
+   * Iterates through every individual item in the bag.
+   * Note: If an item has a count of 1,000,000, this will yield 1,000,000 times.
    *
-   * @yields {T} Each item in the bag (with duplicates)
-   *
-   * @timeComplexity O(n) to iterate through all items, where n is the total size
-   * @spaceComplexity O(1) per iteration (generator function)
-   *
-   * @example
-   * const bag = new Bag(['a', 'a', 'b']);
-   * for (const item of bag) {
-   *   console.log(item); // prints 'a', 'a', 'b'
-   * }
+   * @timeComplexity O(S) where S is totalSize
    */
-  *[Symbol.iterator]() {
-    for (const [item, count] of this.counts) {
+  *[Symbol.iterator](): IterableIterator<T> {
+    for (const [key, count] of this.counts) {
+      const item = this.items.get(key)!;
+
       for (let i = 0; i < count; i++) {
         yield item;
       }
