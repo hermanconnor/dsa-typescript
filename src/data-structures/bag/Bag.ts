@@ -1,28 +1,31 @@
 /**
- * A bag (multiset) data structure that allows duplicate elements and tracks their counts.
- * Uses a Map internally for efficient operations.
+ * A bag (multiset) data structure that allows duplicate elements and tracks their counts
+ * based on a unique key.
  *
  * @template T The type of elements stored in the bag
- *
- * @example
- * const bag = new Bag<string>(['apple', 'banana', 'apple']);
- * bag.add('cherry');
- * console.log(bag.count('apple')); // 2
- * console.log(bag.size()); // 4
+ * @template K The type of the key used to identify elements (defaults to T)
  */
-class Bag<T> {
-  private counts = new Map<T, number>();
+class Bag<T, K = T> {
+  private counts = new Map<K, number>();
+  private items = new Map<K, T>();
+  private keySelector: (item: T) => K;
   private totalSize = 0;
 
   /**
    * Creates a new Bag, optionally initialized with items from an iterable.
    *
-   * @param {Iterable<T>} [initialItems] - Optional iterable of items to initialize the bag
+   * @param initialItems - Optional iterable of items to initialize the bag
+   * @param keySelector - Function to extract a unique key from an item
    *
    * @timeComplexity O(n) where n is the number of items in initialItems
-   * @spaceComplexity O(k) where k is the number of unique items in initialItems
+   * @spaceComplexity O(u) where u is the number of unique keys
    */
-  constructor(initialItems?: Iterable<T>) {
+  constructor(
+    initialItems?: Iterable<T>,
+    keySelector: (item: T) => K = (item: T) => item as unknown as K,
+  ) {
+    this.keySelector = keySelector;
+
     if (initialItems) {
       for (const item of initialItems) {
         this.add(item);
@@ -33,60 +36,102 @@ class Bag<T> {
   /**
    * Adds a single item to the bag, incrementing its count.
    *
-   * @param {T} item - The item to add
+   * @param item - The item to add
    *
-   * @timeComplexity O(1) average case for Map operations
-   * @spaceComplexity O(1) amortized - may require O(k) if the map needs to resize, where k is current unique items
+   * @timeComplexity O(1) average case
+   * @spaceComplexity O(1) amortized
    */
   add(item: T): void {
-    this.counts.set(item, (this.counts.get(item) || 0) + 1);
+    const key = this.keySelector(item);
+
+    // Store the actual item if we haven't seen this key before
+    if (!this.items.has(key)) {
+      this.items.set(key, item);
+    }
+
+    // Update count using the key K
+    const currentCount = this.counts.get(key) || 0;
+    this.counts.set(key, currentCount + 1);
+
     this.totalSize++;
   }
 
   /**
    * Adds multiple instances of an item to the bag at once.
    *
-   * @param {T} item - The item to add
-   * @param {number} amount - The number of instances to add (must be a positive integer)
-   * @returns {void}
+   * @param item - The item to add
+   * @param amount - The number of instances to add (must be a positive integer)
    *
    * @timeComplexity O(1) average case
    * @spaceComplexity O(1) amortized
    */
   addMany(item: T, amount: number): void {
     if (amount <= 0 || !Number.isInteger(amount)) {
-      // Optional: Throw an error or just return if amount is invalid
+      // Optional: Throw an error if amount is invalid
       return;
     }
 
-    this.counts.set(item, (this.counts.get(item) || 0) + amount);
+    const key = this.keySelector(item);
+
+    // Ensure the item is registered if it's the first time we see this key
+    if (!this.items.has(key)) {
+      this.items.set(key, item);
+    }
+
+    // Update count using the key K
+    const currentCount = this.counts.get(key) || 0;
+    this.counts.set(key, currentCount + amount);
+
     this.totalSize += amount;
   }
 
   /**
    * Removes one instance of an item from the bag, decrementing its count.
-   * If the count reaches zero, the item is removed from the internal map.
+   * If the count reaches zero, the item is completely removed.
    *
-   * @param {T} item - The item to remove
-   * @returns {boolean} True if the item was removed, false if it wasn't in the bag
+   * @param item - The item to remove
+   * @returns True if an instance was removed, false if the item wasn't in the bag
    *
    * @timeComplexity O(1) average case
    * @spaceComplexity O(1)
    */
   remove(item: T): boolean {
-    const count = this.counts.get(item);
+    const key = this.keySelector(item);
+    if (!this.counts.has(key)) return false;
 
-    if (!count) return false;
+    this.removeMany(item, 1);
+    return true;
+  }
 
-    if (count === 1) {
-      this.counts.delete(item);
-    } else {
-      this.counts.set(item, count - 1);
+  /**
+   * Removes multiple instances of an item from the bag.
+   *
+   * @param item - The item to remove
+   * @param amount - The number of instances to remove
+   *
+   * @timeComplexity O(1) average case
+   * @spaceComplexity O(1)
+   */
+  removeMany(item: T, amount: number): void {
+    if (amount <= 0 || !Number.isInteger(amount)) {
+      return;
     }
 
-    this.totalSize--;
+    const key = this.keySelector(item);
+    const currentCount = this.counts.get(key);
 
-    return true;
+    if (!currentCount) return;
+
+    if (amount >= currentCount) {
+      // If we remove more than we have, delete the key entirely
+      this.counts.delete(key);
+      this.items.delete(key);
+      this.totalSize -= currentCount;
+    } else {
+      // Otherwise, just decrement the count
+      this.counts.set(key, currentCount - amount);
+      this.totalSize -= amount;
+    }
   }
 
   /**
@@ -99,7 +144,7 @@ class Bag<T> {
    * @spaceComplexity O(1)
    */
   contains(item: T): boolean {
-    return this.counts.has(item);
+    return this.counts.has(this.keySelector(item));
   }
 
   /**
@@ -112,7 +157,7 @@ class Bag<T> {
    * @spaceComplexity O(1)
    */
   count(item: T): number {
-    return this.counts.get(item) || 0;
+    return this.counts.get(this.keySelector(item)) || 0;
   }
 
   /**
@@ -128,9 +173,21 @@ class Bag<T> {
   }
 
   /**
+   * Returns an array of all unique items in the bag (without duplicates).
+   *
+   * @returns {T[]} Array of unique items
+   *
+   * @timeComplexity O(k) where k is the number of unique items
+   * @spaceComplexity O(k) for the returned array
+   */
+  uniqueItems(): T[] {
+    return Array.from(this.items.values());
+  }
+
+  /**
    * Checks whether the bag is empty.
    *
-   * @returns {boolean} True if the bag contains no items, false otherwise
+   * @returns True if the bag contains no items, false otherwise
    *
    * @timeComplexity O(1)
    * @spaceComplexity O(1)
@@ -142,24 +199,13 @@ class Bag<T> {
   /**
    * Removes all items from the bag.
    *
-   * @timeComplexity O(1) - Map.clear() is typically O(1)
+   * @timeComplexity O(n) where n is the number of unique keys (due to GC cleanup)
    * @spaceComplexity O(1)
    */
   clear(): void {
     this.counts.clear();
+    this.items.clear(); // Added to prevent memory leaks
     this.totalSize = 0;
-  }
-
-  /**
-   * Returns an array of all unique items in the bag (without duplicates).
-   *
-   * @returns {T[]} Array of unique items
-   *
-   * @timeComplexity O(k) where k is the number of unique items
-   * @spaceComplexity O(k) for the returned array
-   */
-  uniqueItems(): T[] {
-    return Array.from(this.counts.keys());
   }
 
   /**
