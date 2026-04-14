@@ -186,6 +186,147 @@ describe('Bag', () => {
     });
   });
 
+  describe('Bag Removal and Iteration', () => {
+    it('removeMany: should decrement counts and prune the key when zero', () => {
+      const bag = new Bag<string>(['apple', 'apple', 'apple', 'banana']);
+
+      // Remove some but not all
+      bag.removeMany('apple', 2);
+      expect(bag.count('apple')).toBe(1);
+      expect(bag.size()).toBe(2);
+
+      // Remove remaining and then some
+      bag.removeMany('apple', 5);
+      expect(bag.count('apple')).toBe(0);
+      expect(bag.uniqueSize).toBe(1); // Only banana left
+      expect(bag.size()).toBe(1);
+    });
+
+    it('removeAll: should purge all instances of a specific key', () => {
+      const bag = new Bag<string>(['apple', 'apple', 'banana', 'cherry']);
+
+      bag.removeAll('apple');
+
+      expect(bag.count('apple')).toBe(0);
+      expect(bag.size()).toBe(2); // banana and cherry
+      expect(bag.uniqueSize).toBe(2);
+    });
+
+    it('entries: should yield the original items and their counts', () => {
+      interface Item {
+        id: string;
+        val: number;
+      }
+      const item1 = { id: 'a', val: 10 };
+      const item2 = { id: 'b', val: 20 };
+
+      const bag = new Bag<Item, string>([item1, item1, item2], (i) => i.id);
+      const result = Array.from(bag.entries());
+
+      expect(result).toHaveLength(2);
+      // Check for [Item, number] structure
+      expect(result).toEqual(
+        expect.arrayContaining([
+          [item1, 2],
+          [item2, 1],
+        ]),
+      );
+    });
+
+    it('Symbol.iterator: should support spread and for...of with correct counts', () => {
+      const bag = new Bag<string>(['a', 'a', 'b']);
+
+      const items = [...bag];
+
+      expect(items).toHaveLength(3);
+      expect(items.filter((x) => x === 'a')).toHaveLength(2);
+      expect(items.filter((x) => x === 'b')).toHaveLength(1);
+    });
+
+    it('should handle removal of non-existent items gracefully', () => {
+      const bag = new Bag<string>(['a']);
+
+      // Should not throw or affect size
+      bag.removeMany('b', 10);
+      bag.removeAll('c');
+
+      expect(bag.size()).toBe(1);
+      expect(bag.count('a')).toBe(1);
+    });
+  });
+
+  describe('Bag Set Operations', () => {
+    interface User {
+      id: number;
+      name: string;
+    }
+    const userKey = (u: User) => u.id;
+
+    it('union: should combine counts from both bags', () => {
+      const bag1 = new Bag<string>(['a', 'a', 'b']);
+      const bag2 = new Bag<string>(['b', 'c']);
+
+      const result = bag1.union(bag2);
+
+      expect(result.size()).toBe(5);
+      expect(result.count('a')).toBe(2);
+      expect(result.count('b')).toBe(2);
+      expect(result.count('c')).toBe(1);
+    });
+
+    it('intersect: should return the minimum common counts', () => {
+      const bag1 = new Bag<string>(['a', 'a', 'a', 'b']);
+      const bag2 = new Bag<string>(['a', 'a', 'c']);
+
+      const result = bag1.intersect(bag2);
+
+      expect(result.count('a')).toBe(2);
+      expect(result.count('b')).toBe(0);
+      expect(result.count('c')).toBe(0);
+      expect(result.size()).toBe(2);
+    });
+
+    it('difference: should subtract counts of the second bag from the first', () => {
+      const bag1 = new Bag<string>(['a', 'a', 'b', 'b', 'b']);
+      const bag2 = new Bag<string>(['a', 'b']);
+
+      const result = bag1.difference(bag2);
+
+      expect(result.count('a')).toBe(1);
+      expect(result.count('b')).toBe(2);
+      expect(result.size()).toBe(3);
+    });
+
+    it('operations should respect the keySelector', () => {
+      const u1 = { id: 1, name: 'Alice' };
+      const u2 = { id: 2, name: 'Bob' };
+
+      // Create two bags with the same key selector
+      const bag1 = new Bag<User, number>([u1, u1], userKey);
+      const bag2 = new Bag<User, number>([u1, u2], userKey);
+
+      const intersection = bag1.intersect(bag2);
+
+      // Intersection of {1, 1} and {1, 2} should be {1}
+      expect(intersection.count(u1)).toBe(1);
+      expect(intersection.count(u2)).toBe(0);
+
+      // Verify that the result bag also uses the ID as a key
+      // by passing a different object reference with the same ID
+      expect(intersection.count({ id: 1, name: 'Imposter' })).toBe(1);
+    });
+
+    it('union should work with empty bags', () => {
+      const bag1 = new Bag<string>(['a']);
+      const emptyBag = new Bag<string>();
+
+      const result = bag1.union(emptyBag);
+
+      expect(result.size()).toBe(1);
+      expect(result.count('a')).toBe(1);
+    });
+  });
+
   describe('contains', () => {
     let bag: Bag<string>;
 
