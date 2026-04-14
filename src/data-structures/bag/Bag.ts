@@ -224,6 +224,44 @@ class Bag<T, K = T> {
   }
 
   /**
+   * Returns the item that appears most frequently in the bag.
+   * If there's a tie, the first one encountered is returned.
+   *
+   * @timeComplexity O(u) where u is the number of unique items
+   */
+  mode(): T | null {
+    if (this.totalSize === 0) return null;
+
+    let highestCount = 0;
+    let mostFrequentKey: K | null = null;
+
+    for (const [key, count] of this.counts) {
+      if (count > highestCount) {
+        highestCount = count;
+        mostFrequentKey = key;
+      }
+    }
+
+    // Map the winning key back to its original item T
+    return mostFrequentKey !== null ? this.items.get(mostFrequentKey)! : null;
+  }
+
+  /**
+   * Custom serialization for JSON.stringify.
+   * Converts the Bag into an object where keys are string representations
+   * of the unique keys and values are their respective counts.
+   */
+  toJSON(): Record<string, number> {
+    const obj: Record<string, number> = {};
+
+    for (const [key, count] of this.counts) {
+      obj[String(key)] = count;
+    }
+
+    return obj;
+  }
+
+  /**
    * Checks whether the bag contains at least one instance of the given item.
    *
    * @param {T} item - The item to check for
