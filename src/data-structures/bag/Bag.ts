@@ -247,6 +247,57 @@ class Bag<T, K = T> {
   }
 
   /**
+   * Executes a callback for each unique item and its count.
+   * This is much safer than the default iterator for very large bags.
+   *
+   * @timeComplexity O(u) where u is the number of unique items
+   */
+  forEach(callback: (item: T, count: number, bag: Bag<T, K>) => void): void {
+    for (const [key, count] of this.counts) {
+      // Map key K back to item T
+      callback(this.items.get(key)!, count, this);
+    }
+  }
+
+  /**
+   * Creates a new Bag with results of calling a provided function on every element.
+   * Note: The new bag will use the default keySelector (identity).
+   *
+   * @timeComplexity O(u) where u is the number of unique items
+   */
+  map<U>(callback: (item: T) => U): Bag<U> {
+    const result = new Bag<U>();
+
+    for (const [key, count] of this.counts) {
+      const item = this.items.get(key)!;
+      const newItem = callback(item);
+      result.addMany(newItem, count);
+    }
+
+    return result;
+  }
+
+  /**
+   * Creates a new Bag with all elements that pass the test.
+   *
+   * @timeComplexity O(u) where u is the number of unique items
+   */
+  filter(predicate: (item: T) => boolean): Bag<T, K> {
+    // Propagate the current keySelector to maintain consistency
+    const result = new Bag<T, K>(undefined, this.keySelector);
+
+    for (const [key, count] of this.counts) {
+      const item = this.items.get(key)!;
+
+      if (predicate(item)) {
+        result.addMany(item, count);
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Custom serialization for JSON.stringify.
    * Converts the Bag into an object where keys are string representations
    * of the unique keys and values are their respective counts.
