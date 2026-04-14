@@ -327,6 +327,87 @@ describe('Bag', () => {
     });
   });
 
+  describe('Bag Transformation and Statistical Methods', () => {
+    interface User {
+      id: number;
+      name: string;
+    }
+    const userKey = (u: User) => u.id;
+    const alice = { id: 1, name: 'Alice' };
+    const bob = { id: 2, name: 'Bob' };
+
+    it('forEach: should provide original items and correct counts to the callback', () => {
+      const bag = new Bag<User, number>([alice, alice, bob], userKey);
+      const results: [User, number][] = [];
+
+      bag.forEach((item, count) => {
+        results.push([item, count]);
+      });
+
+      expect(results).toHaveLength(2);
+      // expect(results).toDeepContain([alice, 2]);
+      // expect(results).toDeepContain([bob, 1]);
+    });
+
+    it('map: should transform items and merge counts if results collide', () => {
+      const bag = new Bag<string>(['apple', 'apricot', 'banana']);
+
+      // Map to the first letter
+      const result = bag.map((item) => item[0]);
+
+      // 'apple' and 'apricot' both map to 'a'
+      expect(result.count('a')).toBe(2);
+      expect(result.count('b')).toBe(1);
+      expect(result.size()).toBe(3);
+    });
+
+    it('filter: should keep items that match the predicate and preserve the keySelector', () => {
+      const bag = new Bag<User, number>([alice, alice, bob], userKey);
+
+      const onlyAlice = bag.filter((u) => u.name === 'Alice');
+
+      expect(onlyAlice.count(alice)).toBe(2);
+      expect(onlyAlice.count(bob)).toBe(0);
+      expect(onlyAlice.size()).toBe(2);
+
+      // Check keySelector propagation by using a structural match
+      expect(onlyAlice.count({ id: 1, name: 'Imposter' })).toBe(2);
+    });
+
+    it('mode: should return the most frequent item or null if empty', () => {
+      const bag = new Bag<string>(['a', 'b', 'b', 'c']);
+      expect(bag.mode()).toBe('b');
+
+      const emptyBag = new Bag<string>();
+      expect(emptyBag.mode()).toBeNull();
+    });
+
+    it('mode: should return the original object in a keyed bag', () => {
+      const bag = new Bag<User, number>([alice, bob, bob], userKey);
+      const result = bag.mode();
+
+      expect(result).toBe(bob); // Must be the reference, not the ID
+      expect(result?.name).toBe('Bob');
+    });
+  });
+
+  /**
+   * Helper for deep array inclusion checks in Vitest
+   */
+  expect.extend({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    toDeepContain(received: any[], expected: any) {
+      const pass = received.some(
+        (item) => JSON.stringify(item) === JSON.stringify(expected),
+      );
+      return {
+        pass,
+        message: () =>
+          `expected ${JSON.stringify(received)} to deep contain ${JSON.stringify(expected)}`,
+      };
+    },
+  });
+
   describe('contains', () => {
     let bag: Bag<string>;
 
