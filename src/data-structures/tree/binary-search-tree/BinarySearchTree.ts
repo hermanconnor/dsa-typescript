@@ -22,7 +22,7 @@ class TreeNode<T> {
  */
 class BinarySearchTree<T> {
   private root: TreeNode<T> | null = null;
-  private compareFn: (a: T, b: T) => number;
+  private compare: (a: T, b: T) => number;
 
   /**
    * Creates a new Binary Search Tree
@@ -31,19 +31,22 @@ class BinarySearchTree<T> {
    * @space O(1)
    */
   constructor(compareFn?: (a: T, b: T) => number) {
-    this.compareFn =
+    this.compare =
       compareFn ||
       ((a, b) => {
         if (a === b) return 0;
+
         if (typeof a === 'number' && typeof b === 'number') {
           return a - b;
         }
         if (typeof a === 'string' && typeof b === 'string') {
           return a.localeCompare(b);
         }
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
+        if (a instanceof Date && b instanceof Date) {
+          return a.getTime() - b.getTime();
+        }
+
+        throw new Error('No comparison function provided for custom types.');
       });
   }
 
@@ -63,7 +66,7 @@ class BinarySearchTree<T> {
 
     let curr = this.root;
     while (true) {
-      const cmp = this.compareFn(val, curr.val);
+      const cmp = this.compare(val, curr.val);
 
       if (cmp < 0) {
         if (!curr.left) {
@@ -95,7 +98,7 @@ class BinarySearchTree<T> {
     let curr = this.root;
 
     while (curr) {
-      const cmp = this.compareFn(val, curr.val);
+      const cmp = this.compare(val, curr.val);
 
       if (cmp === 0) return true;
       curr = cmp < 0 ? curr.left : curr.right;
@@ -115,7 +118,7 @@ class BinarySearchTree<T> {
     let curr = this.root;
 
     while (curr) {
-      const cmp = this.compareFn(val, curr.val);
+      const cmp = this.compare(val, curr.val);
 
       if (cmp === 0) return curr;
       curr = cmp < 0 ? curr.left : curr.right;
@@ -179,7 +182,7 @@ class BinarySearchTree<T> {
   private deleteNode(node: TreeNode<T> | null, val: T): TreeNode<T> | null {
     if (!node) return null;
 
-    const cmp = this.compareFn(val, node.val);
+    const cmp = this.compare(val, node.val);
 
     if (cmp < 0) {
       node.left = this.deleteNode(node.left, val);
@@ -396,8 +399,8 @@ class BinarySearchTree<T> {
   ): boolean {
     if (!node) return true;
 
-    if (min !== null && this.compareFn(node.val, min) <= 0) return false;
-    if (max !== null && this.compareFn(node.val, max) >= 0) return false;
+    if (min !== null && this.compare(node.val, min) <= 0) return false;
+    if (max !== null && this.compare(node.val, max) >= 0) return false;
 
     return (
       this.validateBST(node.left, min, node.val) &&

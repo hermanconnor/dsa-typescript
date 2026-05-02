@@ -33,15 +33,18 @@ class AVLTree<T> {
       compareFn ||
       ((a, b) => {
         if (a === b) return 0;
+
         if (typeof a === 'number' && typeof b === 'number') {
           return a - b;
         }
         if (typeof a === 'string' && typeof b === 'string') {
           return a.localeCompare(b);
         }
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
+        if (a instanceof Date && b instanceof Date) {
+          return a.getTime() - b.getTime();
+        }
+
+        throw new Error('No comparison function provided for custom types.');
       });
   }
 

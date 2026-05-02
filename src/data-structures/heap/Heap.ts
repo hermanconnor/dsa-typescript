@@ -221,19 +221,38 @@ class Heap<T extends object | number | string> {
 }
 
 /**
+ * Convenience fallback comparator used for primitives and Dates.
+ */
+function defaultCompare<T>(a: T, b: T): number {
+  if (a === b) return 0;
+
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a - b;
+  }
+  if (typeof a === 'string' && typeof b === 'string') {
+    return a.localeCompare(b);
+  }
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() - b.getTime();
+  }
+
+  throw new Error(
+    'Cannot compare custom objects without a comparison function.',
+  );
+}
+
+/**
  * Convenience factory for a Min-Heap.
- * Default comparator works for numbers and strings.
  */
 export const createMinHeap = <T extends object | number | string>(
-  compareFn: (a: T, b: T) => number = (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+  compareFn: (a: T, b: T) => number = defaultCompare,
 ) => new Heap<T>(compareFn);
 
 /**
  * Convenience factory for a Max-Heap.
- * Default comparator works for numbers and strings.
  */
 export const createMaxHeap = <T extends object | number | string>(
-  compareFn: (a: T, b: T) => number = (a, b) => (a < b ? 1 : a > b ? -1 : 0),
+  compareFn: (a: T, b: T) => number = (a, b) => -defaultCompare(a, b),
 ) => new Heap<T>(compareFn);
 
 export default Heap;
