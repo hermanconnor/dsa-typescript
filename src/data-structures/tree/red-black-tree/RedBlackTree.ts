@@ -1,33 +1,38 @@
 /**
  * Color enum for Red-Black Tree nodes
  */
-enum Color {
-  RED,
-  BLACK,
-}
+export const Color = {
+  RED: 'RED',
+  BLACK: 'BLACK',
+} as const;
+
+export type Color = (typeof Color)[keyof typeof Color];
 
 /**
  * Node class for Red-Black Tree
  * @template T - The type of data stored in the node
  */
 class Node<T> {
-  data: T;
+  data: T | null;
   color: Color;
-  left: Node<T>;
-  right: Node<T>;
-  parent: Node<T>;
+  left!: Node<T>;
+  right!: Node<T>;
+  parent!: Node<T>;
 
   /**
    * Creates a new Red-Black Tree node
    * @param {T} data - The data to store in the node
    * @param {Node<T>} [nilNode] - The sentinel NIL node reference
    */
-  constructor(data: T, nilNode?: Node<T>) {
+  constructor(data: T | null, nilNode?: Node<T>) {
     this.data = data;
     this.color = Color.RED;
-    this.left = nilNode!;
-    this.right = nilNode!;
-    this.parent = nilNode!;
+
+    if (nilNode) {
+      this.left = nilNode;
+      this.right = nilNode;
+      this.parent = nilNode;
+    }
   }
 }
 
@@ -62,18 +67,25 @@ class RedBlackTree<T> {
         if (typeof a === 'string' && typeof b === 'string') {
           return a.localeCompare(b);
         }
-        if (a < b) return -1;
-        if (a > b) return 1;
-        return 0;
+        if (a instanceof Date && b instanceof Date) {
+          return a.getTime() - b.getTime();
+        }
+
+        throw new Error('No comparison function provided for custom types.');
       });
 
-    this.nil = new Node<T>(null as unknown as T);
+    // Explicitly handle null for the NIL node
+    this.nil = new Node<T>(null);
     this.nil.color = Color.BLACK;
     this.nil.left = this.nil;
     this.nil.right = this.nil;
     this.nil.parent = this.nil;
 
     this.root = this.nil;
+  }
+
+  private isNotNil(node: Node<T>): node is Node<T> & { data: T } {
+    return node !== this.nil;
   }
 
   /**
@@ -86,7 +98,7 @@ class RedBlackTree<T> {
   search(data: T): boolean {
     let current = this.root;
 
-    while (current !== this.nil) {
+    while (this.isNotNil(current)) {
       const cmp = this.compare(data, current.data);
 
       if (cmp === 0) return true;
@@ -109,7 +121,7 @@ class RedBlackTree<T> {
     let parent = this.nil;
     let current = this.root;
 
-    while (current !== this.nil) {
+    while (this.isNotNil(current)) {
       parent = current;
       const cmp = this.compare(data, current.data);
 
@@ -126,7 +138,7 @@ class RedBlackTree<T> {
 
     if (parent === this.nil) {
       this.root = newNode;
-    } else if (this.compare(newNode.data, parent.data) < 0) {
+    } else if (this.compare(newNode.data!, parent.data!) < 0) {
       parent.left = newNode;
     } else {
       parent.right = newNode;
@@ -195,11 +207,15 @@ class RedBlackTree<T> {
   delete(data: T): void {
     let z = this.root;
 
-    while (z !== this.nil && this.compare(data, z.data) !== 0) {
-      z = this.compare(data, z.data) < 0 ? z.left : z.right;
+    while (this.isNotNil(z)) {
+      const cmp = this.compare(data, z.data);
+
+      if (cmp === 0) break;
+      z = cmp < 0 ? z.left : z.right;
     }
 
-    if (z === this.nil) return;
+    // If the data wasn't found, z will be the nil node.
+    if (!this.isNotNil(z)) return;
 
     let y = z;
     let yOriginalColor = y.color;
@@ -319,7 +335,7 @@ class RedBlackTree<T> {
    * @private
    */
   private transplant(u: Node<T>, v: Node<T>): void {
-    if (u.parent === this.nil) {
+    if (!this.isNotNil(u.parent)) {
       this.root = v;
     } else if (u === u.parent.left) {
       u.parent.left = v;
@@ -338,12 +354,11 @@ class RedBlackTree<T> {
    * @space O(1)
    * @private
    */
-  private minimum(node: Node<T>): Node<T> {
-    while (node.left !== this.nil) {
+  private minimum(node: Node<T>): Node<T> & { data: T } {
+    while (this.isNotNil(node.left)) {
       node = node.left;
     }
-
-    return node;
+    return node as Node<T> & { data: T };
   }
 
   /**
@@ -365,9 +380,9 @@ class RedBlackTree<T> {
    * @private
    */
   private inOrderHelper(node: Node<T>, callback: (data: T) => void): void {
-    if (node !== this.nil) {
+    if (this.isNotNil(node)) {
       this.inOrderHelper(node.left, callback);
-      callback(node.data);
+      callback(node.data!);
       this.inOrderHelper(node.right, callback);
     }
   }
@@ -391,7 +406,7 @@ class RedBlackTree<T> {
    * @private
    */
   private getHeightHelper(node: Node<T>): number {
-    if (node === this.nil) return 0;
+    if (!this.isNotNil(node)) return 0;
 
     return (
       1 +
@@ -479,7 +494,7 @@ class RedBlackTree<T> {
    * @private
    */
   private getBlackHeightHelper(node: Node<T>): number {
-    if (node === this.nil) return 1;
+    if (!this.isNotNil(node)) return 1;
 
     const leftBH = this.getBlackHeightHelper(node.left);
 
@@ -513,7 +528,7 @@ class RedBlackTree<T> {
    * @private
    */
   private validate(node: Node<T>): number {
-    if (node === this.nil) return 1;
+    if (!this.isNotNil(node)) return 1;
 
     if (node.color === Color.RED) {
       if (node.left.color === Color.RED || node.right.color === Color.RED) {
