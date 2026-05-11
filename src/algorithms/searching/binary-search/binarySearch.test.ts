@@ -119,6 +119,13 @@ describe('binarySearch', () => {
     expect(result).toBe(2);
   });
 
+  it('should work with strings in alphabetical order', () => {
+    const fruits = ['apple', 'banana', 'cherry', 'date'];
+
+    expect(binarySearch(fruits, 'cherry')).toBe(2);
+    expect(binarySearch(fruits, 'elderberry')).toBe(-1);
+  });
+
   it('should find the target in an array with a large range of numbers', () => {
     const arr = Array.from({ length: 1000000 }, (_, i) => i * 2);
     const target = 1000000;

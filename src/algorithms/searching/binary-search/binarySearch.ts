@@ -11,29 +11,18 @@
  * Time Complexity: O(log n) - The search space is halved in every iteration.
  * Space Complexity: O(1) - Only a few constant-space variables (left, right, mid) are used.
  */
-export function binarySearch(arr: number[], target: number): number {
-  // --- 1. Handle Edge Cases ---
-  // Check if the array is null, undefined, or empty. If so, the target cannot be found.
+export function binarySearch<T>(arr: T[], target: T): number {
   if (!arr || arr.length === 0) return -1;
 
-  // --- 2. Initialize Pointers ---
-  // 'left' pointer starts at the beginning of the array (index 0).
   let left = 0;
-  // 'right' pointer starts at the end of the array (last index).
   let right = arr.length - 1;
 
-  // --- 3. Main Search Loop ---
-  // The loop continues as long as the search space is valid (i.e., 'left' hasn't crossed 'right').
   while (left <= right) {
-    // --- Calculate the Middle Index (Midpoint) ---
-    // This calculation method prevents potential integer overflow compared to (left + right) / 2.
-    // Math.floor ensures we get a valid integer index.
     const mid = Math.floor(left + (right - left) / 2);
 
-    // --- Compare and Adjust Search Space ---
     // Case 1: Target found.
     if (arr[mid] === target) {
-      return mid; // Return the index where the target was found.
+      return mid;
     }
     // Case 2: The middle element is greater than the target.
     else if (arr[mid] > target) {
@@ -49,8 +38,6 @@ export function binarySearch(arr: number[], target: number): number {
     }
   }
 
-  // --- 4. Target Not Found ---
-  // If the loop finishes, it means 'left' has crossed 'right', and the target was not found
-  // within any valid search space.
+  // Loop Finishes: Target Not Found
   return -1;
 }
