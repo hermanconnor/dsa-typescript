@@ -58,7 +58,7 @@ A comprehensive collection of data structures and algorithms implemented in Type
 ### Searching
 
 - [x] Linear Search
-- [x] Binary Search
+- [x] Binary Search / Recursive Binary Search
 - [x] Ternary Search
 - [x] Jump Search
 - [x] Exponential Search
